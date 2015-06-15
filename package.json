@@ -1,0 +1,37 @@
+{
+  "name": "efficient",
+  "version": "1.0.0",
+  "description": "An Efficient and lightweight asynchronous template with a lot of promises!",
+  "author": "Yanick Rochon <yanick.rochon@gmail.com>",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --harmony",
+    "test-cov": "node --harmony node_modules/istanbul-harmony/lib/cli.js cover node_modules/mocha/bin/_mocha",
+    "test-travis": "node --harmony node_modules/istanbul-harmony/lib/cli.js cover node_modules/mocha/bin/_mocha --report lcovonly"
+  },
+  "keywords": [
+    "template",
+    "async",
+    "promise",
+    "view",
+    "render"
+  ],
+  "homepage": "https://github.com/yanickrochon/efficient",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanickrochon/efficient"
+  },
+  "bugs": {
+    "url": "https://github.com/yanickrochon/efficient/issues"
+  },
+  "dependencies": {
+    "entities": "^1.1.1",
+    "error-factory": "0.1.5"
+  },
+  "devDependencies": {
+    "istanbul": "^0.3.15",
+    "mocha": "^2.2.5",
+    "should": "^6.0.3"
+  },
+  "license": "MIT"
+}

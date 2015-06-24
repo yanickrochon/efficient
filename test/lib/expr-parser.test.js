@@ -157,4 +157,43 @@ describe('Test Expression Parser', function () {
   });
 
 
+  it('should fail with malformed context callback', function () {
+    var parser = new ExpressionParser();
+
+    this.timeout(200);
+
+    [
+      'a(1 + 2'
+    ].forEach(function (expr) {
+      +function () { parser.parse(expr); }.should.throw('Missing closing parenthesis');
+    });
+
+  });
+
+
+  it('should parse reserved values', function () {
+    var parser = new ExpressionParser();
+    var tests = {
+      'true': [true],
+      'false': [false],
+      'null': [null],
+      'NaN': [NaN],
+      'undefined': [undefined],
+      'true * false': [true, false, '*']
+    };
+
+    this.timeout(200);
+
+    Object.keys(tests).forEach(function (expr) {
+      var expected = tests[expr];
+      var actual = parser.parse(expr);
+
+      //console.log("*** RESULT", expected, actual);
+
+      expected.should.eql(actual.map(function (token) { return token.value; }));
+    });
+
+  });
+
+
 });

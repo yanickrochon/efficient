@@ -85,8 +85,10 @@ describe('Test Parser', function () {
         ].map(function (str) {
           var segments = Parser.parseString(str);
 
+          //console.log("***", segments);
+
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
-          segments[0].type.should.equal('ctxout');
+          segments[0].type.should.equal('output');
           segments[0].value.should.be.an.Object;
           should(segments[0].value.context).be.undefined;
           segments[0].value.content.should.be.instanceof(Array).and.eql([{
@@ -111,7 +113,7 @@ describe('Test Parser', function () {
           var segments = Parser.parseString(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
-          segments[0].type.should.equal('ctxout');
+          segments[0].type.should.equal('output');
           segments[0].value.should.be.an.Object;
           segments[0].value.context.should.equal('bar');
           segments[0].value.content.should.be.instanceof(Array).and.eql([{
@@ -137,7 +139,7 @@ describe('Test Parser', function () {
           var segments = Parser.parseString(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
-          segments[0].type.should.equal('ctxout');
+          segments[0].type.should.equal('output');
           segments[0].value.should.be.an.Object;
           should(segments[0].value.context).be.undefined;
           segments[0].value.content.should.be.instanceof(Array).and.eql([{
@@ -184,7 +186,7 @@ describe('Test Parser', function () {
           var segments = Parser.parseString(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
-          segments[0].type.should.equal('ctxout');
+          segments[0].type.should.equal('output');
 
 
           segments[0].value.should.be.an.Object;
@@ -239,7 +241,7 @@ describe('Test Parser', function () {
           segments[0].line.should.equal(1);
           segments[0].column.should.equal(1);
 
-          segments[1].type.should.equal('ctxout');
+          segments[1].type.should.equal('output');
           segments[1].value.should.be.an.Object;
           should(segments[1].value.context).be.undefined;
           segments[1].value.content.should.be.instanceof(Array).and.eql([{
@@ -260,67 +262,85 @@ describe('Test Parser', function () {
 
     });
 
-    describe('Test multiple', function () {
 
-      it('should parse');
+    describe('Test conditional segments', function () {
 
-      it('should parse with context');
+      it('should parse `if`', function () {
+        var str = '{?{true}}{?{/}}';
+        var segments = Parser.parseString(str);
 
-      it('should parse with modifiers');
+        //console.log(JSON.stringify(segments, null, 2));
 
-      it('should parse with context and modifiers');
+        segments.should.be.instanceof(Array).and.have.lengthOf(2);
 
-      it('should parse multiple output segments');
+        segments[0].type.should.equal('segment');
+        segments[0].value.should.be.instanceof(Object).and.eql({
+          type: 'conditional',
+          content: [ {
+            type: 'reserved',
+            value: true,
+            text: 'true',
+            pos: 0,
+            line: 1,
+            column: 1
+          } ],
+        });
+
+        segments[1].type.should.equal('segment');
+        segments[1].value.should.be.instanceof(Object).and.eql({
+          type: 'conditional',
+          closing: true
+        });
+
+      });
+
+
+      it('should parse `if... else`', function () {
+        var str = '{?{true}}{?{~}}{?{/}}';
+        var segments = Parser.parseString(str);
+
+        //console.log(JSON.stringify(segments, null, 2));
+
+        segments.should.be.instanceof(Array).and.have.lengthOf(3);
+
+        segments[0].type.should.equal('segment');
+        segments[0].value.should.be.instanceof(Object).and.eql({
+          type: 'conditional',
+          content: [ {
+            type: 'reserved',
+            value: true,
+            text: 'true',
+            pos: 0,
+            line: 1,
+            column: 1
+          } ],
+        });
+
+        segments[1].type.should.equal('segment');
+        segments[1].value.should.be.instanceof(Object).and.eql({
+          type: 'conditional',
+          next: true
+        });
+
+        segments[2].type.should.equal('segment');
+        segments[2].value.should.be.instanceof(Object).and.eql({
+          type: 'conditional',
+          closing: true
+        });
+
+      });
 
     });
-
-
-    it('should fail with invalid context');
-
-    it('should fail with invalid content');
-
-    it('should fail with invalid modifiers');
-
-  });
-
-
-
-
-
-
-
-
-
-
-
-  describe('Test type segment', function () {
-
-    it('should parse a type segment');
-
-    it('should parse a self closing type segment');
-
-    it('should fail with unknown type segment');
-
-  });
-
-
-  describe('Test content', function () {
-
-    it('should parse a valid content function body');
-
-    it('should fail with invalid token `===`');
-
-    it('should fail with invalid tokens `[` or `]`');
 
   });
 
 
   it('should parse simple string', function () {
 
-    //var str = 'Test {?{(a & 123) && (!b.c | true) = ..foo + "foo"}}{{foo}}{?{/}}!!';
-    //var name = 'test.str';
+    var str = 'Test {?{(a & 123) && (!b.c | true) = ..foo + "foo"}}{{foo}}{?{/}}!!';
+    var name = 'test.str';
 
-    //var segments = Parser.parseString(str, name);
+    var segments = Parser.parseString(str, name);
 
     //console.log("*** PARSED", segments);
 

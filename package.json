@@ -27,7 +27,7 @@
   "dependencies": {
     "entities": "^1.1.1",
     "error-factory": "0.1.5",
-    "tokenizr": "^0.9.2"
+    "tokenizr": "^0.9.3"
   },
   "devDependencies": {
     "istanbul": "^0.3.15",

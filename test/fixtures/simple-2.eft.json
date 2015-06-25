@@ -1,0 +1,152 @@
+[
+  {
+    "type": "text",
+    "value": "Hello ",
+    "text": "Hello ",
+    "pos": 0,
+    "line": 1,
+    "column": 1
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"name\").data",
+          "text": "name",
+          "pos": 0,
+          "line": 1,
+          "column": 1
+        }
+      ]
+    },
+    "text": "{{name}}",
+    "pos": 6,
+    "line": 1,
+    "column": 7
+  },
+  {
+    "type": "text",
+    "value": ", you have ",
+    "text": ", you have ",
+    "pos": 14,
+    "line": 1,
+    "column": 15
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"messages.length\").data",
+          "text": "messages.length",
+          "pos": 0,
+          "line": 1,
+          "column": 1
+        }
+      ]
+    },
+    "text": "{*{messages.length}}",
+    "pos": 25,
+    "line": 1,
+    "column": 26
+  },
+  {
+    "type": "text",
+    "value": "no",
+    "text": "no",
+    "pos": 45,
+    "line": 1,
+    "column": 46
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "next": true
+    },
+    "text": "{*{~}}",
+    "pos": 47,
+    "line": 1,
+    "column": 48
+  },
+  {
+    "type": "text",
+    "value": "one",
+    "text": "one",
+    "pos": 53,
+    "line": 1,
+    "column": 54
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "next": true
+    },
+    "text": "{*{~}}",
+    "pos": 56,
+    "line": 1,
+    "column": 57
+  },
+  {
+    "type": "text",
+    "value": "two",
+    "text": "two",
+    "pos": 62,
+    "line": 1,
+    "column": 63
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "next": true
+    },
+    "text": "{*{~}}",
+    "pos": 65,
+    "line": 1,
+    "column": 66
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"messages.length\").data",
+          "text": "messages.length",
+          "pos": 0,
+          "line": 1,
+          "column": 1
+        }
+      ]
+    },
+    "text": "{{messages.length}}",
+    "pos": 71,
+    "line": 1,
+    "column": 72
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "closing": true
+    },
+    "text": "{*{/}}",
+    "pos": 90,
+    "line": 1,
+    "column": 91
+  },
+  {
+    "type": "text",
+    "value": " messages",
+    "text": " messages",
+    "pos": 96,
+    "line": 1,
+    "column": 97
+  }
+]

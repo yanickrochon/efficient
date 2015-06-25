@@ -1,7 +1,7 @@
 # efficient
 
 [![Build Status](https://travis-ci.org/yanickrochon/efficient.svg)](https://travis-ci.org/yanickrochon/efficient)
-[![Coverage Status](https://coveralls.io/repos/yanickrochon/efficient/badge.png)](https://coveralls.io/r/yanickrochon/efficient)
+[![Coverage Status](https://coveralls.io/repos/yanickrochon/efficient/badge.svg?branch=master)](https://coveralls.io/r/yanickrochon/efficient?branch=master)
 
 [![NPM](https://nodei.co/npm/efficient.png?compact=true)](https://nodei.co/npm/efficient/)
 

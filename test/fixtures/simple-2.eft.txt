@@ -1,1 +1,1 @@
-Hello {{name}}, you have {*{messages.length}}no{*{~}}one{*{~}}two{*{~}}{{messages.length}}{*{/}} messages
+Hello {{name}}, you have {*{messages:length}}no{*{~}}one{*{~}}two{*{~}}{{messages:length}}{*{/}} messages

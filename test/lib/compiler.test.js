@@ -66,7 +66,7 @@ describe('Test compiler', function () {
       var fn = Compiler.compile(parsed);
 
 
-      console.log("*** COMPILED", fn && fn.toString());
+      //console.log("*** COMPILED", fn && fn.toString());
 
     });
 

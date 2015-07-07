@@ -108,7 +108,7 @@ describe('Test Parser', function () {
 
       it('should parse with context', function () {
         [
-          '{{bar:foo}}'
+          '{{bar\\foo}}'
         ].map(function (str) {
           var segments = Parser.parseString(str);
 
@@ -181,7 +181,7 @@ describe('Test Parser', function () {
 
       it('should parse with context and modifiers', function () {
         [
-          '{{bar : foo}a|b()|c("Hello")|d(bar)}'
+          '{{bar \\ foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
           var segments = Parser.parseString(str);
 

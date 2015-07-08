@@ -3,6 +3,7 @@
 describe('Test context', function () {
 
   var Context = require('../../lib/context');
+  var should = require('should');
 
   var personsContext = {
     'persons': [{
@@ -17,11 +18,14 @@ describe('Test context', function () {
       }
     }],
     'tags': [
-      'Poor', 'Average', 'Good'
+      'Poor', 'Average', undefined, null, 'Good'
     ],
     'locales': {
       'en': 'English'
-    }
+    },
+    'empty': [
+      null, undefined
+    ]
   };
 
 
@@ -48,10 +52,13 @@ describe('Test context', function () {
   it('should be invalid context paths', function () {
     [
       '~.foo',
+      '~~foo',
       '~..foo',
       '.~foo',
       '..~foo',
       '.foo~',
+      'foo..bar',
+      'foo....bar',
       'foo:bar:buz',
       'foo.bar:buz:meh',
       'foo:bar.buz:meh',
@@ -64,7 +71,7 @@ describe('Test context', function () {
 
 
   it('should create a context', function () {
-    var ctx = new Context(null, 'foo');
+    var ctx = new Context('foo');
 
     ctx.should.be.instanceof(Context);
     ctx.data.should.equal('foo');
@@ -72,7 +79,7 @@ describe('Test context', function () {
   });
 
   it('should push new context', function () {
-    var ctx = new Context(null, 'foo');
+    var ctx = new Context('foo');
     var ctxPushed = ctx.push('bar');
 
     ctxPushed.should.be.instanceof(Context);
@@ -82,7 +89,7 @@ describe('Test context', function () {
   });
 
   it('should pop parent context', function () {
-    var ctx = new Context(null, 'foo');
+    var ctx = new Context('foo');
     var ctxPushed = ctx.push('bar');
     var ctxPop = ctxPushed.pop();
 
@@ -104,7 +111,7 @@ describe('Test context', function () {
   });
 
   it('should get context from path', function () {
-    var ctx = new Context(null, personsContext);
+    var ctx = new Context(personsContext);
 
     ctx.getContext('.').should.equal(ctx);
     ctx.getContext('..').should.equal(ctx);
@@ -117,15 +124,18 @@ describe('Test context', function () {
     ctx.getContext('persons').getContext('.').data.should.be.an.Array;
     ctx.getContext('persons').getContext('..').should.equal(ctx);
 
-    ctx.getContext('persons.name.first...').should.equal(ctx);
-
     ctx.getContext('tags').data.should.be.instanceof(Array).and.equal(personsContext.tags);
     ctx.getContext('locales.en').data.should.equal('English');
-    ctx.getContext('locales.en........locales.en').data.should.equal('English');
+
+    ctx.getContext('persons.name.first').getContext('~').data.should.equal(personsContext);
+    ctx.getContext('persons.name.first').getContext('~persons.name.first').data[0].should.equal('John');
+
+    ctx.getContext('tags.length').data.should.be.instanceof(Array).and.eql([4, 7, 4]);
+    should(ctx.getContext('empty.foo').data).equal(null);
   });
 
   it('should return property context for empty path values', function () {
-    var ctx = new Context(null, { index: 0 });
+    var ctx = new Context({ index: 0 });
 
     //console.log(JSON.stringify(ctx.getContext('index.foo.bar'), null, 2));
 
@@ -134,7 +144,7 @@ describe('Test context', function () {
   });
 
   it('should branch context', function () {
-    var ctx = new Context(null, 'foo');
+    var ctx = new Context('foo');
     var branch1 = ctx.push('bar1').push('buz');
     var branch2 = ctx.push('bar2').push('meh');
 
@@ -142,6 +152,25 @@ describe('Test context', function () {
 
   });
 
+  it('should check if has data', function () {
+    new Context().hasData.should.be.false;
+
+    [
+      undefined, null, [], {}
+    ].forEach(function (data) {
+      new Context(data).hasData.should.be.false;
+    });
+
+    [
+      -1, 0, 1, NaN, Infinity,
+      true, false,
+      '', 'foo',
+      { foo: 'bar' }, ['foo']
+    ].forEach(function (data) {
+      new Context(data).hasData.should.be.true;
+    });
+
+  });
 
 
 });

@@ -63,10 +63,11 @@ describe('Test compiler', function () {
     it('should compile', function () {
       var parsed = require('../fixtures/simple-2.eft');
 
+      console.log("**** BEGIN *******************");
+
       var fn = Compiler.compile(parsed);
 
-
-      //console.log("*** COMPILED", fn && fn.toString());
+      console.log("*** TEMPLATE", fn && fn.toString());
 
     });
 

@@ -7,22 +7,68 @@ describe('Test compiler', function () {
   function execTemplate(tpl, data) {
     var Context = require('../../lib/context');
     var ctx = new Context(data);
-    var buffer = '';
+    var output = {
+      raw: [],
+      buffer: ''
+    };
     var print = function print(str) {
-      buffer += str;
+      output.raw.push(str);
+      output.buffer += str;
     };
 
     return tpl(ctx,print,undefined).then(function () {
-      return buffer;
+      return output;
     });
   }
 
 
   describe('Text-only templates', function () {
 
-    it('should compile single text segment');
+    it('should compile single text segment', function (done) {
+      var parsed = [
+        {
+          "type": "text",
+          "value": "Hello World",
+          "text": "Hello World"
+        }
+      ];
+      var fn = Compiler.compile(parsed);
 
-    it('should optimize consecutive text segments');
+      execTemplate(fn).then(function (output) {
+        output.buffer.should.equal('Hello World');
+      }).then(done).catch(done);
+    });
+
+    it('should optimize consecutive text segments', function (done) {
+      var parsed = [
+        {
+          "type": "text",
+          "value": "Hello",
+          "text": "Hello"
+        },
+        {
+          "type": "text",
+          "value": " ",
+          "text": " "
+        },
+        {
+          "type": "text",
+          "value": "World",
+          "text": "World"
+        },
+        {
+          "type": "text",
+          "value": "!",
+          "text": "!"
+        }
+      ];
+      var fn = Compiler.compile(parsed);
+
+      execTemplate(fn).then(function (output) {
+        output.raw.length.should.equal(1);
+        output.buffer.should.equal('Hello World!');
+      }).then(done).catch(done);
+    });
 
   });
 
@@ -65,7 +111,7 @@ describe('Test compiler', function () {
 
         return execTemplate(fn, data);
       })).then(function (res) {
-        res.should.eql(values);
+        res.map(function (output) { return output.buffer; }).should.eql(values);
       }).then(done).catch(done);
     });
 
@@ -81,7 +127,7 @@ describe('Test compiler', function () {
 
         return execTemplate(fn, data);
       })).then(function (res) {
-        res.should.eql(values);
+        res.map(function (output) { return output.buffer; }).should.eql(values);
       }).then(done).catch(done);
     });
 
@@ -98,7 +144,9 @@ describe('Test compiler', function () {
 
         return execTemplate(fn, data);
       })).then(function (res) {
-        res.should.eql(values.map(function (val) {
+        res.map(function (output) {
+          return output.buffer;
+        }).should.eql(values.map(function (val) {
           return 'pre' + val + 'post';
         }));
       }).then(done).catch(done);
@@ -122,20 +170,12 @@ describe('Test compiler', function () {
       var parsed = require('../fixtures/simple-2.eft');
       var data = {
         name: 'John',
-        messages: [1,2]
+        messages: ['message A', 'message B']
       };
-
-      //console.log("**** BEGIN *******************");
-
       var fn = Compiler.compile(parsed);
 
-      //console.log("*** TEMPLATE", fn && fn.toString());
-
-      execTemplate(fn, data).then(function (result) {
-
-        result.should.equal('Hello John, you have two messages');
-
-        //console.log("OUTPUT:", result);
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('Hello John, you have two messages');
       }).then(done).catch(done);
 
     });

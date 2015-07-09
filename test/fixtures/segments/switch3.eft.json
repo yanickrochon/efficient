@@ -1,0 +1,47 @@
+[
+  {
+    "type": "text",
+    "value": "pre",
+    "text": "pre"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"index\").data",
+          "text": "index"
+        }
+      ]
+    },
+    "text": "{*{index}}"
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"value\").data",
+          "text": "value"
+        }
+      ]
+    },
+    "text": "{{value}}"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "switch",
+      "closing": true
+    },
+    "text": "{*{/}}"
+  },
+  {
+    "type": "text",
+    "value": "post",
+    "text": "post"
+  }
+]

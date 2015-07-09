@@ -1,0 +1,29 @@
+[
+  {
+    "type": "segment",
+    "value": {
+      "type": "conditional",
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"value\").data",
+          "text": "value"
+        }
+      ]
+    },
+    "text": "{?{value}}"
+  },
+  {
+    "type": "text",
+    "value": "Hello World",
+    "text": "Hello World"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "conditional",
+      "closing": true
+    },
+    "text": "{?{/}}"
+  }
+]

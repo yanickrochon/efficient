@@ -114,15 +114,15 @@ describe('Test context', function () {
     var ctx = new Context(personsContext);
 
     ctx.getContext('.').should.equal(ctx);
-    ctx.getContext('..').should.equal(ctx);
-    ctx.getContext('......').should.equal(ctx);
+    ctx.getContext('..').data.should.equal(ctx.data);
+    ctx.getContext('......').data.should.equal(ctx.data);
 
     ctx.getContext('.persons.name').data.should.be.instanceof(Array).and.have.lengthOf(2);
 
     ctx.getContext('persons.name.first').data[0].should.equal('John');
 
     ctx.getContext('persons').getContext('.').data.should.be.an.Array;
-    ctx.getContext('persons').getContext('..').should.equal(ctx);
+    ctx.getContext('persons').getContext('..').data.should.equal(ctx.data);
 
     ctx.getContext('tags').data.should.be.instanceof(Array).and.equal(personsContext.tags);
     ctx.getContext('locales.en').data.should.equal('English');
@@ -143,12 +143,21 @@ describe('Test context', function () {
     ctx.getContext('index.foo.bar').should.have.ownProperty('data').and.be.undefined; //.eql(null);
   });
 
+  it('should return previous context', function () {
+    var ctx = new Context(personsContext);
+
+    ctx.getContext('persons.name.first').getContext('~').getContext('..').data[0].should.equal('John');
+
+  });
+
   it('should branch context', function () {
     var ctx = new Context('foo');
-    var branch1 = ctx.push('bar1').push('buz');
-    var branch2 = ctx.push('bar2').push('meh');
+    // is this really necessary??? What's the use case?
+    //var branch1 = ctx.push('bar1').push('buz');
+    //var branch2 = ctx.push('bar2').push('meh');
 
-    ctx.push('bar').push('buz').getContext('..').data.should.equal('foo');
+    ctx.push('bar').push('buz').getContext('..').data.should.equal('bar');
+    ctx.push('bar').push('buz').getContext('...').data.should.equal('foo');
 
   });
 

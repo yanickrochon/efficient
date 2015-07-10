@@ -1,0 +1,17 @@
+[
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"custom\").data",
+          "text": "custom"
+        }
+      ],
+      "closing": true
+    },
+    "text": "{&{custom/}}"
+  }
+]

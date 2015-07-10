@@ -12,12 +12,72 @@ describe('Test compiler', function () {
     var ctx = new Context(data);
     var output = {
       raw: [],
-      buffer: ''
+      buffer: '',
+      named: {}
     };
     var engine = {
       out: function out(str) {
         output.raw.push(str);
         output.buffer += str;
+      },
+      iterator: function (ctx, values, cb) {
+        var arr;
+
+        if (values instanceof Array) {
+          arr = values.map(function (val, index) {
+            return {
+              index: index,
+              value: val,
+              key: val
+            };
+          });
+        } else if (typeof values === 'number') {
+          if (values > 0) {
+            arr = Array.apply(null, Array(values)).map(function (undefined, index) {
+              return {
+                index: index,
+                value: index,
+                key: index
+              };
+            });
+          } else {
+            arr = [];
+          }
+        } else if (values !== null && typeof values === 'object') {
+          arr = Object.keys(values).map(function (key, index) {
+            return {
+              index: index,
+              value: values[key],
+              key: key
+            };
+          })
+        } else {
+          arr = [];
+        }
+
+        return arr.reduce(function (p, value) {
+          return p.then(function () {
+            cb(ctx.push(value));
+          });
+        }, Promise.resolve(ctx));
+      },
+      setSegment: function (name, fn) {
+        output.named[name] = fn;
+      },
+      getSegment: function (name) {
+        return output.named[name] || function (c) { return c; };
+      },
+      callCustom: function (ctx, path, segments) {
+        var custom = ctx.getContext(String(path)).data;
+        var promise = Promise.resolve(ctx);
+
+        if (typeof custom === 'function') {
+          promise = promise.then(custom(ctx, segments));
+        }
+
+        return promise.then(function () {
+          return ctx;
+        });
       }
     };
 
@@ -27,7 +87,7 @@ describe('Test compiler', function () {
   }
 
 
-  describe('Text-only templates', function () {
+  describe('Text-only Templates', function () {
 
     it('should compile single text segment', function (done) {
       var parsed = [
@@ -78,7 +138,7 @@ describe('Test compiler', function () {
   });
 
 
-  describe('Output segments', function () {
+  describe('Output Segments', function () {
 
     it('should compile single segment', function (done) {
       var parsed = [
@@ -236,7 +296,7 @@ describe('Test compiler', function () {
   });
 
 
-  describe('Conditional segments', function () {
+  describe('Conditional Segments', function () {
 
     it('should compile single segment', function (done) {
       var parsed = require('../fixtures/segments/conditional1.eft');
@@ -321,7 +381,7 @@ describe('Test compiler', function () {
   });
 
 
-  describe('Switch segments', function () {
+  describe('Switch Segments', function () {
 
     it('should compile single segment', function (done) {
       var parsed = require('../fixtures/segments/switch1.eft');
@@ -381,22 +441,103 @@ describe('Test compiler', function () {
   });
 
 
-  describe('Iterator segments', function () {
+  describe('Iterator Segments', function () {
 
     it('should iterate arrays', function (done) {
       var parsed = require('../fixtures/segments/iterator1.eft');
       var fn = Compiler.compile(parsed);
+      var data = {
+        values: ['a', 'b', 'c']
+      };
 
-      console.log(fn.toString());
-
-      done();
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('0aa;1bb;2cc;');
+        output.raw.should.have.lengthOf(data.values.length);
+      }).then(done).catch(done);
     });
 
-    it('should iterate objects');
+    it('should iterate objects', function (done) {
+      var parsed = require('../fixtures/segments/iterator1.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        values: {
+          'a': 'A',
+          'b': 'B',
+          'c': 'C'
+        }
+      };
 
-    it('should iterate counter');
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('0Aa;1Bb;2Cc;');
+        output.raw.should.have.lengthOf(Object.keys(data.values).length);
+      }).then(done).catch(done);
+    });
 
-    it('should integrate with other segments');
+    it('should iterate counter', function (done) {
+      var parsed = require('../fixtures/segments/iterator1.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        values: 3
+      };
+
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('000;111;222;');
+        output.raw.should.have.lengthOf(data.values);
+      }).then(done).catch(done);
+    });
+
+  });
+
+
+  describe('Named Segments', function () {
+
+    it('should set named segments', function (done) {
+      var parsed = require('../fixtures/segments/named1.eft');
+      var fn = Compiler.compile(parsed);
+
+      execTemplate(fn).then(function (output) {
+        output.buffer.should.be.empty;
+        output.raw.should.be.empty;
+        output.named.should.have.ownProperty('foo').be.a.Function;
+      }).then(done).catch(done);
+    });
+
+    it('should render named segments', function (done) {
+      var parsed = require('../fixtures/segments/named2.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        'user': 'John'
+      };
+
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('Hello John');
+        output.raw.should.have.lengthOf(1);
+        output.named.should.have.ownProperty('foo').be.a.Function;
+      }).then(done).catch(done);
+    });
+
+  });
+
+
+  describe('Custom Segments', function () {
+
+    it('should parse custom segments', function (done) {
+      var parsed = require('../fixtures/segments/custom1.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        'callback': function () {
+          callbackCalled = true;  
+        },
+        'custom': 'callback'
+      };
+      var callbackCalled = false;
+
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.be.empty;
+        callbackCalled.should.be.true;
+      }).then(done).catch(done);
+
+    });
 
   });
 

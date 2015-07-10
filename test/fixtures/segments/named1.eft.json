@@ -1,0 +1,24 @@
+[
+  {
+    "type": "segment",
+    "value": {
+      "type": "namedDeclare",
+      "content": [
+        {
+          "type": "string",
+          "value": "foo",
+          "text": "foo"
+        }
+      ]
+    },
+    "text": "{#{\"foo\"}}"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "namedDeclare",
+      "closing": true
+    },
+    "text": "{#{/}}"
+  }
+]

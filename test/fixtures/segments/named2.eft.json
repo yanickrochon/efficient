@@ -1,0 +1,57 @@
+[
+  {
+    "type": "segment",
+    "value": {
+      "type": "namedDeclare",
+      "content": [
+        {
+          "type": "string",
+          "value": "foo",
+          "text": "foo"
+        }
+      ]
+    },
+    "text": "{#{\"foo\"}}"
+  },
+  {
+    "type": "text",
+    "value": "Hello ",
+    "text": "Hello "
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"user\").data",
+          "text": "user"
+        }
+      ]
+    },
+    "text": "{{user}}"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "namedDeclare",
+      "closing": true
+    },
+    "text": "{#{/}}"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "namedRender",
+      "content": [
+        {
+          "type": "string",
+          "value": "foo",
+          "text": "foo"
+        }
+      ],
+      "closing": true
+    },
+    "text": "{+{\"foo\"}}"
+  }
+]

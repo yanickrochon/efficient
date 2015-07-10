@@ -6,12 +6,25 @@
       "content": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"value\").data",
+          "value": "ctx.getContext(\"values\").data",
           "text": "value"
         }
       ]
     },
     "text": "{@{value}}"
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"index\").data",
+          "text": "index"
+        }
+      ]
+    },
+    "text": "{{index}}"
   },
   {
     "type": "output",
@@ -25,6 +38,24 @@
       ]
     },
     "text": "{{value}}"
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"key\").data",
+          "text": "key"
+        }
+      ]
+    },
+    "text": "{{key}}"
+  },
+  {
+    "type": "text",
+    "value": ";",
+    "text": ";"
   },
   {
     "type": "segment",

@@ -188,9 +188,50 @@ describe('Test compiler', function () {
       }).then(done).catch(done);
     });
 
-    it('should optimize');
+    it('should optimize', function (done) {
+      var parsed = [
+        {
+          "type": "text",
+          "value": "Hello",
+          "text": "Hello"
+        },
+        {
+          "type": "text",
+          "value": " ",
+          "text": " "
+        },
+        {
+          "type": "output",
+          "value": {
+            "context": "foo",
+            "content": [
+              {
+                "type": "context",
+                "value": "ctx.getContext(\"bar\").data",
+                "text": "foo"
+              }
+            ]
+          },
+          "text": "{{foo\\ bar}}"
+        },
+        {
+          "type": "text",
+          "value": "!",
+          "text": "!"
+        }
+      ];
+      var data = {
+        foo: {
+          bar: 'John'
+        }
+      };
+      var fn = Compiler.compile(parsed);
 
-    it('should integrate with other segments');
+      execTemplate(fn, data).then(function (output) {
+        output.raw.length.should.equal(1);
+        output.buffer.should.equal('Hello John!');
+      }).then(done).catch(done);
+    });
 
   });
 
@@ -217,7 +258,7 @@ describe('Test compiler', function () {
         })).then(function (res) {
           res.map(function (output) { return output.buffer; }).should.eql(values.map(function () {
             return truthy ? 'Hello World': '';
-          }));  
+          }));
         });
       })).then(function () { done(); }).catch(done);
     });
@@ -242,7 +283,7 @@ describe('Test compiler', function () {
         })).then(function (res) {
           res.map(function (output) { return output.buffer; }).should.eql(values.map(function () {
             return truthy ? 'Hello World': 'Good Bye';
-          }));  
+          }));
         });
       })).then(function () { done(); }).catch(done);
     });
@@ -273,7 +314,7 @@ describe('Test compiler', function () {
         })).then(function (res) {
           res.map(function (output) { return output.buffer; }).should.eql(values.map(function () {
             return PREVAL + (truthy ? 'Hello World': 'Good Bye') + POSTVAL;
-          }));  
+          }));
         });
       })).then(function () { done(); }).catch(done);
     });
@@ -342,7 +383,18 @@ describe('Test compiler', function () {
 
   describe('Iterator segments', function () {
 
-    it('should compile single segment');
+    it('should iterate arrays', function (done) {
+      var parsed = require('../fixtures/segments/iterator1.eft');
+      var fn = Compiler.compile(parsed);
+
+      console.log(fn.toString());
+
+      done();
+    });
+
+    it('should iterate objects');
+
+    it('should iterate counter');
 
     it('should integrate with other segments');
 

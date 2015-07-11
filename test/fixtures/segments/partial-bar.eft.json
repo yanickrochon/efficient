@@ -1,0 +1,25 @@
+[
+  {
+    "type": "text",
+    "value": "Bye ",
+    "text": "Bye "
+  },
+  {
+    "type": "output",
+    "value": {
+      "content": [
+        {
+          "type": "context",
+          "value": "ctx.getContext(\"name\").data",
+          "text": "name"
+        }
+      ]
+    },
+    "text": "{{name}}"
+  },
+  {
+    "type": "text",
+    "value": "!",
+    "text": "! "
+  }
+]

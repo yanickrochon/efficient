@@ -1,0 +1,81 @@
+[
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "content": [
+        {
+          "type": "string",
+          "value": "callback",
+          "text": "callback"
+        }
+      ]
+    },
+    "text": "{&{\"custom\"/}}"
+  },
+  {
+    "type": "text",
+    "value": "Seg1",
+    "text": "Seg1"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "next": true
+    },
+    "text": "{&{~}}"
+  },
+  {
+    "type": "text",
+    "value": "Seg2",
+    "text": "Seg2"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "next": true
+    },
+    "text": "{&{~}}"
+  },
+  {
+    "type": "text",
+    "value": "Seg3",
+    "text": "Seg3"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "next": true
+    },
+    "text": "{&{~}}"
+  },
+  {
+    "type": "text",
+    "value": "Seg4",
+    "text": "Seg4"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "next": true
+    },
+    "text": "{&{~}}"
+  },
+  {
+    "type": "text",
+    "value": "Seg5",
+    "text": "Seg5"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "custom",
+      "closing": true
+    },
+    "text": "{&{/}}"
+  }
+]

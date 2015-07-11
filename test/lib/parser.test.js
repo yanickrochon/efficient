@@ -159,7 +159,7 @@ describe('Test Parser', function () {
                 pos: 0,
                 text: '"Hello"',
                 type: 'string',
-                value: '"Hello"'
+                value: 'Hello'
               } ]
             },
             { action: 'd', arguments: [ {
@@ -208,7 +208,7 @@ describe('Test Parser', function () {
                 pos: 0,
                 text: '"Hello"',
                 type: 'string',
-                value: '"Hello"'
+                value: 'Hello'
               } ]
             },
             { action: 'd', arguments: [ {

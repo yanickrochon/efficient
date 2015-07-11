@@ -1,0 +1,44 @@
+[
+  {
+    "type": "text",
+    "value": "Start:",
+    "text": "Start:"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "partial",
+      "context": "foo",
+      "content": [
+        {
+          "type": "string",
+          "value": "foo",
+          "text": "foo"
+        }
+      ],
+      "closing": true
+    },
+    "text": "{>{foo\\ \"foo\"/}}"
+  },
+  {
+    "type": "segment",
+    "value": {
+      "type": "partial",
+      "context": "bar",
+      "content": [
+        {
+          "type": "string",
+          "value": "bar",
+          "text": "bar"
+        }
+      ],
+      "closing": true
+    },
+    "text": "{>{bar\\ \"bar\"/}}"
+  },
+  {
+    "type": "text",
+    "value": ":End",
+    "text": ":End"
+  }
+]

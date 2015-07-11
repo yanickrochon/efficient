@@ -7,7 +7,7 @@ describe('Test compiler', function () {
   Compiler.BEAUTIFY = true;   // DEBUG
 
 
-  function execTemplate(tpl, data) {
+  function execTemplate(tpl, data, partialMap) {
     var Context = require('../../lib/context');
     var ctx = new Context(data);
     var output = {
@@ -20,7 +20,7 @@ describe('Test compiler', function () {
         output.raw.push(str);
         output.buffer += str;
       },
-      iterator: function (ctx, values, cb) {
+      iterator: function (values, ctx, cb) {
         var arr;
 
         if (values instanceof Array) {
@@ -67,7 +67,7 @@ describe('Test compiler', function () {
       getSegment: function (name) {
         return output.named[name] || function (c) { return c; };
       },
-      callCustom: function (ctx, path, segments) {
+      callCustom: function (path, ctx, segments) {
         var custom = ctx.getContext(String(path)).data;
         var promise = Promise.resolve(ctx);
 
@@ -78,13 +78,56 @@ describe('Test compiler', function () {
         return promise.then(function () {
           return ctx;
         });
+      },
+      render: function (name, ctx) {
+        if (partialMap && partialMap[name]) {
+          return partialMap[name](engine, ctx);
+        } else {
+          return Promise.resolve(ctx);
+        }
       }
     };
 
-    return tpl(engine,ctx).then(function () {
+    return tpl(engine, ctx).then(function () {
       return output;
     });
   }
+
+
+  describe('Test Beautify', function () {
+    var state;
+
+    before(function () {
+      state = Compiler.BEAUTIFY;
+    });
+
+    after(function () {
+      Compiler.BEAUTIFY = state;
+    });
+
+    it('should beautify', function () {
+      var parsed = [
+        {
+          "type": "text",
+          "value": "Hello World",
+          "text": "Hello World"
+        }
+      ];
+      var fn1;
+      var fn2;
+
+      Compiler.BEAUTIFY = false;
+      Compiler.BEAUTIFY.should.be.false;
+      fn1 = Compiler.compile(parsed);
+      Compiler.BEAUTIFY = true;
+      Compiler.BEAUTIFY.should.be.true;
+      fn2 = Compiler.compile(parsed);
+
+      fn2.toString().length.should.be.greaterThan(fn1.toString().length);
+
+    });
+
+  });
 
 
   describe('Text-only Templates', function () {
@@ -526,7 +569,7 @@ describe('Test compiler', function () {
       var fn = Compiler.compile(parsed);
       var data = {
         'callback': function () {
-          callbackCalled = true;  
+          callbackCalled = true;
         },
         'custom': 'callback'
       };
@@ -536,10 +579,70 @@ describe('Test compiler', function () {
         output.buffer.should.be.empty;
         callbackCalled.should.be.true;
       }).then(done).catch(done);
+    });
 
+    it('should render single segments', function (done) {
+      var parsed = require('../fixtures/segments/custom2.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        'callback': function (ctx, segments) {
+          return segments[2](ctx);
+        }
+      };
+
+      execTemplate(fn, data).then(function (output) {
+        output.raw.should.have.lengthOf(1);
+        output.buffer.should.equal('Seg3');
+      }).then(done).catch(done);
+    });
+
+    it('should render all segments', function (done) {
+      var parsed = require('../fixtures/segments/custom2.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        'callback': function (ctx, segments) {
+          return segments.reduce(function (p, seg) {
+            return p.then(seg(ctx));
+          }, Promise.resolve(ctx));
+        }
+      };
+
+      execTemplate(fn, data).then(function (output) {
+        output.raw.should.have.lengthOf(5);
+        output.buffer.should.equal('Seg1Seg2Seg3Seg4Seg5');
+      }).then(done).catch(done);
     });
 
   });
+
+
+
+  describe('Partial Segments', function () {
+
+    it('should render partial', function (done) {
+      var parsed = require('../fixtures/segments/partial1.eft');
+      var partialMap = {
+        'foo': Compiler.compile(require('../fixtures/segments/partial-foo.eft')),
+        'bar': Compiler.compile(require('../fixtures/segments/partial-bar.eft'))
+      };
+      var fn = Compiler.compile(parsed);
+      var data = {
+        foo: {
+          name: 'Foo'
+        },
+        bar: {
+          name: 'Bar'
+        }
+      }
+
+      execTemplate(fn, data, partialMap).then(function (output) {
+        output.buffer.should.equal('Start:Hello Foo!Bye Bar!:End');
+        output.raw.should.have.lengthOf(4);
+      }).then(done).catch(done);
+    });
+
+  });
+
 
 
   describe('Parsed template', function () {
@@ -559,6 +662,28 @@ describe('Test compiler', function () {
     });
 
   });
+
+
+  describe('Parser Integration', function () {
+
+    var Parser = require('../../lib/parser');
+
+    it('should compile parsed template', function (done) {
+      var template = 'Hello {{name}}!';
+      var parsed = Parser.parseString(template);
+      var fn = Compiler.compile(parsed);
+      var data = {
+        name: 'John'
+      };
+
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('Hello John!');
+        output.raw.should.have.lengthOf(1);
+      }).then(done).catch(done);
+    });
+
+  });
+
 
 
 });

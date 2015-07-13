@@ -196,4 +196,16 @@ describe('Test Expression Parser', function () {
   });
 
 
+  it('should throw syntax error', function () {
+    var parser = new ExpressionParser();
+
+    [
+      '{{foo 3}}'
+    ].forEach(function (expr) {
+      (function () { parser.parse(expr); }).should.throw(/^Syntax error/);
+    });
+
+  });
+
+
 });

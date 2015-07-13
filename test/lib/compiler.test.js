@@ -4,7 +4,8 @@ describe('Test compiler', function () {
 
   var Compiler = require('../../lib/compiler');
 
-  Compiler.BEAUTIFY = true;   // DEBUG
+  Compiler.DEBUG = true;      // DEBUG
+  Compiler.BEAUTIFY = true;   //
 
 
   function execTemplate(tpl, data, partialMap) {
@@ -19,6 +20,9 @@ describe('Test compiler', function () {
       out: function out(str) {
         output.raw.push(str);
         output.buffer += str;
+      },
+      err: function err(err, ptr) {
+        console.error("Run-time error near " + JSON.stringify(ptr) + " in template");
       },
       iterator: function (values, ctx, cb) {
         var arr;
@@ -94,15 +98,18 @@ describe('Test compiler', function () {
   }
 
 
-  describe('Test Beautify', function () {
-    var state;
+  describe('Test Compiler Flags', function () {
+    var stateBeautify;
+    var stateDebug;
 
     before(function () {
-      state = Compiler.BEAUTIFY;
+      stateBeautify = Compiler.BEAUTIFY;
+      stateDebug = Compiler.DEBUG;
     });
 
     after(function () {
-      Compiler.BEAUTIFY = state;
+      Compiler.BEAUTIFY = stateBeautify;
+      Compiler.DEBUG = stateDebug;
     });
 
     it('should beautify', function () {
@@ -126,6 +133,15 @@ describe('Test compiler', function () {
       fn2.toString().length.should.be.greaterThan(fn1.toString().length);
 
     });
+
+    it('should debug', function () {
+      Compiler.DEBUG = false;
+      Compiler.DEBUG.should.be.false;
+      Compiler.DEBUG = true;
+      Compiler.DEBUG.should.be.true;
+      Compiler.DEBUG = false;
+      Compiler.DEBUG.should.be.false;
+    })
 
   });
 
@@ -640,6 +656,29 @@ describe('Test compiler', function () {
         output.raw.should.have.lengthOf(4);
       }).then(done).catch(done);
     });
+
+  });
+
+
+  describe('Expressions', function () {
+
+    it('should honor operator priority');
+
+    it('should invoke functions', function (done) {
+      done();
+    });
+
+  });
+
+
+
+  describe('Modifiers', function () {
+
+    it('should apply simple');
+
+    it('should chain multiple functions');
+
+    it('should be stackable');
 
   });
 

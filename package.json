@@ -27,8 +27,7 @@
   "dependencies": {
     "entities": "^1.1.1",
     "error-factory": "0.1.5",
-    "js-beautify": "^1.5.10",
-    "tokenizr": "^0.9.3"
+    "js-beautify": "^1.5.10"
   },
   "devDependencies": {
     "istanbul": "^0.3.17",

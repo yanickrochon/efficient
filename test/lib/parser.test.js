@@ -15,7 +15,7 @@ describe('Test Parser', function () {
     [
       null, ''
     ].map(function (str) {
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       segments.should.be.instanceof(Array).and.have.lengthOf(0);
 
@@ -30,7 +30,7 @@ describe('Test Parser', function () {
     [
       undefined, false, true, [], {}, function () {}, /./
     ].forEach(function (str) {
-      +(function () { Parser.parseString(str); }).should.throw(ParserException);
+      +(function () { Parser.parse(str); }).should.throw(ParserException);
     });
 
   });
@@ -40,7 +40,7 @@ describe('Test Parser', function () {
     [
       '', 'foo'
     ].map(function (name) {
-      var segments = Parser.parseString('', name);
+      var segments = Parser.parse('', name);
 
       segments.name.should.equal(name);
 
@@ -55,7 +55,7 @@ describe('Test Parser', function () {
     it('should parse single line text segment', function () {
       var str = 'Test string template';
 
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log("*** RESULT", segments);
 
@@ -83,7 +83,7 @@ describe('Test Parser', function () {
           '{{foo    }}',
           '{{   foo}}'
         ].map(function (str) {
-          var segments = Parser.parseString(str);
+          var segments = Parser.parse(str);
 
           //console.log("***", segments);
 
@@ -110,7 +110,7 @@ describe('Test Parser', function () {
         [
           '{{bar\\foo}}'
         ].map(function (str) {
-          var segments = Parser.parseString(str);
+          var segments = Parser.parse(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
           segments[0].type.should.equal('output');
@@ -136,7 +136,7 @@ describe('Test Parser', function () {
         [
           '{{foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
-          var segments = Parser.parseString(str);
+          var segments = Parser.parse(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
           segments[0].type.should.equal('output');
@@ -183,7 +183,7 @@ describe('Test Parser', function () {
         [
           '{{bar \\ foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
-          var segments = Parser.parseString(str);
+          var segments = Parser.parse(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(1);
           segments[0].type.should.equal('output');
@@ -232,7 +232,7 @@ describe('Test Parser', function () {
         [
           'Hello {{foo}}'
         ].map(function (str) {
-          var segments = Parser.parseString(str);
+          var segments = Parser.parse(str);
 
           segments.should.be.instanceof(Array).and.have.lengthOf(2);
           segments[0].type.should.equal('text');
@@ -269,7 +269,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{?{true}}{?{/}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -299,7 +299,7 @@ describe('Test Parser', function () {
 
     it('should parse two segments', function () {
       var str = '{?{true}}{?{~}}{?{/}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -339,7 +339,7 @@ describe('Test Parser', function () {
         '{?{true}}',
         '{?{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -350,7 +350,7 @@ describe('Test Parser', function () {
         '{?{true}}{?{~}}{?{~}}{?{/}}',
         '{?{true}}{?{~}}{?{~}}{?{~}}{?{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -361,7 +361,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{*{true}}{*{/}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -390,7 +390,7 @@ describe('Test Parser', function () {
 
     it('should parse many segments', function () {
       var str = '{*{true}}{*{~}}{*{~}}{*{~}}{*{~}}{*{~}}{*{~}}{*{/}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -432,7 +432,7 @@ describe('Test Parser', function () {
         '{*{true}}',
         '{*{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -443,7 +443,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{@{true}}{@{/}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -477,7 +477,7 @@ describe('Test Parser', function () {
         '{@{true}}',
         '{@{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -488,7 +488,7 @@ describe('Test Parser', function () {
         '{@{true}}{@{~}}{@{/}}',
         '{@{true}}{@{~}}{@{~}}{@{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -498,7 +498,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{&{true /}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -530,7 +530,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (str) {
-        var segments = Parser.parseString(str);
+        var segments = Parser.parse(str);
         var expectedCount = tests[str];
 
         segments.should.be.instanceof(Array).and.have.lengthOf(expectedCount);
@@ -572,7 +572,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{#{true}}{#{/}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -606,7 +606,7 @@ describe('Test Parser', function () {
         '{#{true}}',
         '{#{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -617,7 +617,7 @@ describe('Test Parser', function () {
         '{#{true}}{#{~}}{#{/}}',
         '{#{true}}{#{~}}{#{~}}{#{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -627,7 +627,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{+{true /}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -657,7 +657,7 @@ describe('Test Parser', function () {
         '{+{true}}{+{~}}{+{/}}',
         '{+{true}}{+{~}}{+{~}}{#{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -667,7 +667,7 @@ describe('Test Parser', function () {
 
     it('should parse single segment', function () {
       var str = '{>{true /}}';
-      var segments = Parser.parseString(str);
+      var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -697,7 +697,7 @@ describe('Test Parser', function () {
         '{>{true}}{>{~}}{>{/}}',
         '{>{true}}{>{~}}{>{~}}{>{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parseString(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw(ParserException);
       });
     });
 
@@ -712,7 +712,7 @@ describe('Test Parser', function () {
       '{P{true}}{P{~}}{P{/}}',
       '{-{true}}{-{~}}{-{~}}{-{/}}'
     ].forEach(function (str) {
-      +(function () { Parser.parseString(str); }).should.throw(/^Invalid segment type/);
+      +(function () { Parser.parse(str); }).should.throw(/^Invalid segment type/);
     });
   });
 
@@ -724,7 +724,7 @@ describe('Test Parser', function () {
       '{{true /}}',
       '{{true ~}}'
     ].forEach(function (str) {
-      +(function () { Parser.parseString(str); }).should.throw(/^Unexpected token/);
+      +(function () { Parser.parse(str); }).should.throw(/^Unexpected token/);
     });
 
   });
@@ -742,7 +742,7 @@ describe('Test Parser', function () {
       '{&{true /}"bob"}'
     ].forEach(function (str) {
       //console.log("*** TRYING MODIFIER PATTERN", str);
-      +(function () { Parser.parseString(str); }).should.throw(/^Invalid modifier/);
+      +(function () { Parser.parse(str); }).should.throw(/^Invalid modifier/);
     });
 
   });
@@ -756,7 +756,7 @@ describe('Test Parser', function () {
       -1, 0, 1, 123,
       function () {}, {}, [], /./
     ].forEach(function (name) {
-      +(function () { Parser.parseString('', name); }).should.throw('Invalid template name : ' + String(name));
+      +(function () { Parser.parse('', name); }).should.throw('Invalid template name : ' + String(name));
     });
 
   });
@@ -770,41 +770,7 @@ describe('Test Parser', function () {
       '{&{~}}'
     ].forEach(function (str) {
       //console.log("*** TRYING MODIFIER PATTERN", str);
-      +(function () { Parser.parseString(str); }).should.throw('Invalid segment state');
-    });
-
-  });
-
-
-  describe('Test parsing files', function () {
-
-    var path = require('path');
-    var fixturePath = path.join(__dirname, '..', 'fixtures');
-
-    it('should parse simple file', function (done) {
-      var template = path.join(fixturePath, 'simple.eft.html');
-
-      Parser.parseFile(template).then(function (segments) {
-
-        segments.map(function (segment) {
-          return segment.type;
-        }).should.be.instanceof(Array).and.eql([
-          'text', 'output', 'text', 'segment', 'output', 'segment', 'text', 'segment', 'text'
-        ]);
-
-      }).then(done).catch(done);
-
-    });
-
-    it('should fail on invalid file', function (done) {
-      var invalidTemplate = path.join(fixturePath, '___INVALID___.x.y.z');
-
-      Parser.parseFile(invalidTemplate).then(function () {
-        throw new Error('Should have failed with invalid file');
-      }).catch(function (err) {
-        err.should.be.an.instanceof(Error);
-      }).then(done);
-
+      +(function () { Parser.parse(str); }).should.throw('Invalid segment state');
     });
 
   });

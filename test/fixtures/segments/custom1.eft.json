@@ -1,17 +1,20 @@
 [
   {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "content": [
+    "type": "custom",
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"custom\").data",
-          "text": "custom"
+          "context": "custom"
         }
-      ],
-      "closing": true
+      ]
     },
-    "text": "{&{custom/}}"
+    "modifiers": [],
+    "closing": true,
+    "offset": 0,
+    "line": 1,
+    "column": 1
   }
 ]

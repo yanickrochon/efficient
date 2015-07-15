@@ -116,8 +116,7 @@ describe('Test compiler', function () {
       var parsed = [
         {
           "type": "text",
-          "value": "Hello World",
-          "text": "Hello World"
+          "content": "Hello World"
         }
       ];
       var fn1;
@@ -152,8 +151,7 @@ describe('Test compiler', function () {
       var parsed = [
         {
           "type": "text",
-          "value": "Hello World",
-          "text": "Hello World"
+          "content": "Hello World"
         }
       ];
       var fn = Compiler.compile(parsed);
@@ -164,26 +162,23 @@ describe('Test compiler', function () {
     });
 
     it('should optimize consecutive text segments', function (done) {
+      /// NOTE : this situation is technically impossible, but the compiler should support it anyway
       var parsed = [
         {
           "type": "text",
-          "value": "Hello",
-          "text": "Hello"
+          "content": "Hello"
         },
         {
           "type": "text",
-          "value": " ",
-          "text": " "
+          "content": " "
         },
         {
           "type": "text",
-          "value": "World",
-          "text": "World"
+          "content": "World"
         },
         {
           "type": "text",
-          "value": "!",
-          "text": "!"
+          "content": "!"
         }
       ];
       var fn = Compiler.compile(parsed);
@@ -203,27 +198,28 @@ describe('Test compiler', function () {
       var parsed = [
         {
           "type": "output",
-          "value": {
+          "content": {
             "context": "foo",
-            "content": [
+            "expression": [
               {
                 "type": "context",
                 "value": "ctx.getContext(\"add\").data",
-                "text": "add"
-              },
-              {
-                "type": "number",
-                "value": 2,
-                "text": "2"
+                "context": "add"
               },
               {
                 "type": "operator",
-                "value": "+",
-                "text": "+"
+                "value": "+"
+              },
+              {
+                "type": "number",
+                "value": 2
               }
             ]
           },
-          "text": "{{foo\\ add + 2}}"
+          "modifiers": [],
+          "offset": 0,
+          "line": 1,
+          "column": 1
         }
       ];
       var fn = Compiler.compile(parsed);
@@ -241,56 +237,57 @@ describe('Test compiler', function () {
       var parsed = [
         {
           "type": "output",
-          "value": {
+          "content": {
             "context": "foo",
-            "content": [
+            "expression": [
               {
                 "type": "context",
                 "value": "ctx.getContext(\"add\").data",
-                "text": "add"
-              },
-              {
-                "type": "number",
-                "value": 2,
-                "text": "2"
+                "context": "add"
               },
               {
                 "type": "operator",
-                "value": "+",
-                "text": "+"
+                "value": "+"
+              },
+              {
+                "type": "number",
+                "value": 2
               }
             ]
           },
-          "text": "{{foo\\ add + 2}}"
+          "modifiers": [],
+          "offset": 0,
+          "line": 1,
+          "column": 1
         },
         {
           "type": "text",
-          "value": " ",
-          "text": " "
+          "content": " "
         },
         {
           "type": "output",
-          "value": {
+          "content": {
             "context": "bar",
-            "content": [
+            "expression": [
               {
                 "type": "context",
                 "value": "ctx.getContext(\"mul\").data",
-                "text": "mul"
-              },
-              {
-                "type": "number",
-                "value": 10,
-                "text": "10"
+                "context": "mul"
               },
               {
                 "type": "operator",
-                "value": "*",
-                "text": "*"
+                "value": "*"
+              },
+              {
+                "type": "number",
+                "value": 10
               }
             ]
           },
-          "text": "{{foo\\ mul * 10}}"
+          "modifiers": [],
+          "offset": 16,
+          "line": 1,
+          "column": 17
         }
       ];
       var fn = Compiler.compile(parsed);
@@ -308,35 +305,32 @@ describe('Test compiler', function () {
     });
 
     it('should optimize', function (done) {
-      var parsed = [
+      var parsed =[
         {
           "type": "text",
-          "value": "Hello",
-          "text": "Hello"
+          "content": "Hello"
         },
         {
           "type": "text",
-          "value": " ",
-          "text": " "
+          "content": " "
         },
         {
           "type": "output",
-          "value": {
+          "content": {
             "context": "foo",
-            "content": [
+            "expression": [
               {
                 "type": "context",
                 "value": "ctx.getContext(\"bar\").data",
-                "text": "foo"
+                "context": "bar"
               }
             ]
           },
-          "text": "{{foo\\ bar}}"
+          "modifiers": []
         },
         {
           "type": "text",
-          "value": "!",
-          "text": "!"
+          "content": "!"
         }
       ];
       var data = {
@@ -709,7 +703,7 @@ describe('Test compiler', function () {
 
     it('should compile parsed template', function (done) {
       var template = 'Hello {{name}}!';
-      var parsed = Parser.parseString(template);
+      var parsed = Parser.parse(template);
       var fn = Compiler.compile(parsed);
       var data = {
         name: 'John'

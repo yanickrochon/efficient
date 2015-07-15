@@ -1,48 +1,57 @@
 [
   {
     "type": "text",
-    "value": "pre",
-    "text": "pre"
+    "content": "pre",
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "switch",
+    "type": "switch",
+    "content": {
       "context": "foo",
-      "content": [
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"index\").data",
-          "text": "index"
+          "context": "index"
         }
       ]
     },
-    "text": "{*{index}}"
+    "modifiers": [],
+    "offset": 3,
+    "line": 1,
+    "column": 4
   },
   {
     "type": "output",
-    "value": {
-      "content": [
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"value\").data",
-          "text": "value"
+          "context": "value"
         }
       ]
     },
-    "text": "{{value}}"
+    "modifiers": [],
+    "offset": 18,
+    "line": 1,
+    "column": 19
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "switch",
-      "closing": true
-    },
-    "text": "{*{/}}"
+    "type": "switch",
+    "closing": true,
+    "offset": 27,
+    "line": 1,
+    "column": 28
   },
   {
     "type": "text",
-    "value": "post",
-    "text": "post"
+    "content": "post",
+    "offset": 33,
+    "line": 1,
+    "column": 34
   }
 ]

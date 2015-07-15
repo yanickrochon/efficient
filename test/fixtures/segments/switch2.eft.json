@@ -1,76 +1,85 @@
 [
   {
-    "type": "segment",
-    "value": {
-      "type": "switch",
-      "content": [
+    "type": "switch",
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"value\").data",
-          "text": "value"
+          "context": "value"
         }
       ]
     },
-    "text": "{*{value}}"
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
     "type": "text",
-    "value": "a",
-    "text": "a"
+    "content": "a",
+    "offset": 10,
+    "line": 1,
+    "column": 11
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "switch",
-      "next": true
-    },
-    "text": "{*{~}}"
-  },
-  {
-    "type": "text",
-    "value": "b",
-    "text": "b"
-  },
-  {
-    "type": "segment",
-    "value": {
-      "type": "switch",
-      "next": true
-    },
-    "text": "{*{~}}"
+    "type": "switch",
+    "next": true,
+    "offset": 11,
+    "line": 1,
+    "column": 12
   },
   {
     "type": "text",
-    "value": "c",
-    "text": "c"
+    "content": "b",
+    "offset": 17,
+    "line": 1,
+    "column": 18
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "switch",
-      "next": true
-    },
-    "text": "{*{~}}"
+    "type": "switch",
+    "next": true,
+    "offset": 18,
+    "line": 1,
+    "column": 19
+  },
+  {
+    "type": "text",
+    "content": "c",
+    "offset": 24,
+    "line": 1,
+    "column": 25
+  },
+  {
+    "type": "switch",
+    "next": true,
+    "offset": 25,
+    "line": 1,
+    "column": 26
   },
   {
     "type": "output",
-    "value": {
-      "content": [
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"value\").data",
-          "text": "value"
+          "context": "value"
         }
       ]
     },
-    "text": "{{value}}"
+    "modifiers": [],
+    "offset": 31,
+    "line": 1,
+    "column": 32
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "switch",
-      "closing": true
-    },
-    "text": "{*{/}}"
+    "type": "switch",
+    "closing": true,
+    "offset": 40,
+    "line": 1,
+    "column": 41
   }
 ]

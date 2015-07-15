@@ -1,44 +1,50 @@
 [
   {
     "type": "text",
-    "value": "Start:",
-    "text": "Start:"
+    "content": "Start:",
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "partial",
+    "type": "partial",
+    "content": {
       "context": "foo",
-      "content": [
+      "expression": [
         {
           "type": "string",
-          "value": "foo",
-          "text": "foo"
+          "value": "foo"
         }
-      ],
-      "closing": true
+      ]
     },
-    "text": "{>{foo\\ \"foo\"/}}"
+    "modifiers": [],
+    "closing": true,
+    "offset": 6,
+    "line": 1,
+    "column": 7
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "partial",
+    "type": "partial",
+    "content": {
       "context": "bar",
-      "content": [
+      "expression": [
         {
           "type": "string",
-          "value": "bar",
-          "text": "bar"
+          "value": "bar"
         }
-      ],
-      "closing": true
+      ]
     },
-    "text": "{>{bar\\ \"bar\"/}}"
+    "modifiers": [],
+    "closing": true,
+    "offset": 21,
+    "line": 1,
+    "column": 22
   },
   {
     "type": "text",
-    "value": ":End",
-    "text": ":End"
+    "content": ":End",
+    "offset": 36,
+    "line": 1,
+    "column": 37
   }
 ]

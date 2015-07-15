@@ -1,25 +1,33 @@
 [
   {
     "type": "text",
-    "value": "Hello ",
-    "text": "Hello "
+    "content": "Hello ",
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
     "type": "output",
-    "value": {
-      "content": [
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"name\").data",
-          "text": "name"
+          "context": "name"
         }
       ]
     },
-    "text": "{{name}}"
+    "modifiers": [],
+    "offset": 4,
+    "line": 1,
+    "column": 5
   },
   {
     "type": "text",
-    "value": "!",
-    "text": "! "
+    "content": "!",
+    "offset": 12,
+    "line": 1,
+    "column": 13
   }
 ]

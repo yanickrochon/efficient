@@ -1,69 +1,81 @@
 [
   {
     "type": "output",
-    "value": {
-      "content": [
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"pre\").data",
-          "text": "pre"
+          "context": "pre"
         }
       ]
     },
-    "text": "{{pre}}"
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "conditional",
+    "type": "conditional",
+    "content": {
       "context": "foo",
-      "content": [
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"value\").data",
-          "text": "value"
+          "context": "value"
         }
       ]
     },
-    "text": "{?{value}}"
+    "modifiers": [],
+    "offset": 7,
+    "line": 1,
+    "column": 8
   },
   {
     "type": "text",
-    "value": "Hello World",
-    "text": "Hello World"
+    "content": "Hello World",
+    "offset": 17,
+    "line": 1,
+    "column": 18
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "conditional",
-      "next": true
-    },
-    "text": "{?{~}}"
+    "type": "conditional",
+    "next": true,
+    "offset": 28,
+    "line": 1,
+    "column": 29
   },
   {
     "type": "text",
-    "value": "Good Bye",
-    "text": "Good Bye"
+    "content": "Good Bye",
+    "offset": 34,
+    "line": 1,
+    "column": 35
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "conditional",
-      "closing": true
-    },
-    "text": "{?{/}}"
+    "type": "conditional",
+    "closing": true,
+    "offset": 42,
+    "line": 1,
+    "column": 43
   },
   {
     "type": "output",
-    "value": {
-      "content": [
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"post\").data",
-          "text": "post"
+          "context": "post"
         }
       ]
     },
-    "text": "{{post}}"
+    "modifiers": [],
+    "offset": 48,
+    "line": 1,
+    "column": 49
   }
 ]

@@ -1,24 +1,25 @@
 [
   {
-    "type": "segment",
-    "value": {
-      "type": "namedDeclare",
-      "content": [
+    "type": "namedDeclare",
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "string",
-          "value": "foo",
-          "text": "foo"
+          "value": "foo"
         }
       ]
     },
-    "text": "{#{\"foo\"}}"
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "namedDeclare",
-      "closing": true
-    },
-    "text": "{#{/}}"
+    "type": "namedDeclare",
+    "closing": true,
+    "offset": 10,
+    "line": 1,
+    "column": 11
   }
 ]

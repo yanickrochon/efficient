@@ -1,81 +1,88 @@
 [
   {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "content": [
+    "type": "custom",
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "string",
-          "value": "callback",
-          "text": "callback"
+          "value": "callback"
         }
       ]
     },
-    "text": "{&{\"custom\"/}}"
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
     "type": "text",
-    "value": "Seg1",
-    "text": "Seg1"
+    "content": "Seg1",
+    "offset": 13,
+    "line": 1,
+    "column": 14
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "next": true
-    },
-    "text": "{&{~}}"
-  },
-  {
-    "type": "text",
-    "value": "Seg2",
-    "text": "Seg2"
-  },
-  {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "next": true
-    },
-    "text": "{&{~}}"
+    "type": "custom",
+    "next": true,
+    "offset": 17,
+    "line": 1,
+    "column": 18
   },
   {
     "type": "text",
-    "value": "Seg3",
-    "text": "Seg3"
+    "content": "Seg2",
+    "offset": 23,
+    "line": 1,
+    "column": 24
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "next": true
-    },
-    "text": "{&{~}}"
-  },
-  {
-    "type": "text",
-    "value": "Seg4",
-    "text": "Seg4"
-  },
-  {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "next": true
-    },
-    "text": "{&{~}}"
+    "type": "custom",
+    "next": true,
+    "offset": 27,
+    "line": 1,
+    "column": 28
   },
   {
     "type": "text",
-    "value": "Seg5",
-    "text": "Seg5"
+    "content": "Seg3",
+    "offset": 33,
+    "line": 1,
+    "column": 34
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "custom",
-      "closing": true
-    },
-    "text": "{&{/}}"
+    "type": "custom",
+    "next": true,
+    "offset": 37,
+    "line": 1,
+    "column": 38
+  },
+  {
+    "type": "text",
+    "content": "Seg4",
+    "offset": 43,
+    "line": 1,
+    "column": 44
+  },
+  {
+    "type": "custom",
+    "next": true,
+    "offset": 47,
+    "line": 1,
+    "column": 48
+  },
+  {
+    "type": "text",
+    "content": "Seg5",
+    "offset": 53,
+    "line": 1,
+    "column": 54
+  },
+  {
+    "type": "custom",
+    "closing": true,
+    "offset": 57,
+    "line": 1,
+    "column": 58
   }
 ]

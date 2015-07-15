@@ -1,57 +1,66 @@
 [
   {
-    "type": "segment",
-    "value": {
-      "type": "namedDeclare",
-      "content": [
+    "type": "namedDeclare",
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "string",
-          "value": "foo",
-          "text": "foo"
+          "value": "foo"
         }
       ]
     },
-    "text": "{#{\"foo\"}}"
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
   },
   {
     "type": "text",
-    "value": "Hello ",
-    "text": "Hello "
+    "content": "Hello ",
+    "offset": 10,
+    "line": 1,
+    "column": 11
   },
   {
     "type": "output",
-    "value": {
-      "content": [
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "context",
           "value": "ctx.getContext(\"user\").data",
-          "text": "user"
+          "context": "user"
         }
       ]
     },
-    "text": "{{user}}"
+    "modifiers": [],
+    "offset": 16,
+    "line": 1,
+    "column": 17
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "namedDeclare",
-      "closing": true
-    },
-    "text": "{#{/}}"
+    "type": "namedDeclare",
+    "closing": true,
+    "offset": 24,
+    "line": 1,
+    "column": 25
   },
   {
-    "type": "segment",
-    "value": {
-      "type": "namedRender",
-      "content": [
+    "type": "namedRender",
+    "content": {
+      "context": null,
+      "expression": [
         {
           "type": "string",
-          "value": "foo",
-          "text": "foo"
+          "value": "foo"
         }
-      ],
-      "closing": true
+      ]
     },
-    "text": "{+{\"foo\"}}"
+    "modifiers": [],
+    "closing": true,
+    "offset": 30,
+    "line": 1,
+    "column": 31
   }
 ]

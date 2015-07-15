@@ -1,13 +1,35 @@
 // http://pegjs.org/online
 {
   var segStack = [];
-  function enterSegment(type) { segStack.push(type); }
-  function checkSegment(type) { return segStack.length && segStack[segStack.length - 1] === type; }
-  function exitSegment(type) { if (checkSegment(type)) return segStack.pop(), true; else return false; }
+  function enterSegment(type) {
+    segStack.push(type);
+  }
+
+  function checkSegment(type, closing) {
+    if (segStack.length) {
+      return segStack[segStack.length - 1] === type;
+    } else {
+      error("Unexpected " + type + " " + (closing ? "closing" : "next") + " segment");
+    }
+  }
+
+  function exitSegment(type) {
+    if (checkSegment(type, true)) {
+      return segStack.pop(), true;
+    } else {
+      error("Mismatch " + segStack[segStack.length - 1] + " closing segment");
+    }
+  }
+
+  function cleanup() {
+    if (segStack.length) {
+      error("Missing " + segStack[segStack.length - 1] + " closing segment");
+    }
+  }
 }
 
 start
-  = segment+
+  = seg:segment+ { return cleanup(), seg; }
 
 
 // Base classes
@@ -41,7 +63,7 @@ reserved
  / 'Infinity' { return Infinity; }
 
 operator
- = op:( '+' / '-' / '*' / '/' / '%' / '&&' / '||' ) { return { type:'operator', value:op }; }
+ = op:( '+' / '-' / '*' / '/' / '%' / '&&' / '||' / '==' { return '==='; } ) { return { type:'operator', value:op }; }
 
 parenOpen
  = '(' { return { type:'parenOpen' }; }
@@ -53,31 +75,36 @@ variable
  = left:letter right:(letter/digit)+ { return left + right.join(''); }
  / left:letter { return left; }
 
+variablePath
+ = left:variable space? '.' space? right:variablePath { return left + '.' + right; }
+ / variable
+
 func
- = ctx:context '(' args:arguments* ')' { return { context:ctx, args:args && args[0] || [] }; }
+ = name:variable space? '(' space? args:arguments space? ')' { return { name:name, args:args[0] }; }
+ / name:variable '(' space? ')' { return { name:name, args:[] }; }
 
 context
- = ctx:( variable '.' context ) { return ctx.join(''); }
- / variable
+ = path:variablePath space? '(' space? args:arguments space? ')' { return { context:'ctx.getContext("' + path + '").data', args:args }; }
+ / path:variablePath space? '(' space? ')' { return { context:'ctx.getContext("' + path + '").data', args:[] }; }
+ / path:variablePath { return { context:'ctx.getContext("' + path + '").data' }; }
 
 
 // Compouned type
 value
  = val:reserved { return { type:'reserved', value:val }; }
- / val:func { return { type:'funciton', value:'ctx.getContext("' + val.context + '").data', context:val.context, args:val.args }; }
- / val:context { return { type:'context', value:'ctx.getContext("' + val + '").data', context:val }; }
+ / val:context { return { type:'context', value:val }; }
  / val:string { return { type:'string', value:val }; }
  / val:number { return { type:'number', value:val }; }
 
 arguments
- = left:expression ',' right:arguments { return [left].concat(right); }
+ = left:expression space* ',' space* right:arguments { return [left].concat(right); }
  / expr:expression { return [expr]; }
 
 
 // Segments
 segmentType
  = '?' { return 'conditional'; }
- / '*' { return 'swidth'; }
+ / '*' { return 'switch'; }
  / '@' { return 'iterator'; }
  / '&' { return 'custom'; }
  / '#' { return 'namedDeclare'; }
@@ -85,12 +112,12 @@ segmentType
  / '>' { return 'partial'; }
 
 segment
- = textSegment
- / typedSegmentSelfClosing
- / typedSegmentOpen
- / typedSegmentNext
- / typedSegmentClose
- / outputSegment
+ = seg:( textSegment
+       / typedSegmentSelfClosing
+       / typedSegmentOpen
+       / typedSegmentNext
+       / typedSegmentClose
+       / seg:outputSegment ) { seg.offset = offset(); seg.line = line(); seg.column = column(); return seg; }
 
 textSegment
  = txt:[^{]+ { return { type:'text', content:txt.join('') }; }
@@ -116,10 +143,11 @@ segmentBody
  = ctx:( context space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0], expression:expr }; }
 
 expression
- = space* val:value space* op:operator space* expr:expression { return [ val, op ].concat(expr); }
+ = val:value space* op:operator space* expr:expression { return [ val, op ].concat(expr); }
  / open:parenOpen expr:expression close:parenClose { return [open].concat(expr).concat([close]); }
  / space* val:value space* { return [val]; }
 
 modifiers
- = left:( func / variable:variable { return { context:variable, args:[] }; } ) '|' right:modifiers { return [{ name:left.context, args:left.args }].concat(right); }
- / left:( func / variable:variable { return { context:variable, args:[] }; } ) { return [{ name:left.context, args:left.args }]; }
+ = left:func '|' right:modifiers { return [{ name:left.context, args:left.args }].concat(right); }
+ / left:func { return [{ name:left.name, args:left.args }]; }
+ / left:variable { return [{ name:left, args:[] }]; }

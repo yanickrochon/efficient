@@ -1,13 +1,16 @@
 [
   {
+    "@template": "{@{values}}{{index}}{{key}}{{value}};{@{/}}",
+
     "type": "iterator",
     "content": {
       "context": null,
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"values\").data",
-          "context": "values"
+          "value": {
+            "context": "values"
+          }
         }
       ]
     },
@@ -23,15 +26,16 @@
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"index\").data",
-          "context": "index"
+          "value": {
+            "context": "index"
+          }
         }
       ]
     },
     "modifiers": [],
-    "offset": 10,
+    "offset": 11,
     "line": 1,
-    "column": 11
+    "column": 12
   },
   {
     "type": "output",
@@ -40,15 +44,16 @@
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"value\").data",
-          "context": "value"
+          "value": {
+            "context": "key"
+          }
         }
       ]
     },
     "modifiers": [],
-    "offset": 19,
+    "offset": 20,
     "line": 1,
-    "column": 20
+    "column": 21
   },
   {
     "type": "output",
@@ -57,28 +62,29 @@
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"key\").data",
-          "context": "key"
+          "value": {
+            "context": "value"
+          }
         }
       ]
     },
     "modifiers": [],
-    "offset": 28,
+    "offset": 27,
     "line": 1,
-    "column": 29
+    "column": 28
   },
   {
     "type": "text",
     "content": ";",
-    "offset": 35,
+    "offset": 36,
     "line": 1,
-    "column": 36
+    "column": 37
   },
   {
     "type": "iterator",
     "closing": true,
-    "offset": 36,
+    "offset": 37,
     "line": 1,
-    "column": 37
+    "column": 38
   }
 ]

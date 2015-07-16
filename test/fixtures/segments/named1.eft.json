@@ -1,5 +1,7 @@
 [
   {
+    "@template": "{#{\"foo\"}}{#{/}}",
+
     "type": "namedDeclare",
     "content": {
       "context": null,

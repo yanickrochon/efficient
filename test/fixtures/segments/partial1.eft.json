@@ -1,5 +1,7 @@
 [
   {
+    "@template": "Start:{>{foo\\\"foo\"/}}{>{bar\\\"bar\"/}}:End",
+
     "type": "text",
     "content": "Start:",
     "offset": 0,

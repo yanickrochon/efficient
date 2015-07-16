@@ -1,13 +1,16 @@
 [
   {
+    "@template": "{?{value}}Hello World{?{|}}Good Bye{?{/}}",
+
     "type": "conditional",
     "content": {
       "context": null,
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"value\").data",
-          "context": "value"
+          "value": {
+            "context": "value"
+          }
         }
       ]
     },
@@ -40,8 +43,8 @@
   {
     "type": "conditional",
     "closing": true,
-    "offset": 35,
+    "offset": 36,
     "line": 1,
-    "column": 36
+    "column": 37
   }
 ]

@@ -1,5 +1,7 @@
 [
   {
+    "@template": "{#{\"foo\"}}Hello {{user}}{#{/}}{+{\"foo\" /}}",
+
     "type": "namedDeclare",
     "content": {
       "context": null,
@@ -29,8 +31,9 @@
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"user\").data",
-          "context": "user"
+          "value": {
+            "context": "user"
+          }
         }
       ]
     },

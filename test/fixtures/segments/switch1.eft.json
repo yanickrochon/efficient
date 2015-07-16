@@ -1,13 +1,16 @@
 [
   {
+    "@template": "{*{value}}0{*{/}}",
+
     "type": "switch",
     "content": {
       "context": null,
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"value\").data",
-          "context": "value"
+          "value": {
+            "context": "value"
+          }
         }
       ]
     },

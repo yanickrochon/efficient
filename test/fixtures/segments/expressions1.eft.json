@@ -1,21 +1,21 @@
 [
   {
-    "@template": "{&{custom /}}",
+    "@template": "{{foo\\ bar.buz:length}}",
 
-    "type": "custom",
+    "type": "output",
     "content": {
-      "context": null,
+      "context": "foo",
       "expression": [
         {
           "type": "context",
           "value": {
-            "context": "custom"
+            "context": "bar.buz",
+            "props": "length"
           }
         }
       ]
     },
     "modifiers": [],
-    "closing": true,
     "offset": 0,
     "line": 1,
     "column": 1

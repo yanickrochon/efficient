@@ -1,29 +1,64 @@
 // http://pegjs.org/online
 {
   var segStack = [];
+  var segTableInfo = {
+    '?': { min: 1, max: 2 },
+    '*': { min: 1, max: Infinity },
+    '@': { min: 1, max: 1 },
+    '&': { min: 0, max: Infinity },
+    '#': { min: 1, max: 1 },
+    '+': { min: 0, max: 0 },
+    '>': { min: 0, max: 0 }
+  };
+
   function enterSegment(type) {
-    segStack.push(type);
+    segStack.push({
+      type: type,
+      count: 0
+    });
   }
 
   function checkSegment(type, closing) {
     if (segStack.length) {
-      return segStack[segStack.length - 1] === type;
+      return segStack[segStack.length - 1].type === type;
     } else {
       error("Unexpected " + type + " " + (closing ? "closing" : "next") + " segment");
     }
   }
 
+  function checkSegmentCount(type) {
+    var info;
+    var count;
+
+    if (checkSegment(type)) {
+      info = mapTableInfo[type];
+      count = segStack[segStack.length - 1].count;
+
+      if (info.min > count) {
+        error("Missing content for " + type + " segment");
+      } else if (info.max < count) {
+        error("Too many contents for " + type + " segment");
+      }
+    }
+  }
+
+  function nextSegment(type) {
+    if (checkSegment(type)) {
+      ++segStack[segStack.length - 1].count;
+    }
+  }
+
   function exitSegment(type) {
-    if (checkSegment(type, true)) {
+    if (checkSegment(type, true) && checkSegmentCount(type)) {
       return segStack.pop(), true;
     } else {
-      error("Mismatch " + segStack[segStack.length - 1] + " closing segment");
+      error("Mismatch " + segStack[segStack.length - 1].type + " closing segment");
     }
   }
 
   function cleanup() {
     if (segStack.length) {
-      error("Missing " + segStack[segStack.length - 1] + " closing segment");
+      error("Missing " + segStack[segStack.length - 1].type + " closing segment");
     }
   }
 }
@@ -75,18 +110,32 @@ variable
  = left:letter right:(letter/digit)+ { return left + right.join(''); }
  / left:letter { return left; }
 
+expression
+ = open:parenOpen space* left:expression space* close:parenClose space* op:operator space* right:expression { return [open].concat(left).concat([close,op]).concat(right); }
+ / open:parenOpen space* expr:expression space* close:parenClose { return [open].concat(expr).concat([close]); }
+ / val:value space* op:operator space* expr:expression { return [ val, op ].concat(expr); }
+ / val:value { return [val]; }
+
+expressionList
+ = left:expression space* ',' space* right:expressionList { return [left].concat(right); }
+ / expr:expression { return [expr]; }
+
+arguments
+ = '(' space* args:expressionList space* ')' { return args; }
+ / '(' space* ')' { return []; }
+
+func
+ = name:variable space* args:arguments { return { name:name, args:args }; }
+
 variablePath
  = left:variable space? '.' space? right:variablePath { return left + '.' + right; }
  / variable
 
-func
- = name:variable space? '(' space? args:arguments space? ')' { return { name:name, args:args[0] }; }
- / name:variable '(' space? ')' { return { name:name, args:[] }; }
-
 context
- = path:variablePath space? '(' space? args:arguments space? ')' { return { context:'ctx.getContext("' + path + '").data', args:args }; }
- / path:variablePath space? '(' space? ')' { return { context:'ctx.getContext("' + path + '").data', args:[] }; }
- / path:variablePath { return { context:'ctx.getContext("' + path + '").data' }; }
+ = path:variablePath space? args:arguments space? ':' props:variablePath { return { context:path, args:args, props:props }; }
+ / path:variablePath space? args:arguments { return { context:path, args:args }; }
+ / path:variablePath ':' props:variablePath { return { context:path, props:props }; }
+ / path:variablePath { return { context:path }; }
 
 
 // Compouned type
@@ -95,10 +144,6 @@ value
  / val:context { return { type:'context', value:val }; }
  / val:string { return { type:'string', value:val }; }
  / val:number { return { type:'number', value:val }; }
-
-arguments
- = left:expression space* ',' space* right:arguments { return [left].concat(right); }
- / expr:expression { return [expr]; }
 
 
 // Segments
@@ -123,29 +168,24 @@ textSegment
  = txt:[^{]+ { return { type:'text', content:txt.join('') }; }
 
 outputSegment
- = '{{' body:segmentBody '}' modifiers:modifiers? '}' { return { type:'output', content:body, modifiers:modifiers || [] }; }
+ = '{{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return { type:'output', content:body, modifiers:modifiers || [] }; }
 
 typedSegmentOpen
- = '{' type:segmentType '{' body:segmentBody '}' modifiers:modifiers? '}' { enterSegment(type); return { type:type, content:body, modifiers:modifiers || [] }; }
+ = '{' space* type:segmentType space* '{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, content:body, modifiers:modifiers || [] }; }
 
 typedSegmentSelfClosing
- = '{' type:segmentType '{' body:segmentBody '/}' modifiers:modifiers? '}' { return { type:type, content:body, modifiers:modifiers || [], closing:true }; }
+ = '{' space* type:segmentType space* '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return { type:type, content:body, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
- = '{' type:segmentType '{' space* '|' space* '}}' &{ return checkSegment(type); } { return { type:type, next:true }; }
+ = '{' space* type:segmentType space* '{' space* '|' space* '}' space* '}' { return checkSegment(type), { type:type, next:true }; }
 
 typedSegmentClose
- = '{' type:segmentType '{' space* '/' space* '}}' &{ return exitSegment(type); } { return { type:type, closing:true }; }
+ = '{' space* type:segmentType space* '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
 
 
 // Segment components
 segmentBody
- = ctx:( context space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0], expression:expr }; }
-
-expression
- = val:value space* op:operator space* expr:expression { return [ val, op ].concat(expr); }
- / open:parenOpen expr:expression close:parenClose { return [open].concat(expr).concat([close]); }
- / space* val:value space* { return [val]; }
+ = ctx:( context space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0].context, expression:expr }; }
 
 modifiers
  = left:func '|' right:modifiers { return [{ name:left.context, args:left.args }].concat(right); }

@@ -1,5 +1,7 @@
 [
   {
+    "@template": "{&{\"callback\"}}Seg1{&{|}}Seg2{&{|}}Seg3{&{|}}Seg4{&{|}}Seg5{&{/}}",
+
     "type": "custom",
     "content": {
       "context": null,
@@ -18,71 +20,71 @@
   {
     "type": "text",
     "content": "Seg1",
-    "offset": 13,
+    "offset": 15,
     "line": 1,
-    "column": 14
+    "column": 16
   },
   {
     "type": "custom",
     "next": true,
-    "offset": 17,
+    "offset": 19,
     "line": 1,
-    "column": 18
+    "column": 20
   },
   {
     "type": "text",
     "content": "Seg2",
-    "offset": 23,
+    "offset": 25,
     "line": 1,
-    "column": 24
+    "column": 26
   },
   {
     "type": "custom",
     "next": true,
-    "offset": 27,
+    "offset": 29,
     "line": 1,
-    "column": 28
+    "column": 30
   },
   {
     "type": "text",
     "content": "Seg3",
-    "offset": 33,
+    "offset": 35,
     "line": 1,
-    "column": 34
+    "column": 36
   },
   {
     "type": "custom",
     "next": true,
-    "offset": 37,
+    "offset": 39,
     "line": 1,
-    "column": 38
+    "column": 40
   },
   {
     "type": "text",
     "content": "Seg4",
-    "offset": 43,
+    "offset": 45,
     "line": 1,
-    "column": 44
+    "column": 46
   },
   {
     "type": "custom",
     "next": true,
-    "offset": 47,
+    "offset": 49,
     "line": 1,
-    "column": 48
+    "column": 50
   },
   {
     "type": "text",
     "content": "Seg5",
-    "offset": 53,
+    "offset": 55,
     "line": 1,
-    "column": 54
+    "column": 56
   },
   {
     "type": "custom",
     "closing": true,
-    "offset": 57,
+    "offset": 59,
     "line": 1,
-    "column": 58
+    "column": 60
   }
 ]

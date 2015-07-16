@@ -1,5 +1,7 @@
 [
   {
+    "@template": "pre{*{value}}{{value}}{*{/}}post",
+
     "type": "text",
     "content": "pre",
     "offset": 0,
@@ -9,12 +11,13 @@
   {
     "type": "switch",
     "content": {
-      "context": "foo",
+      "context": null,
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"index\").data",
-          "context": "index"
+          "value": {
+            "context": "value"
+          }
         }
       ]
     },
@@ -30,28 +33,29 @@
       "expression": [
         {
           "type": "context",
-          "value": "ctx.getContext(\"value\").data",
-          "context": "value"
+          "value": {
+            "context": "value"
+          }
         }
       ]
     },
     "modifiers": [],
-    "offset": 18,
+    "offset": 13,
     "line": 1,
-    "column": 19
+    "column": 14
   },
   {
     "type": "switch",
     "closing": true,
-    "offset": 27,
+    "offset": 22,
     "line": 1,
-    "column": 28
+    "column": 23
   },
   {
     "type": "text",
     "content": "post",
-    "offset": 33,
+    "offset": 28,
     "line": 1,
-    "column": 34
+    "column": 29
   }
 ]

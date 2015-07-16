@@ -6,21 +6,14 @@ describe('Test Parser', function () {
   var should = require('should');
 
   var Parser = require('../../lib/parser');
-  var ParserException = require('../../lib/exceptions').ParserException;
 
 
   this.timeout(3000);
 
   it('should parse null or empty string', function () {
-    [
-      null, ''
-    ].map(function (str) {
-      var segments = Parser.parse(str);
+    var segments = Parser.parse('');
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(0);
-
-    });
-
+    segments.should.be.instanceof(Array).and.have.lengthOf(0);
   });
 
   it('should throw on invalid input', function () {
@@ -30,24 +23,10 @@ describe('Test Parser', function () {
     [
       undefined, false, true, [], {}, function () {}, /./
     ].forEach(function (str) {
-      +(function () { Parser.parse(str); }).should.throw(ParserException);
+      +(function () { Parser.parse(str); }).should.throw();
     });
 
   });
-
-
-  it('should set string name if provided', function () {
-    [
-      '', 'foo'
-    ].map(function (name) {
-      var segments = Parser.parse('', name);
-
-      segments.name.should.equal(name);
-
-    });
-
-  });
-
 
 
   describe('Test text segment', function () {
@@ -57,12 +36,13 @@ describe('Test Parser', function () {
 
       var segments = Parser.parse(str);
 
-      //console.log("*** RESULT", segments);
+      //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(1);
+      segments.should.have.lengthOf(1);
+
       segments[0].type.should.equal('text');
-      segments[0].text.should.equal('Test string template');
-      segments[0].pos.should.equal(0);
+      segments[0].content.should.equal('Test string template');
+      segments[0].offset.should.equal(0);
       segments[0].line.should.equal(1);
       segments[0].column.should.equal(1);
 
@@ -85,22 +65,24 @@ describe('Test Parser', function () {
         ].map(function (str) {
           var segments = Parser.parse(str);
 
-          //console.log("***", segments);
+          //console.log(JSON.stringify(segments, null, 2));
 
-          segments.should.be.instanceof(Array).and.have.lengthOf(1);
+          segments.should.have.lengthOf(1);
+
           segments[0].type.should.equal('output');
-          segments[0].value.should.be.an.Object;
-          should(segments[0].value.context).be.undefined;
-          segments[0].value.content.should.be.instanceof(Array).and.eql([{
-            type: 'context',
-            text: 'foo',
-            value: 'ctx.getContext("foo").data',
-            pos: 0,
-            line: 1,
-            column: 1
-          }]);
-          should(segments[0].value.modifiers).be.undefined;
-          segments[0].pos.should.equal(0);
+          segments[0].content.should.be.instanceof(Object).and.eql({
+            "context": null,
+            "expression": [
+              {
+                "type": "context",
+                "value": {
+                  "context": "foo"
+                }
+              }
+            ]
+          });
+          segments[0].modifiers.should.have.lengthOf(0);
+          segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
           segments[0].column.should.equal(1);
         });
@@ -112,20 +94,24 @@ describe('Test Parser', function () {
         ].map(function (str) {
           var segments = Parser.parse(str);
 
-          segments.should.be.instanceof(Array).and.have.lengthOf(1);
+          //console.log(JSON.stringify(segments, null, 2));
+
+          segments.should.be.have.lengthOf(1);
+
           segments[0].type.should.equal('output');
-          segments[0].value.should.be.an.Object;
-          segments[0].value.context.should.equal('bar');
-          segments[0].value.content.should.be.instanceof(Array).and.eql([{
-            type: 'context',
-            text: 'foo',
-            value: 'ctx.getContext("foo").data',
-            pos: 0,
-            line: 1,
-            column: 1
-          }]);
-          should(segments[0].value.modifiers).be.undefined;
-          segments[0].pos.should.equal(0);
+          segments[0].content.should.be.instanceof(Object).and.eql({
+            "context": "bar",
+            "expression": [
+              {
+                "type": "context",
+                "value": {
+                  "context": "foo"
+                }
+              }
+            ]
+          });
+          segments[0].modifiers.should.have.lengthOf(0);
+          segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
           segments[0].column.should.equal(1);
 
@@ -138,41 +124,57 @@ describe('Test Parser', function () {
         ].map(function (str) {
           var segments = Parser.parse(str);
 
-          segments.should.be.instanceof(Array).and.have.lengthOf(1);
+          //console.log(JSON.stringify(segments, null, 2));
+
+          segments.should.have.lengthOf(1);
+
           segments[0].type.should.equal('output');
-          segments[0].value.should.be.an.Object;
-          should(segments[0].value.context).be.undefined;
-          segments[0].value.content.should.be.instanceof(Array).and.eql([{
-            type: 'context',
-            text: 'foo',
-            value: 'ctx.getContext("foo").data',
-            pos: 0,
-            line: 1,
-            column: 1
-          }]);
-          segments[0].value.modifiers.should.be.instanceof(Array).and.eql([
-            { action: 'a' },
-            { action: 'b', arguments: [] },
-            { action: 'c', arguments: [ {
-                column: 1,
-                line: 1,
-                pos: 0,
-                text: '"Hello"',
-                type: 'string',
-                value: 'Hello'
-              } ]
+          segments[0].content.should.be.instanceof(Object).and.eql({
+            "context": null,
+            "expression": [
+              {
+                "type": "context",
+                "value": {
+                  "context": "foo"
+                }
+              }
+            ]
+          });
+          segments[0].modifiers.should.be.instanceof(Array).and.eql([
+            {
+              "name": "a",
+              "args": []
             },
-            { action: 'd', arguments: [ {
-                column: 1,
-                line: 1,
-                pos: 0,
-                text: 'bar',
-                type: 'context',
-                value: 'ctx.getContext("bar").data'
-              } ]
+            {
+              "name": "b",
+              "args": []
+            },
+            {
+              "name": "c",
+              "args": [
+                [
+                  {
+                    "type": "string",
+                    "value": "Hello"
+                  }
+                ]
+              ]
+            },
+            {
+              "name": "d",
+              "args": [
+                [
+                  {
+                    "type": "context",
+                    "value": {
+                      "context": "bar"
+                    }
+                  }
+                ]
+              ]
             }
           ]);
-          segments[0].pos.should.equal(0);
+          segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
           segments[0].column.should.equal(1);
 
@@ -184,44 +186,58 @@ describe('Test Parser', function () {
           '{{bar \\ foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
           var segments = Parser.parse(str);
+          
+          //console.log(JSON.stringify(segments, null, 2));
 
-          segments.should.be.instanceof(Array).and.have.lengthOf(1);
+          segments.should.have.lengthOf(1);
+
           segments[0].type.should.equal('output');
-
-
-          segments[0].value.should.be.an.Object;
-          segments[0].value.context.should.equal('bar');
-          segments[0].value.content.should.be.instanceof(Array).and.eql([{
-            type: 'context',
-            text: 'foo',
-            value: 'ctx.getContext("foo").data',
-            pos: 0,
-            line: 1,
-            column: 1
-          }]);
-          segments[0].value.modifiers.should.be.instanceof(Array).and.eql([
-            { action: 'a' },
-            { action: 'b', arguments: [] },
-            { action: 'c', arguments: [ {
-                column: 1,
-                line: 1,
-                pos: 0,
-                text: '"Hello"',
-                type: 'string',
-                value: 'Hello'
-              } ]
+          segments[0].content.should.be.instanceof(Object).and.eql({
+            "context": "bar",
+            "expression": [
+              {
+                "type": "context",
+                "value": {
+                  "context": "foo"
+                }
+              }
+            ]
+          });
+          segments[0].modifiers.should.be.instanceof(Array).and.eql([
+            {
+              "name": "a",
+              "args": []
             },
-            { action: 'd', arguments: [ {
-                column: 1,
-                line: 1,
-                pos: 0,
-                text: 'bar',
-                type: 'context',
-                value: 'ctx.getContext("bar").data'
-              } ]
+            {
+              "name": "b",
+              "args": []
+            },
+            {
+              "name": "c",
+              "args": [
+                [
+                  {
+                    "type": "string",
+                    "value": "Hello"
+                  }
+                ]
+              ]
+            },
+            {
+              "name": "d",
+              "args": [
+                [
+                  {
+                    "type": "context",
+                    "value": {
+                      "context": "bar"
+                    }
+                  }
+                ]
+              ]
             }
           ]);
-          segments[0].pos.should.equal(0);
+          segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
           segments[0].column.should.equal(1);
 
@@ -234,26 +250,25 @@ describe('Test Parser', function () {
         ].map(function (str) {
           var segments = Parser.parse(str);
 
-          segments.should.be.instanceof(Array).and.have.lengthOf(2);
+          segments.should.have.lengthOf(2);
+
           segments[0].type.should.equal('text');
-          segments[0].text.should.equal('Hello ');
-          segments[0].pos.should.equal(0);
+          segments[0].content.should.equal('Hello ');
+          segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
           segments[0].column.should.equal(1);
 
           segments[1].type.should.equal('output');
-          segments[1].value.should.be.an.Object;
-          should(segments[1].value.context).be.undefined;
-          segments[1].value.content.should.be.instanceof(Array).and.eql([{
+          segments[1].content.should.be.an.Object;
+          should(segments[1].content.context).be.null;
+          segments[1].content.expression.should.be.instanceof(Array).and.eql([{
             type: 'context',
-            text: 'foo',
-            value: 'ctx.getContext("foo").data',
-            pos: 0,
-            line: 1,
-            column: 1
+            value: {
+              context: 'foo'
+            }
           }]);
-          should(segments[1].value.modifiers).be.undefined;
-          segments[1].pos.should.equal(6);
+          segments[1].modifiers.should.eql([]);
+          segments[1].offset.should.equal(6);
           segments[1].line.should.equal(1);
           segments[1].column.should.equal(7);
 
@@ -273,62 +288,49 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(2);
+      segments.should.have.lengthOf(2);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'conditional',
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].type.should.equal('conditional');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]
       });
 
-      segments[1].type.should.equal('segment');
-      segments[1].value.should.be.instanceof(Object).and.eql({
-        type: 'conditional',
-        closing: true
-      });
+      segments[1].type.should.equal('conditional');
+      segments[1].closing.should.be.true;
 
     });
 
 
     it('should parse two segments', function () {
-      var str = '{?{true}}{?{~}}{?{/}}';
+      var str = '{?{true}}{?{|}}{?{/}}';
       var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(3);
+      segments.should.have.lengthOf(3);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'conditional',
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].type.should.equal('conditional');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]
       });
 
-      segments[1].type.should.equal('segment');
-      segments[1].value.should.be.instanceof(Object).and.eql({
-        type: 'conditional',
-        next: true
-      });
+      segments[1].type.should.equal('conditional');
+      segments[1].next.should.be.true;
 
-      segments[2].type.should.equal('segment');
-      segments[2].value.should.be.instanceof(Object).and.eql({
-        type: 'conditional',
-        closing: true
-      });
+      segments[2].type.should.equal('conditional');
+      segments[2].closing.should.be.true;
 
     });
 
@@ -339,7 +341,7 @@ describe('Test Parser', function () {
         '{?{true}}',
         '{?{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -347,10 +349,10 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{?{true}}{?{~}}{?{~}}{?{/}}',
-        '{?{true}}{?{~}}{?{~}}{?{~}}{?{/}}'
+        '{?{true}}{?{|}}{?{|}}{?{/}}',
+        '{?{true}}{?{|}}{?{|}}{?{|}}{?{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -365,63 +367,51 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(2);
+      segments.should.have.lengthOf(2);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'switch',
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].type.should.equal('switch');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]
       });
 
-      segments[1].type.should.equal('segment');
-      segments[1].value.should.be.instanceof(Object).and.eql({
-        type: 'switch',
-        closing: true
-      });
+      segments[1].type.should.equal('switch');
+      segments[1].closing.should.be.true;
 
     });
 
     it('should parse many segments', function () {
-      var str = '{*{true}}{*{~}}{*{~}}{*{~}}{*{~}}{*{~}}{*{~}}{*{/}}';
+      var str = '{*{true}}{*{|}}{*{|}}{*{|}}{*{|}}{*{|}}{*{|}}{*{/}}';
       var segments = Parser.parse(str);
+      var expectedCount = 8;
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(8);
+      segments.should.have.lengthOf(8);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'switch',
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].type.should.equal('switch');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]
       });
 
-      for (var i = 1; i < 6; ++i) {
-        segments[i].type.should.equal('segment');
-        segments[i].value.should.be.instanceof(Object).and.eql({
-          type: 'switch',
-          next: true
-        });
+      for (var i = 1; i < expectedCount - 1; ++i) {
+        segments[i].type.should.equal('switch');
+        segments[i].next.should.be.true;
       }
 
-      segments[7].type.should.equal('segment');
-      segments[7].value.should.be.instanceof(Object).and.eql({
-        type: 'switch',
-        closing: true
-      });
+      segments[expectedCount - 1].type.should.equal('switch');
+      segments[expectedCount - 1].closing.should.be.true;
 
     });
 
@@ -432,7 +422,7 @@ describe('Test Parser', function () {
         '{*{true}}',
         '{*{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -447,26 +437,21 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(2);
+      segments.should.have.lengthOf(2);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'iterator',
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].type.should.equal('iterator');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]
       });
 
-      segments[1].type.should.equal('segment');
-      segments[1].value.should.be.instanceof(Object).and.eql({
-        type: 'iterator',
-        closing: true
-      });
+      segments[1].type.should.equal('iterator');
+      segments[1].closing.should.be.true;
 
     });
 
@@ -477,7 +462,7 @@ describe('Test Parser', function () {
         '{@{true}}',
         '{@{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -485,10 +470,10 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{@{true}}{@{~}}{@{/}}',
-        '{@{true}}{@{~}}{@{~}}{@{/}}'
+        '{@{true}}{@{|}}{@{/}}',
+        '{@{true}}{@{|}}{@{|}}{@{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -502,65 +487,55 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(1);
+      segments.should.have.lengthOf(1);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'custom',
-        closing: true,
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].type.should.equal('custom');
+      segments[0].content.should.be.instanceof(Object).and.eql( {
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]
       });
+      segments[0].closing.should.be.true;
 
     });
 
     it('should parse various segments', function () {
       var tests = {
         '{&{true}}{&{/}}': 2,
-        '{&{true}}{&{~}}{&{/}}': 3,
-        '{&{true}}{&{~}}{&{~}}{&{~}}{&{/}}': 5,
-        '{&{true}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{/}}': 7,
-        '{&{true}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{~}}{&{/}}': 15,
+        '{&{true}}{&{|}}{&{/}}': 3,
+        '{&{true}}{&{|}}{&{|}}{&{|}}{&{/}}': 5,
+        '{&{true}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{/}}': 7,
+        '{&{true}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{/}}': 15,
       };
 
       Object.keys(tests).forEach(function (str) {
         var segments = Parser.parse(str);
         var expectedCount = tests[str];
 
-        segments.should.be.instanceof(Array).and.have.lengthOf(expectedCount);
+        segments.should.have.lengthOf(expectedCount);
 
-        segments[0].type.should.equal('segment');
-        segments[0].value.should.be.instanceof(Object).and.eql({
-          type: 'custom',
-          content: [ {
-            type: 'reserved',
-            value: true,
-            text: 'true',
-            pos: 0,
-            line: 1,
-            column: 1
-          } ],
+        segments[0].type.should.equal('custom');
+        segments[0].content.should.be.instanceof(Object).and.eql({
+          "context": null,
+          "expression": [
+            {
+              "type": "reserved",
+              "value": true
+            }
+          ]
         });
 
         for (var i = 1; i < expectedCount - 1; ++i) {
-          segments[i].type.should.equal('segment');
-          segments[i].value.should.be.instanceof(Object).and.eql({
-            type: 'custom',
-            next: true
-          });
+          segments[i].type.should.equal('custom');
+          segments[i].next.should.be.true;
         }
 
-        segments[expectedCount - 1].type.should.equal('segment');
-        segments[expectedCount - 1].value.should.be.instanceof(Object).and.eql({
-          type: 'custom',
-          closing: true
-        });
+        segments[expectedCount - 1].type.should.equal('custom');
+        segments[expectedCount - 1].closing.should.be.true;
 
       });
 
@@ -576,25 +551,31 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(2);
+      segments.should.have.lengthOf(2);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'namedDeclare',
-        content: [ {
-          type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+      segments[0].should.be.instanceof(Object).and.eql({
+        "type": "namedDeclare",
+        "content": {
+          "context": null,
+          "expression": [
+            {
+              "type": "reserved",
+              "value": true
+            }
+          ]
+        },
+        "modifiers": [],
+        "offset": 0,
+        "line": 1,
+        "column": 1
       });
 
-      segments[1].type.should.equal('segment');
-      segments[1].value.should.be.instanceof(Object).and.eql({
-        type: 'namedDeclare',
-        closing: true
+      segments[1].should.be.instanceof(Object).and.eql({
+        "type": "namedDeclare",
+        "closing": true,
+        "offset": 9,
+        "line": 1,
+        "column": 10
       });
 
     });
@@ -606,7 +587,7 @@ describe('Test Parser', function () {
         '{#{true}}',
         '{#{true /}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -614,10 +595,10 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{#{true}}{#{~}}{#{/}}',
-        '{#{true}}{#{~}}{#{~}}{#{/}}'
+        '{#{true}}{#{|}}{#{/}}',
+        '{#{true}}{#{|}}{#{|}}{#{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -631,21 +612,18 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(1);
+      segments.should.have.lengthOf(1);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'namedRender',
-        closing: true,
-        content: [ {
+      segments[0].type.should.equal('namedRender');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        context: null,
+        expression: [ {
           type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+          value: true
+        } ]
       });
+      segments[0].modifiers.should.be.instanceof(Array).and.have.lengthOf(0);
+      segments[0].closing.should.be.true;
 
     });
 
@@ -654,10 +632,10 @@ describe('Test Parser', function () {
 
       [
         '{+{true}}{+{/}}',
-        '{+{true}}{+{~}}{+{/}}',
-        '{+{true}}{+{~}}{+{~}}{#{/}}'
+        '{+{true}}{+{|}}{+{/}}',
+        '{+{true}}{+{|}}{+{|}}{#{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -671,21 +649,18 @@ describe('Test Parser', function () {
 
       //console.log(JSON.stringify(segments, null, 2));
 
-      segments.should.be.instanceof(Array).and.have.lengthOf(1);
+      segments.should.have.lengthOf(1);
 
-      segments[0].type.should.equal('segment');
-      segments[0].value.should.be.instanceof(Object).and.eql({
-        type: 'partial',
-        closing: true,
-        content: [ {
+      segments[0].type.should.equal('partial');
+      segments[0].content.should.be.instanceof(Object).and.eql({
+        context: null,
+        expression: [ {
           type: 'reserved',
-          value: true,
-          text: 'true',
-          pos: 0,
-          line: 1,
-          column: 1
-        } ],
+          value: true
+        } ]
       });
+      segments[0].modifiers.should.be.instanceof(Array).and.have.lengthOf(0);
+      segments[0].closing.should.be.true;
 
     });
 
@@ -694,10 +669,10 @@ describe('Test Parser', function () {
 
       [
         '{>{true}}{>{/}}',
-        '{>{true}}{>{~}}{>{/}}',
-        '{>{true}}{>{~}}{>{~}}{>{/}}'
+        '{>{true}}{>{|}}{>{/}}',
+        '{>{true}}{>{|}}{>{|}}{>{/}}'
       ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw(ParserException);
+        +(function () { Parser.parse(str); }).should.throw();
       });
     });
 
@@ -709,10 +684,10 @@ describe('Test Parser', function () {
 
     [
       '{Q{true}}{Q{/}}',
-      '{P{true}}{P{~}}{P{/}}',
-      '{-{true}}{-{~}}{-{~}}{-{/}}'
+      '{P{true}}{P{|}}{P{/}}',
+      '{-{true}}{-{|}}{-{|}}{-{/}}'
     ].forEach(function (str) {
-      +(function () { Parser.parse(str); }).should.throw(/^Invalid segment type/);
+      +(function () { Parser.parse(str); }).should.throw();
     });
   });
 
@@ -722,9 +697,9 @@ describe('Test Parser', function () {
 
     [
       '{{true /}}',
-      '{{true ~}}'
+      '{{true |}}'
     ].forEach(function (str) {
-      +(function () { Parser.parse(str); }).should.throw(/^Unexpected token/);
+      +(function () { Parser.parse(str); }).should.throw();
     });
 
   });
@@ -742,21 +717,7 @@ describe('Test Parser', function () {
       '{&{true /}"bob"}'
     ].forEach(function (str) {
       //console.log("*** TRYING MODIFIER PATTERN", str);
-      +(function () { Parser.parse(str); }).should.throw(/^Invalid modifier/);
-    });
-
-  });
-
-
-  it('should fail with invalid template name', function () {
-    this.timeout(200);
-
-    [
-      true, false,
-      -1, 0, 1, 123,
-      function () {}, {}, [], /./
-    ].forEach(function (name) {
-      +(function () { Parser.parse('', name); }).should.throw('Invalid template name : ' + String(name));
+      +(function () { Parser.parse(str); }).should.throw();
     });
 
   });
@@ -767,10 +728,10 @@ describe('Test Parser', function () {
 
     [
       '{&{/}}',
-      '{&{~}}'
+      '{&{|}}'
     ].forEach(function (str) {
       //console.log("*** TRYING MODIFIER PATTERN", str);
-      +(function () { Parser.parse(str); }).should.throw('Invalid segment state');
+      +(function () { Parser.parse(str); }).should.throw();
     });
 
   });

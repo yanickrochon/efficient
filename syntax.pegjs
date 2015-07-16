@@ -2,48 +2,30 @@
 {
   var segStack = [];
   var segTableInfo = {
-    '?': { min: 1, max: 2 },
-    '*': { min: 1, max: Infinity },
-    '@': { min: 1, max: 1 },
-    '&': { min: 0, max: Infinity },
-    '#': { min: 1, max: 1 },
-    '+': { min: 0, max: 0 },
-    '>': { min: 0, max: 0 }
+    'conditional':  { min: 1, max: 2 },
+    'switch':       { min: 1, max: Infinity },
+    'iterator':     { min: 1, max: 1 },
+    'custom':       { min: 0, max: Infinity },
+    'namedDeclare': { min: 1, max: 1 },
+    'namedRender':  { min: 0, max: 0 },
+    'partial':      { min: 0, max: 0 }
   };
 
-  function enterSegment(type) {
+  function enterSegment(type, selfClosing) {
     segStack.push({
       type: type,
-      count: 0
+      count: selfClosing ? 0 : 1
     });
-  }
-
-  function checkSegment(type, closing) {
-    if (segStack.length) {
-      return segStack[segStack.length - 1].type === type;
+    
+    if (selfClosing) {
+      exitSegment(type);
     } else {
-      error("Unexpected " + type + " " + (closing ? "closing" : "next") + " segment");
-    }
-  }
-
-  function checkSegmentCount(type) {
-    var info;
-    var count;
-
-    if (checkSegment(type)) {
-      info = mapTableInfo[type];
-      count = segStack[segStack.length - 1].count;
-
-      if (info.min > count) {
-        error("Missing content for " + type + " segment");
-      } else if (info.max < count) {
-        error("Too many contents for " + type + " segment");
-      }
+      checkSegmentCount(type);
     }
   }
 
   function nextSegment(type) {
-    if (checkSegment(type)) {
+    if (checkSegment(type) && checkSegmentCount(type)) {
       ++segStack[segStack.length - 1].count;
     }
   }
@@ -52,19 +34,40 @@
     if (checkSegment(type, true) && checkSegmentCount(type)) {
       return segStack.pop(), true;
     } else {
-      error("Mismatch " + segStack[segStack.length - 1].type + " closing segment");
+      throw error("Mismatch " + segStack[segStack.length - 1].type + " closing segment");
+    }
+  }
+
+  function checkSegment(type, closing) {
+    if (segStack.length) {
+      return segStack[segStack.length - 1].type === type;
+    } else {
+      throw error("Unexpected " + type + " " + (closing ? "closing" : "next") + " segment");
+    }
+  }
+
+  function checkSegmentCount(type) {
+    var info = segTableInfo[type];
+    var count = segStack[segStack.length - 1].count;
+
+    if (info.min > count) {
+      throw error("Missing content for " + type + " segment");
+    } else if (info.max < count) {
+      throw error("Too many contents for " + type + " segment");
+    } else {
+      return true;
     }
   }
 
   function cleanup() {
     if (segStack.length) {
-      error("Missing " + segStack[segStack.length - 1].type + " closing segment");
+      throw error("Missing " + segStack[segStack.length - 1].type + " closing segment");
     }
   }
 }
 
 start
-  = seg:segment+ { return cleanup(), seg; }
+  = seg:segment* { return cleanup(), seg; }
 
 
 // Base classes
@@ -174,10 +177,10 @@ typedSegmentOpen
  = '{' space* type:segmentType space* '{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, content:body, modifiers:modifiers || [] }; }
 
 typedSegmentSelfClosing
- = '{' space* type:segmentType space* '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return { type:type, content:body, modifiers:modifiers || [], closing:true }; }
+ = '{' space* type:segmentType space* '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, content:body, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
- = '{' space* type:segmentType space* '{' space* '|' space* '}' space* '}' { return checkSegment(type), { type:type, next:true }; }
+ = '{' space* type:segmentType space* '{' space* '|' space* '}' space* '}' { return nextSegment(type), { type:type, next:true }; }
 
 typedSegmentClose
  = '{' space* type:segmentType space* '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
@@ -188,6 +191,7 @@ segmentBody
  = ctx:( context space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0].context, expression:expr }; }
 
 modifiers
- = left:func '|' right:modifiers { return [{ name:left.context, args:left.args }].concat(right); }
+ = left:func '|' right:modifiers { return [{ name:left.name, args:left.args }].concat(right); }
+ / left:variable '|' right:modifiers { return [{ name:left, args:[] }].concat(right); }
  / left:func { return [{ name:left.name, args:left.args }]; }
  / left:variable { return [{ name:left, args:[] }]; }

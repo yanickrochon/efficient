@@ -130,15 +130,20 @@ arguments
 func
  = name:variable space* args:arguments { return { name:name, args:args }; }
 
-variablePath
- = left:variable space? '.' space? right:variablePath { return left + '.' + right; }
+contextPath
+ = parent:( '~' / p:'.'+ { return p.join(''); } )? 
+   path:( left:variable space? sep:'.'+ space? right:contextPath { return left + sep.join('') + right; }
+        / variable ) { return (parent || '') + path; }
+
+propertyPath
+ = left:variable space? '.' space? right:propertyPath { return left + '.' + right; }
  / variable
 
 context
- = path:variablePath space? args:arguments space? ':' props:variablePath { return { context:path, args:args, props:props }; }
- / path:variablePath space? args:arguments { return { context:path, args:args }; }
- / path:variablePath ':' props:variablePath { return { context:path, props:props }; }
- / path:variablePath { return { context:path }; }
+ = path:contextPath space? args:arguments space? ':' props:propertyPath { return { context:path, args:args, props:props }; }
+ / path:contextPath space? args:arguments { return { context:path, args:args }; }
+ / path:contextPath ':' props:propertyPath { return { context:path, props:props }; }
+ / path:contextPath { return { context:path }; }
 
 
 // Compouned type

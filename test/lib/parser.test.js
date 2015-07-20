@@ -186,7 +186,7 @@ describe('Test Parser', function () {
           '{{bar \\ foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
           var segments = Parser.parse(str);
-          
+
           //console.log(JSON.stringify(segments, null, 2));
 
           segments.should.have.lengthOf(1);
@@ -732,6 +732,180 @@ describe('Test Parser', function () {
     ].forEach(function (str) {
       //console.log("*** TRYING MODIFIER PATTERN", str);
       +(function () { Parser.parse(str); }).should.throw();
+    });
+
+  });
+
+
+  describe('Testing expressions', function () {
+
+    it('should parse numbers', function () {
+      var type = 'number';
+      var tests = {
+        '{{2}}': 2,
+        '{{2.345}}': 2.345,
+        '{{+2.345}}': 2.345,
+        '{{-2}}': -2,
+        '{{-2.345}}': -2.345
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].content.expression[0].should.eql({
+          type:type,
+          value:tests[expr]
+        });
+      });
+    });
+
+    it('should parse simple math', function () {
+      var tests = {
+        '{{2+2}}': [2, '+', 2],
+        '{{2-2}}': [2, '-', 2],
+        '{{2*2}}': [2, '*', 2],
+        '{{2/2}}': [2, '/', 2],
+        '{{+2++2}}': [2, '+', 2],
+        '{{-2--2}}': [-2, '-', -2],
+        '{{1.23456+-3.1415}}': [1.23456, '+', -3.1415],
+        '{{"a" == "b"}}': ['a', '===', 'b'],
+        '{{(2+3)}}': ['(', 2, '+', 3, ')'],
+        '{{(2+3)*4}}': ['(', 2, '+', 3, ')', '*', 4]
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        var values = parsed[0].content.expression.map(function (token) {
+          switch (token.type) {
+            case 'parenOpen': return '(';
+            case 'parenClose': return ')';
+            default: return token.value;
+          }
+        });
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        values.should.eql(tests[expr]);
+      });
+    });
+
+    it('should parse reserved keywords', function () {
+      var type = 'reserved';
+      var tests = {
+        '{{undefined}}': undefined,
+        '{{null}}': null,
+        '{{true}}': true,
+        '{{false}}': false,
+        '{{NaN}}': NaN,
+        '{{Infinity}}': Infinity,
+        '{{+Infinity}}': Infinity,
+        '{{-Infinity}}': -Infinity
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].content.expression[0].should.eql({
+          type:type,
+          value:tests[expr]
+        });
+      });
+    });
+
+    it('should parse contexts', function () {
+      var type = 'context';
+      var tests = {
+        '{{foo}}': 'foo',
+        '{{foo.bar}}': 'foo.bar',
+        '{{foo.bar.buz}}': 'foo.bar.buz',
+        '{{~foo}}': '~foo'
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].content.expression[0].should.eql({
+          type:type,
+          value:{
+            context:tests[expr]
+          }
+        });
+      });
+    });
+
+    it('should parse callable contexts', function () {
+      var type = 'context';
+      var tests = {
+        '{{foo()}}': { context:'foo', args:[] },
+        '{{foo.bar()}}': { context:'foo.bar', args:[] },
+        '{{foo(1)}}': { context:'foo', args:[[{ type:'number', value:1 }]] },
+        '{{foo(1,2,3)}}': { context:'foo', args:[[{ type:'number', value:1 }], [{ type:'number', value:2 }], [{ type:'number', value:3 }]] },
+        '{{foo.bar(1,2,3)}}': { context:'foo.bar', args:[[{ type:'number', value:1 }], [{ type:'number', value:2 }], [{ type:'number', value:3 }]] }
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].content.expression[0].should.eql({
+          type:type,
+          value:tests[expr]
+        });
+      });
+    });
+
+  });
+
+
+  describe('Testing modifiers', function() {
+
+    it('should parse modifier without args', function () {
+      var tests = {
+        '{{foo}a}': { name:'a', args:[] }
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].modifiers.should.eql([
+          tests[expr]
+        ]);
+      });
+    });
+
+    it('should parse modifier with args', function () {
+      var tests = {
+        '{{foo}a()}': { name:'a', args:[] },
+        '{{foo}a(1)}': { name:'a', args:[[{ type:'number', value:1 }]] }
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].modifiers.should.eql([
+          tests[expr]
+        ]);
+      });
+    });
+
+    it('should parse chainable modifiers', function () {
+      var tests = {
+        '{{foo}a|b()}': [ { name:'a', args:[] }, { name:'b', args:[] } ],
+        '{{foo}a|b(1)}': [ { name:'a', args:[] }, { name:'b', args:[[{ type:'number', value:1 }]] } ],
+        '{{foo}a|b(1)|c}': [ { name:'a', args:[] }, { name:'b', args:[[{ type:'number', value:1 }]] }, { name:'c', args:[] } ],
+      };
+
+      Object.keys(tests).forEach(function (expr) {
+        var parsed = Parser.parse(expr);
+
+        //console.log(JSON.stringify(parsed, null, 2));
+        parsed[0].modifiers.should.eql(tests[expr]);
+      });
     });
 
   });

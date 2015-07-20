@@ -16,7 +16,7 @@
       type: type,
       count: selfClosing ? 0 : 1
     });
-    
+
     if (selfClosing) {
       exitSegment(type);
     } else {
@@ -87,10 +87,11 @@ string
  / "'" str:( "\\'" / [^'] )+ "'" { return str.join(''); }
 
 number
- = '+' n:number { return n; }
- / '-' n:number { return -n; }
- / i:digit+ '.' d:digit+ { return parseFloat(i.join('') + '.' + d.join(''), 10); }
+ = i:digit+ '.' d:digit+ { return parseFloat(i.join('') + '.' + d.join(''), 10); }
  / i:digit+ { return parseInt(i.join(''), 10); }
+ / '+' n:number { return n; }
+ / '-' n:number { return -n; }
+
 
 reserved
  = 'undefined' { return undefined; }
@@ -98,7 +99,7 @@ reserved
  / 'true' { return true; }
  / 'false' { return false; }
  / 'NaN' { return NaN; }
- / 'Infinity' { return Infinity; }
+ / sign:[+-]? 'Infinity' { return sign === '-' ? -Infinity : Infinity; }
 
 operator
  = op:( '+' / '-' / '*' / '/' / '%' / '&&' / '||' / '==' { return '==='; } ) { return { type:'operator', value:op }; }
@@ -131,7 +132,7 @@ func
  = name:variable space* args:arguments { return { name:name, args:args }; }
 
 contextPath
- = parent:( '~' / p:'.'+ { return p.join(''); } )? 
+ = parent:( '~' / p:'.'+ { return p.join(''); } )?
    path:( left:variable space? sep:'.'+ space? right:contextPath { return left + sep.join('') + right; }
         / variable ) { return (parent || '') + path; }
 

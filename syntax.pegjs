@@ -166,15 +166,12 @@ segmentType
  / '>' { return 'partial'; }
 
 segment
- = seg:( textSegment
+ = seg:( seg:outputSegment
        / typedSegmentSelfClosing
        / typedSegmentOpen
        / typedSegmentNext
        / typedSegmentClose
-       / seg:outputSegment ) { seg.offset = offset(); seg.line = line(); seg.column = column(); return seg; }
-
-textSegment
- = txt:[^{]+ { return { type:'text', content:txt.join('') }; }
+       / textSegment ) { seg.offset = offset(); seg.line = line(); seg.column = column(); return seg; }
 
 outputSegment
  = '{{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return { type:'output', content:body, modifiers:modifiers || [] }; }
@@ -190,6 +187,10 @@ typedSegmentNext
 
 typedSegmentClose
  = '{' space* type:segmentType space* '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
+
+textSegment
+ = txt:( str:( [{][^{]* ) { return (str[0] || '') + str[1].join(''); }
+       / str:[^{]+ { return str.join(''); } ) { return { type:'text', content:txt }; }
 
 
 // Segment components

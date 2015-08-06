@@ -15,9 +15,9 @@ This template engine is a complete rewrite of it's [predecessor](https://github.
 `npm install efficient --save`
 
 
-## Public API
+## Documentation
 
-*TODO*
+See project [documentation](DOCUMENTATION.md) for more information.
 
 
 ## Contribution

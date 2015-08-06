@@ -76,7 +76,8 @@ start
 
 // Base classes
 space
- = ' '
+ = ' ' 
+ / '\n'
 
 digit
  = [0-9]
@@ -106,7 +107,16 @@ reserved
  / sign:[+-]? 'Infinity' { return sign === '-' ? -Infinity : Infinity; }
 
 operator
- = op:( '+' / '-' / '*' / '/' / '%' / '&' / '|' / '&&' / '||' / '=' { return '==='; } ) { return { type:'operator', value:op }; }
+ = op:( '+' / '-' / '*' / '/' 
+      / '%' / '&' / '|' / '^'
+      / '&&' / '||' 
+      / '=' { return '==='; } 
+      / '!=' { return '!=='; }
+      / '<>' { return '!=='; }
+      ) { return { type:'operator', value:op }; }
+
+negate
+ = neg:( '!'+ space* )+ { return { type:'negate', value:neg.map(function (n) { return n[0].join(''); }).join('') }; }
 
 parenOpen
  = '(' { return { type:'parenOpen' }; }
@@ -121,7 +131,9 @@ variable
 expression
  = open:parenOpen space* left:expression space* close:parenClose space* op:operator space* right:expression { return [open].concat(left).concat([close,op]).concat(right); }
  / open:parenOpen space* expr:expression space* close:parenClose { return [open].concat(expr).concat([close]); }
+ / neg:negate val:value space* op:operator space* expr:expression { return [neg, val, op ].concat(expr); }
  / val:value space* op:operator space* expr:expression { return [ val, op ].concat(expr); }
+ / neg:negate val:value { return [neg, val]; }
  / val:value { return [val]; }
 
 expressionList
@@ -139,6 +151,7 @@ contextPath
  = parent:( '~' / p:'.'+ { return p.join(''); } )?
    path:( left:variable space? sep:'.'+ space? right:contextPath { return left + sep.join('') + right; }
         / variable ) { return (parent || '') + path; }
+ / parent:( '~' / p:'.'+ { return p.join(''); } )
 
 propertyPath
  = left:variable space? '.' space? right:propertyPath { return left + '.' + right; }
@@ -182,16 +195,16 @@ outputSegment
  = '{{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return { type:'output', content:body, modifiers:modifiers || [] }; }
 
 typedSegmentOpen
- = '{' space* type:segmentType space* '{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, content:body, modifiers:modifiers || [] }; }
+ = '{' type:segmentType '{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, content:body, modifiers:modifiers || [] }; }
 
 typedSegmentSelfClosing
- = '{' space* type:segmentType space* '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, content:body, modifiers:modifiers || [], closing:true }; }
+ = '{' type:segmentType '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, content:body, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
- = '{' space* type:segmentType space* '{' space* '|' space* '}' space* '}' { return nextSegment(type), { type:type, next:true }; }
+ = '{' type:segmentType '{' space* '|' space* '}' space* '}' { return nextSegment(type), { type:type, next:true }; }
 
 typedSegmentClose
- = '{' space* type:segmentType space* '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
+ = '{' type:segmentType '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
 
 textSegment
  = txt:( str:( [{][^{]* ) { return (str[0] || '') + str[1].join(''); }

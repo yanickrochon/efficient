@@ -8,10 +8,14 @@
     'custom':       { min: 0, max: Infinity },
     'namedDeclare': { min: 1, max: 1 },
     'namedRender':  { min: 0, max: 0 },
-    'partial':      { min: 0, max: 0 }
+    'partial':      { min: 0, max: 0 },
+    '__ERR':      { min: 0, max: Infinity }
   };
 
   function enterSegment(type, selfClosing) {
+    if (!segTableInfo[type]) {
+      error('Invalid segment: ' + type);
+    }
     segStack.push({
       type: type,
       count: selfClosing ? 0 : 1
@@ -47,7 +51,7 @@
   }
 
   function checkSegmentCount(type) {
-    var info = segTableInfo[type];
+    var info = segTableInfo[type] || segTableInfo['__ERR'];
     var count = segStack[segStack.length - 1].count;
 
     if (info.min > count) {
@@ -102,7 +106,7 @@ reserved
  / sign:[+-]? 'Infinity' { return sign === '-' ? -Infinity : Infinity; }
 
 operator
- = op:( '+' / '-' / '*' / '/' / '%' / '&&' / '||' / '==' { return '==='; } ) { return { type:'operator', value:op }; }
+ = op:( '+' / '-' / '*' / '/' / '%' / '&' / '|' / '&&' / '||' / '=' { return '==='; } ) { return { type:'operator', value:op }; }
 
 parenOpen
  = '(' { return { type:'parenOpen' }; }
@@ -164,6 +168,7 @@ segmentType
  / '#' { return 'namedDeclare'; }
  / '+' { return 'namedRender'; }
  / '>' { return 'partial'; }
+ / invalidType:. { return invalidType; }
 
 segment
  = seg:( seg:outputSegment

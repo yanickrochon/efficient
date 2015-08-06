@@ -699,7 +699,15 @@ describe('Test Parser', function () {
       '{{true /}}',
       '{{true |}}'
     ].forEach(function (str) {
-      +(function () { Parser.parse(str); }).should.throw();
+      // the syntax is more flexible, now
+      //+(function () { Parser.parse(str); }).should.throw();
+
+      var parsed = Parser.parse(str);
+
+      parsed.should.not.be.empty;
+      parsed.forEach(function (segment) {
+        segment.type.should.equal('text');
+      });
     });
 
   });
@@ -716,8 +724,16 @@ describe('Test Parser', function () {
       '{&{true /}.}',
       '{&{true /}"bob"}'
     ].forEach(function (str) {
+      // the syntax is more flexible, now
       //console.log("*** TRYING MODIFIER PATTERN", str);
-      +(function () { Parser.parse(str); }).should.throw();
+      //+(function () { Parser.parse(str); }).should.throw();
+
+      var parsed = Parser.parse(str);
+
+      parsed.should.not.be.empty;
+      parsed.forEach(function (segment) {
+        segment.type.should.equal('text');
+      });
     });
 
   });
@@ -769,7 +785,7 @@ describe('Test Parser', function () {
         '{{+2++2}}': [2, '+', 2],
         '{{-2--2}}': [-2, '-', -2],
         '{{1.23456+-3.1415}}': [1.23456, '+', -3.1415],
-        '{{"a" == "b"}}': ['a', '===', 'b'],
+        '{{"a" = "b"}}': ['a', '===', 'b'],
         '{{(2+3)}}': ['(', 2, '+', 3, ')'],
         '{{(2+3)*4}}': ['(', 2, '+', 3, ')', '*', 4]
       };

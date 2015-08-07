@@ -41,24 +41,20 @@ Output segments will echo whatever `expression` is specified using any specified
 * etc.
 
 Typed segments are control flow segments. Their `expression` are evaluated using any specified `context`, and the resulting values are sent to the segment handlers when rendering the templates. Any output within the child segments, or handlers, may or may not be sent through the specified `modifiers`.
+#### Conditional : `?`
+Represent a simple conditional one-way or two-way branching control flow. If the segment's expression is `true`, then the first child segment will be rendered, otherwise the next child segment will be rendered if exists.
 
-#### Segment Types
+**Example**
 
-* **Conditional** : `?`
-  Represent a simple conditional one-way or two-way branching control flow. If the segment's expression is `true`, then the first child segment will be rendered, otherwise the next child segment will be rendered if exists.
+```
+{?{user}}
+  Hello {{user.name}}{?{meessages}} ({{messages:length}}){?{/}}
+{?{|}}
+  <a href="#login">Login</a>
+{?{/}}
+```
 
-  **Example**
-
-  ```
-  {?{user}}
-    Hello {{user.name}}{?{meessages}} ({{messages:length}}){?{/}}
-  {?{|}}
-    <a href="#login">Login</a>
-  {?{/}}
-  ```
-
-
-* **Switch** : `*`
+#### Switch : `*`
   Represent a simple conditional multiple branching control flow. The child segment being rendered is the one represented by the segment's expression. The value of the expression should numeric. 
 
   The last child segment will always be the default one being rendered. In other words, a switch segment will *always* render one of it's child segment.
@@ -66,7 +62,7 @@ Typed segments are control flow segments. Their `expression` are evaluated using
   **Example**
 
   ```
-` {*{amount}}
+  {*{amount}}
     None
   {*{|}}
     One
@@ -79,84 +75,101 @@ Typed segments are control flow segments. Their `expression` are evaluated using
   {*{/}}`
   ```
 
-* **Iterator** : `@`
-  Represent an iteration (for..., loop, etc.) control flow. The expression determine the value being iterated. The value may be any one of these types :
-  * `array` : will iterate over every array elements
-  * `object` : will iterate over every object keys
-  * `number` : will iterate from `0` to `n` (exclusively)
+#### Iterator : `@`
+Represent an iteration (for..., loop, etc.) control flow. The expression determine the value being iterated. The value may be any one of these types :
+
+* `array` : will iterate over every array elements
+* `object` : will iterate over every object keys
+* `number` : will iterate from `0` to `n` (exclusively)
   
-  The `context` inside this segment will be changed to the iterator's current value, exposing `index`, `key` and `value`. The previous context being availble through the parent path (i.e. `..`).
+The `context` inside this segment will be changed to the iterator's current value, exposing `index`, `key` and `value`. The previous context being availble through the parent path (i.e. `..`).
 
-  If the iterator has nothing to iterate, the child segment will never be rendered.
+If the iterator has nothing to iterate, the child segment will never be rendered.
 
-  **Example**
+**Example**
 
-  ```
-  {@{users}}
-    <div class="row">
-      <div class="col-sm-1">{{index}}</div>
-      <div class="col-sm-4">{{value.name}}</div>
-      <div class="col-sm-3">{{value.lastLogon}}</div>
-      <div class="col-sm-4">...</div>
-    </div>
-  {@{/}}
-  ```
+```
+{@{users}}
+  <div class="row">
+    <div class="col-sm-1">{{index}}</div>
+    <div class="col-sm-4">{{value.name}}</div>
+    <div class="col-sm-3">{{value.lastLogon}}</div>
+    <div class="col-sm-4">...</div>
+  </div>
+{@{/}}
+```
 
-* **Custom** : `&`
-  Represent an external function to execute within the template. The expression's value determine the name of the function to execute relative to the current context.
+#### Custom : `&`
+Represent an external function to execute within the template. The expression's value determine the name of the function to execute relative to the current context.
 
-  **Example**
+**Example**
 
-  ```
-  {&{user\ "avatarPicture" /}}
-  ```
+```
+{&{user\ "avatarPicture" /}}
+```
 
-  Would invoke a function assuming a template `context` similar to this :
+Would invoke a function assuming a template `context` similar to this :
 
-  ```
-  {
-    user: {
-      id: 123,
-      avatarPicture: function (ctx, segments, modifier) {
-        // "this" is the internal engine instance
-        this.out(generateUserAvatar(ctx.data.id));
-      }
+```
+{
+  user: {
+    id: 123,
+    avatarPicture: function (ctx, segments, modifier) {
+      // "this" is the internal engine instance
+      this.out(generateUserAvatar(ctx.data.id));
     }
   }
-  ```
+}
+```
 
-* **Named** : `#` and `+`
-  Represent reusable blocks, or segments, that may be rendered multiple times, optionally using different contexts. In order to render named segments, these need to be declared using the declaration segment type (`#`), then invoked (or rendered) using the render segment (`+`). The `expression` defines the name of the segment (either when declaring and rendering).
+To invoke an asynchronous handler, simply return a `Promise`.
 
-  The named segment receives it's current `context` at render time. And the parent context is the current context at declare time. In other words, `{{.}}` is the context when rendering the named segment and `{{..}}` is the context when declaring it.
+```
+{
+  user: {
+    id: 123,
+    avatarPicture: function (ctx, segments, modifier) {
+      var engine = this;
+      return fetchUserAvatar(ctx.data.id).then(function (img) {}
+        engine.out('<img src="' + img.src + '" alt="' + img.name + '">');
+      });
+    }
+  }
+}
+```
 
-  **Example**
+#### Named : `#` and `+`
+Represent reusable blocks, or segments, that may be rendered multiple times, optionally using different contexts. In order to render named segments, these need to be declared using the declaration segment type (`#`), then invoked (or rendered) using the render segment (`+`). The `expression` defines the name of the segment (either when declaring and rendering).
 
-  ```
-  {#{"userRow"}}
-    <div class="row">
-      <div class="col-sm-1">{{id}}</div>
-      <div class="col-sm-4">{{name}}</div>
-      <div class="col-sm-3">{{lastLogon}}</div>
-      <div class="col-sm-4">...</div>
-    </div>
-  {#{/}}
+The named segment receives it's current `context` at render time. And the parent context is the current context at declare time. In other words, `{{.}}` is the context when rendering the named segment and `{{..}}` is the context when declaring it.
 
-  {@{users}}
-    {+{value\ "userRow" /}}
-  {@{/}}
-  ```
+**Example**
 
-* **Partial** : `>`
-  Represents an external template to render at the segment's position, optionally using the given context and having all output being filtered through the specified modifiers. The segment's `expression` defines the partial to render.
+```
+{#{"userRow"}}
+  <div class="row">
+    <div class="col-sm-1">{{id}}</div>
+    <div class="col-sm-4">{{name}}</div>
+    <div class="col-sm-3">{{lastLogon}}</div>
+    <div class="col-sm-4">...</div>
+  </div>
+{#{/}}
 
-  Partials are cached within the engine, therefore the value may specify a file or a named template.
+{@{users}}
+  {+{value\ "userRow" /}}
+{@{/}}
+```
 
-  **Example**
+#### Partial : `>`
+Represents an external template to render at the segment's position, optionally using the given context and having all output being filtered through the specified modifiers. The segment's `expression` defines the partial to render.
 
-  ```
-  {>{users\ "path/to/users.table.html" /}}
-  ```
+Partials are cached within the engine, therefore the value may specify a file or a named template.
+
+**Example**
+
+```
+{>{users\ "path/to/users.table.html" /}}
+```
 
 
 ## Contexts
@@ -198,6 +211,47 @@ Typed segments are control flow segments. Their `expression` are evaluated using
 * `upper` : convert all characters to upper case
 * `lower` : convert all characters to lower case
 * `mask([char])`  : change all characters into the specified `char`, or `*`
+
+### Custom Modifiers
+
+Modifiers may be globally registered through the `Engine` class. A modifier is a function receiving a a value, and optionally extra arguments, returning a string.
+
+**Note:** Modifiers are synchronous only. Use **Custom Segments** for asynchronous handlers.
+
+**Example**
+
+Let's create a simple function that will scan for URLs and automatically create HTML links.
+
+```
+const URL_PATTERN = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+
+var Engine = require('efficient').Engine;
+
+Engine.registerModifier(function autoURL(text) {
+  return text.replace(URL_PATTERN, function (m) {
+    return '<a href="' + encodeURI(m) + '">' + m + '</a>';
+  });
+});
+```
+
+And use this modifier like so, for example :
+
+```
+{{some.description}}
+```
+
+or
+
+```
+{?{some\ .}autoURL}
+  <dl>
+    <dt>Name</dt>
+    <dd>{{name}}</dd>
+    <dt>Description</dt>
+    <dd>{{description}}</dd>
+  </dl>
+{?{/}}
+```
 
 
 ## Public API

@@ -6,7 +6,7 @@ Templates are separated in segments. There are three (3) types of segments :
 
 ### Text Segments
 
-Text segments are any literal chunks of text in the template. They can be anything and everything.
+Text segments are any literal chunks of text in the template. They can be any string values not equal to an output or typed segment.
 
 ### Output Segments
 
@@ -174,7 +174,133 @@ Partials are cached within the engine, therefore the value may specify a file or
 
 ## Contexts
 
-*TODO*
+Contexts are traversable, dynamic data passed to the template. The efficient engine does not allow setting data beyound [named segments](#named--and-), therefore it offers this means of passing data around. The key benefits of using contexts over direct data manipulations are
+
+* decoupling data, models and views
+* guaranteed safe data access (no need to check if data is available)
+* increase template reusability
+* stacked contexts that remembers previous states
+* etc.
+
+### Context Path
+
+Accessing contexts are done through paths, similar to how files are accessed in a file system, except with a few key difference :
+
+* The path separator character is `.`. The root parent is `~`. The root parent is the context data initially passed to the template when invoking the engine's `render` method. For example :
+  * `.` *(current context)*
+  * `~` *(root context)*
+  * `.foo.bar` is the same as `foo.bar`
+  * `..` the most recent parent context
+
+* Parent contexts are relative to their previous state. This is true in any direction. Consider an initial context `.` is equal to `~`.
+  1. Switching to `foo`, the parent is `~`
+  2. Switching to `bar.buz`, the parent is `foo`
+  3. Switching to `~`, the parent is `foo.bar.buz`
+  4. Switching to `....` would pop out all parent contexts and would restore to a clean initial state.
+
+* Parent contexts can only be used at the start of a path.
+  **Valid parent contexts**
+  * `.` *(current context)*
+  * `..` *(parent context)*
+  * `..foo.bar` *(access context `foo.bar` starting from the parent context)*
+  * `~` *(root context)*
+  * `~foo.bar` *(accessing context `foo.bar` starting from the root context)*
+
+  **Invalid parent contexts**
+  * `~.` or `~~` or `~..` *(... because it makes no sense)*
+  * `foo..bar` *(would be the same as writing `bar`, so it makes no sense)*
+  * `foo~bar`
+
+* The parent context of the root path is itself. In essence, if the current context `.` is equal to `~`, then all the following are equivalent: `.`, `..`, `.....`, etc.
+
+* A path may include safe and unsafe data access (context properties)
+  * Safe: `foo.bar`
+  * Unsafe: `.:foo.bar`
+  See [context properties](#context-properties) for more information.
+
+* When switching to a new context, if any member in the path has data of type array, the final context will be an aggregation of all items of this array. The same is applied if arrays are nested. For example, given an initial context data of :
+
+  ```
+  {
+    "foo": [
+      {
+        "bar": [
+          {
+            "buz": "item1"
+          },
+          {
+            "buz": "item2"
+          }
+        ]
+      },
+      {
+        "bar": [
+          {
+            "buz": "item3"
+          },
+          {
+            "buz": "item4"
+          }
+        ]
+      },
+      {
+        "bar": "item5"
+      },
+      {
+        "bar": {
+          "buz": "item6"
+        }
+      }
+    ]
+  }
+  ```
+
+  and a path of `foo.bar.buz`, would produce a context data of
+
+  ```
+  [
+    "item1",
+    "item2",
+    "item3",
+    "item4",
+    "item6"
+  ]
+  ```
+
+### Context Properties
+
+Context properties are unsafe ways to access the context data directly. Consider this context data :
+
+```
+{
+  "users": [
+    {
+      "id": 123`
+    }
+  ]
+}
+```
+
+Trying to output `{{users.length}}` would result with `null`, not `1`. This is because the `Context` class does not try to play smart, for performance purposes, by doing the template author's job. "What if the context data really has a `length` attribute for each users?"
+
+In fact, when trying to access a property of an object for a given path, it should always be using context properties. For example :
+
+```
+{
+  "items": [
+    "JavaScript",
+    "Node",
+    "V8"
+  ]
+}
+```
+
+Consider these two paths :
+
+1. `{{items.length}json}` *(would echo `[10, 4, 2]`)*
+2. `{{items:length}json}` *(would echo `3`)*
+
+However, context properties are unsafe as they are not checked by the `Context` class and may thow errors! For example, `{{items:foo.bar}}` will throw a `TypeError: Cannot read property 'bar' of undefined`.
 
 ## Expressions
 
@@ -194,6 +320,11 @@ Partials are cached within the engine, therefore the value may specify a file or
 * String (ex: `{{"Hello"}}`, `{{'Hello'}}`)
 * Context (ex: `{{foo}}`, `{{foo.bar.buz}}`, `{{foo.bar:length}}`)
 * Reserved : `undefined`, `null`, `true`, `false`, `NaN`, `Infinity`
+
+### Functions
+
+*TODO*
+
 
 ## Modifiers
 

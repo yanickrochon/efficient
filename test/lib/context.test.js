@@ -5,7 +5,7 @@ describe('Test context', function () {
   var Context = require('../../lib/context');
   var should = require('should');
 
-  var personsContext = {
+  var testContextData = {
     'persons': [{
       'name': {
         'first': 'John',
@@ -25,6 +25,37 @@ describe('Test context', function () {
     },
     'empty': [
       null, undefined
+    ],
+
+    'foo': [
+      {
+        'bar': [
+          {
+            'buz': "item1"
+          },
+          {
+            'buz': "item2"
+          }
+        ]
+      },
+      {
+        'bar': [
+          {
+            'buz': "item3"
+          },
+          {
+            'buz': "item4"
+          }
+        ]
+      },
+      {
+        'bar': 'item5... not part of an object'
+      },
+      {
+        'bar': {
+          'buz': 'item6'
+        }
+      }
     ]
   };
 
@@ -111,7 +142,7 @@ describe('Test context', function () {
   });
 
   it('should get context from path', function () {
-    var ctx = new Context(personsContext);
+    var ctx = new Context(testContextData);
 
     ctx.getContext('.').should.equal(ctx);
     ctx.getContext('..').data.should.equal(ctx.data);
@@ -124,10 +155,10 @@ describe('Test context', function () {
     ctx.getContext('persons').getContext('.').data.should.be.an.Array;
     ctx.getContext('persons').getContext('..').data.should.equal(ctx.data);
 
-    ctx.getContext('tags').data.should.be.instanceof(Array).and.equal(personsContext.tags);
+    ctx.getContext('tags').data.should.be.instanceof(Array).and.equal(testContextData.tags);
     ctx.getContext('locales.en').data.should.equal('English');
 
-    ctx.getContext('persons.name.first').getContext('~').data.should.equal(personsContext);
+    ctx.getContext('persons.name.first').getContext('~').data.should.equal(testContextData);
     ctx.getContext('persons.name.first').getContext('~persons.name.first').data[0].should.equal('John');
 
     ctx.getContext('tags.length').data.should.be.instanceof(Array).and.eql([4, 7, 4]);
@@ -144,7 +175,7 @@ describe('Test context', function () {
   });
 
   it('should return previous context', function () {
-    var ctx = new Context(personsContext);
+    var ctx = new Context(testContextData);
 
     ctx.getContext('persons.name.first').getContext('~').getContext('..').data[0].should.equal('John');
 
@@ -181,5 +212,15 @@ describe('Test context', function () {
 
   });
 
+  it('should read nested arrays', function () {
+    var ctx = new Context(testContextData);
+
+    ctx.getContext('foo.bar').data.should.be.instanceOf(Array).with.lengthOf(6);
+
+    ctx.getContext('foo.bar.buz').data.should.be.instanceOf(Array).eql([
+      'item1', 'item2', 'item3', 'item4', 'item6'
+    ]);
+
+  })
 
 });

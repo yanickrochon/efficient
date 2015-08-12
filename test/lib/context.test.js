@@ -144,40 +144,40 @@ describe('Test context', function () {
   it('should get context from path', function () {
     var ctx = new Context(testContextData);
 
-    ctx.getContext('.').should.equal(ctx);
-    ctx.getContext('..').data.should.equal(ctx.data);
-    ctx.getContext('......').data.should.equal(ctx.data);
+    ctx.get('.').should.equal(ctx);
+    ctx.get('..').data.should.equal(ctx.data);
+    ctx.get('......').data.should.equal(ctx.data);
 
-    ctx.getContext('.persons.name').data.should.be.instanceof(Array).and.have.lengthOf(2);
+    ctx.get('.persons.name').data.should.be.instanceof(Array).and.have.lengthOf(2);
 
-    ctx.getContext('persons.name.first').data[0].should.equal('John');
+    ctx.get('persons.name.first').data[0].should.equal('John');
 
-    ctx.getContext('persons').getContext('.').data.should.be.an.Array;
-    ctx.getContext('persons').getContext('..').data.should.equal(ctx.data);
+    ctx.get('persons').get('.').data.should.be.an.Array;
+    ctx.get('persons').get('..').data.should.equal(ctx.data);
 
-    ctx.getContext('tags').data.should.be.instanceof(Array).and.equal(testContextData.tags);
-    ctx.getContext('locales.en').data.should.equal('English');
+    ctx.get('tags').data.should.be.instanceof(Array).and.equal(testContextData.tags);
+    ctx.get('locales.en').data.should.equal('English');
 
-    ctx.getContext('persons.name.first').getContext('~').data.should.equal(testContextData);
-    ctx.getContext('persons.name.first').getContext('~persons.name.first').data[0].should.equal('John');
+    ctx.get('persons.name.first').get('~').data.should.equal(testContextData);
+    ctx.get('persons.name.first').get('~persons.name.first').data[0].should.equal('John');
 
-    ctx.getContext('tags.length').data.should.be.instanceof(Array).and.eql([4, 7, 4]);
-    should(ctx.getContext('empty.foo').data).equal(null);
+    ctx.get('tags.length').data.should.be.instanceof(Array).and.eql([4, 7, 4]);
+    should(ctx.get('empty.foo').data).equal(null);
   });
 
   it('should return property context for empty path values', function () {
     var ctx = new Context({ index: 0 });
 
-    //console.log(JSON.stringify(ctx.getContext('index.foo.bar'), null, 2));
+    //console.log(JSON.stringify(ctx.get('index.foo.bar'), null, 2));
 
-    ctx.getContext('index').should.have.ownProperty('data').and.equal(0);
-    ctx.getContext('index.foo.bar').should.have.ownProperty('data').and.be.undefined; //.eql(null);
+    ctx.get('index').should.have.ownProperty('data').and.equal(0);
+    ctx.get('index.foo.bar').should.have.ownProperty('data').and.be.undefined; //.eql(null);
   });
 
   it('should return previous context', function () {
     var ctx = new Context(testContextData);
 
-    ctx.getContext('persons.name.first').getContext('~').getContext('..').data[0].should.equal('John');
+    ctx.get('persons.name.first').get('~').get('..').data[0].should.equal('John');
 
   });
 
@@ -187,37 +187,37 @@ describe('Test context', function () {
     //var branch1 = ctx.push('bar1').push('buz');
     //var branch2 = ctx.push('bar2').push('meh');
 
-    ctx.push('bar').push('buz').getContext('..').data.should.equal('bar');
-    ctx.push('bar').push('buz').getContext('...').data.should.equal('foo');
+    ctx.push('bar').push('buz').get('..').data.should.equal('bar');
+    ctx.push('bar').push('buz').get('...').data.should.equal('foo');
 
   });
 
-  it('should check if has data', function () {
-    new Context().hasData.should.be.false;
+  // it('should check if has data', function () {
+  //   new Context().hasData.should.be.false;
 
-    [
-      undefined, null, [], {}
-    ].forEach(function (data) {
-      new Context(data).hasData.should.be.false;
-    });
+  //   [
+  //     undefined, null, [], {}
+  //   ].forEach(function (data) {
+  //     new Context(data).hasData.should.be.false;
+  //   });
 
-    [
-      -1, 0, 1, NaN, Infinity,
-      true, false,
-      '', 'foo',
-      { foo: 'bar' }, ['foo']
-    ].forEach(function (data) {
-      new Context(data).hasData.should.be.true;
-    });
+  //   [
+  //     -1, 0, 1, NaN, Infinity,
+  //     true, false,
+  //     '', 'foo',
+  //     { foo: 'bar' }, ['foo']
+  //   ].forEach(function (data) {
+  //     new Context(data).hasData.should.be.true;
+  //   });
 
-  });
+  // });
 
   it('should read nested arrays', function () {
     var ctx = new Context(testContextData);
 
-    ctx.getContext('foo.bar').data.should.be.instanceOf(Array).with.lengthOf(6);
+    ctx.get('foo.bar').data.should.be.instanceOf(Array).with.lengthOf(6);
 
-    ctx.getContext('foo.bar.buz').data.should.be.instanceOf(Array).eql([
+    ctx.get('foo.bar.buz').data.should.be.instanceOf(Array).eql([
       'item1', 'item2', 'item3', 'item4', 'item6'
     ]);
 

@@ -76,7 +76,7 @@ start
 
 // Base classes
 space
- = ' ' 
+ = ' '
  / '\n'
 
 digit
@@ -107,10 +107,10 @@ reserved
  / sign:[+-]? 'Infinity' { return sign === '-' ? -Infinity : Infinity; }
 
 operator
- = op:( '+' / '-' / '*' / '/' 
+ = op:( '+' / '-' / '*' / '/'
       / '%' / '&' / '|' / '^'
-      / '&&' / '||' 
-      / '=' { return '==='; } 
+      / '&&' / '||'
+      / '=' { return '==='; }
       / '!=' { return '!=='; }
       / '<>' { return '!=='; }
       ) { return { type:'operator', value:op }; }
@@ -158,7 +158,7 @@ propertyPath
  / variable
 
 context
- = path:contextPath space? args:arguments space? ':' props:propertyPath { return { context:path, args:args, props:props }; }
+ = path:contextPath ':' props:propertyPath space? args:arguments space? { return { context:path, args:args, props:props }; }
  / path:contextPath space? args:arguments { return { context:path, args:args }; }
  / path:contextPath ':' props:propertyPath { return { context:path, props:props }; }
  / path:contextPath { return { context:path }; }

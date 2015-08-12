@@ -304,6 +304,8 @@ However, context properties are unsafe as they are not checked by the `Context` 
 
 ## Expressions
 
+An expression is essentially a `value`, and a `value` may be defined by the rules: `value` or `value operator expression`, 
+
 ### Operators
 
 * Basic arithmetics : `+`, `-`, `*`, `/` (ex: `{{foo + bar}}`)
@@ -323,8 +325,39 @@ However, context properties are unsafe as they are not checked by the `Context` 
 
 ### Functions
 
-*TODO*
+Functions may be called within an expression. In fact, functions my be called even as part of another function's argument. In order to use this feature, the functions must be specified as part of the template context. For example:
 
+```
+{
+  userAvatar: function (fullName, imageUrl) {
+    return fullName + ' <img src="' + imageUrl + '">';
+  },
+
+  users: [
+    {
+      id: 123,
+      firstName: 'John',
+      lastName: 'Smith',
+      fullName: function () {
+        return this.firstName + ' ' + this.fullName;
+      },
+      imageUrl: function () {
+        return 'http://domain.com/avatar/' + this.id;
+      }
+    }
+  ]
+}
+```
+
+```
+{@{users}}
+  <span>{{ ~userAvatar(value:fullName(), value:imageUrl()) }}</span>
+{@{/}}
+```
+
+**NOTE:** In the last template, the context property was used (i.e. `value:fullName`) instead of a full context path (i.e. `value.fullName`) to have the JavaScript keyword `this`, inside the function equal to the current iterator `value` object. Otherwise, `this` would have been the current `Context` instance object (the function), losing the ability to fetch the current iterator `value`, as it would not have been stacked.
+
+As a limitation, functions may only be specified through a context path (optionally with property path) only. It is not possible to invoke a function any other way.
 
 ## Modifiers
 
@@ -368,7 +401,7 @@ Engine.registerModifier(function autoURL(text) {
 And use this modifier like so, for example :
 
 ```
-{{some.description}}
+{{some.description}autoURL}
 ```
 
 or

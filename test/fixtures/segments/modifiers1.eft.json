@@ -1,0 +1,450 @@
+[
+  {
+    "@template": "{{ encodeURIComponent }encodeURIComponent}\n{{ decodeURIComponent }decodeURIComponent}\n{{ encodeURI }encodeURI}\n{{ decodeURI }decodeURI}\n{{ encodeHtml }encodeHtml}\n{{ decodeHtml }decodeHtml}\n{{ encodeXml }encodeXml}\n{{ decodeXml }decodeXml}\n{{ json }json}\n{{ upper }upper}\n{{ lower }lower}\n{{ mark }mask(\"?\")}\n{{ lpad }lpad(6,\"-\")}\n{{ rpad }rpad(6,\"+\")}",
+
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "encodeURIComponent"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "encodeURIComponent",
+        "args": []
+      }
+    ],
+    "offset": 0,
+    "line": 1,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 42,
+    "line": 1,
+    "column": 43
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "decodeURIComponent"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "decodeURIComponent",
+        "args": []
+      }
+    ],
+    "offset": 43,
+    "line": 2,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 85,
+    "line": 2,
+    "column": 43
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "encodeURI"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "encodeURI",
+        "args": []
+      }
+    ],
+    "offset": 86,
+    "line": 3,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 110,
+    "line": 3,
+    "column": 25
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "decodeURI"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "decodeURI",
+        "args": []
+      }
+    ],
+    "offset": 111,
+    "line": 4,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 135,
+    "line": 4,
+    "column": 25
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "encodeHtml"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "encodeHtml",
+        "args": []
+      }
+    ],
+    "offset": 136,
+    "line": 5,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 162,
+    "line": 5,
+    "column": 27
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "decodeHtml"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "decodeHtml",
+        "args": []
+      }
+    ],
+    "offset": 163,
+    "line": 6,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 189,
+    "line": 6,
+    "column": 27
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "encodeXml"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "encodeXml",
+        "args": []
+      }
+    ],
+    "offset": 190,
+    "line": 7,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 214,
+    "line": 7,
+    "column": 25
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "decodeXml"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "decodeXml",
+        "args": []
+      }
+    ],
+    "offset": 215,
+    "line": 8,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 239,
+    "line": 8,
+    "column": 25
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "json"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "json",
+        "args": []
+      }
+    ],
+    "offset": 240,
+    "line": 9,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 254,
+    "line": 9,
+    "column": 15
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "upper"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "upper",
+        "args": []
+      }
+    ],
+    "offset": 255,
+    "line": 10,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 271,
+    "line": 10,
+    "column": 17
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "lower"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "lower",
+        "args": []
+      }
+    ],
+    "offset": 272,
+    "line": 11,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 288,
+    "line": 11,
+    "column": 17
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "mark"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "mask",
+        "args": [
+          [
+            {
+              "type": "string",
+              "value": "?"
+            }
+          ]
+        ]
+      }
+    ],
+    "offset": 289,
+    "line": 12,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 308,
+    "line": 12,
+    "column": 20
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "lpad"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "lpad",
+        "args": [
+          [
+            {
+              "type": "number",
+              "value": 6
+            }
+          ],
+          [
+            {
+              "type": "string",
+              "value": "-"
+            }
+          ]
+        ]
+      }
+    ],
+    "offset": 309,
+    "line": 13,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "\n",
+    "offset": 330,
+    "line": 13,
+    "column": 22
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "rpad"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "rpad",
+        "args": [
+          [
+            {
+              "type": "number",
+              "value": 6
+            }
+          ],
+          [
+            {
+              "type": "string",
+              "value": "+"
+            }
+          ]
+        ]
+      }
+    ],
+    "offset": 331,
+    "line": 14,
+    "column": 1
+  }
+]

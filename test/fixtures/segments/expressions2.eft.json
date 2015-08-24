@@ -1,0 +1,155 @@
+[
+  {
+    "@template": "{{true}}:{{!true}}:{{!!true}}:{{!!!true}}:{{!0}}:{{!1}}",
+
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]
+    },
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": ":",
+    "offset": 8,
+    "line": 1,
+    "column": 9
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "negate",
+          "value": "!"
+        },
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]
+    },
+    "modifiers": [],
+    "offset": 9,
+    "line": 1,
+    "column": 10
+  },
+  {
+    "type": "text",
+    "content": ":",
+    "offset": 18,
+    "line": 1,
+    "column": 19
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "negate",
+          "value": "!!"
+        },
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]
+    },
+    "modifiers": [],
+    "offset": 19,
+    "line": 1,
+    "column": 20
+  },
+  {
+    "type": "text",
+    "content": ":",
+    "offset": 29,
+    "line": 1,
+    "column": 30
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "negate",
+          "value": "!!!"
+        },
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]
+    },
+    "modifiers": [],
+    "offset": 30,
+    "line": 1,
+    "column": 31
+  },
+  {
+    "type": "text",
+    "content": ":",
+    "offset": 41,
+    "line": 1,
+    "column": 42
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "negate",
+          "value": "!"
+        },
+        {
+          "type": "number",
+          "value": 0
+        }
+      ]
+    },
+    "modifiers": [],
+    "offset": 42,
+    "line": 1,
+    "column": 43
+  },
+  {
+    "type": "text",
+    "content": ":",
+    "offset": 48,
+    "line": 1,
+    "column": 49
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "negate",
+          "value": "!"
+        },
+        {
+          "type": "number",
+          "value": 1
+        }
+      ]
+    },
+    "modifiers": [],
+    "offset": 49,
+    "line": 1,
+    "column": 50
+  }
+]

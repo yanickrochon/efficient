@@ -1,16 +1,53 @@
 [
   {
-    "@template": "{{foo\\ bar.buz:length}}",
+    "@template": "{{5 * (3 + 7) - 25 / values}}",
 
     "type": "output",
     "content": {
-      "context": "foo",
+      "context": null,
       "expression": [
+        {
+          "type": "number",
+          "value": 5
+        },
+        {
+          "type": "operator",
+          "value": "*"
+        },
+        {
+          "type": "parenOpen"
+        },
+        {
+          "type": "number",
+          "value": 3
+        },
+        {
+          "type": "operator",
+          "value": "+"
+        },
+        {
+          "type": "number",
+          "value": 7
+        },
+        {
+          "type": "parenClose"
+        },
+        {
+          "type": "operator",
+          "value": "-"
+        },
+        {
+          "type": "number",
+          "value": 25
+        },
+        {
+          "type": "operator",
+          "value": "/"
+        },
         {
           "type": "context",
           "value": {
-            "context": "bar.buz",
-            "props": "length"
+            "context": "values"
           }
         }
       ]

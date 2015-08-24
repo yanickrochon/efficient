@@ -406,6 +406,8 @@ As a limitation, functions may only be specified through a context path (optiona
 * `upper` : convert all characters to upper case
 * `lower` : convert all characters to lower case
 * `mask([char])`  : change all characters into the specified `char`, or `*`
+* `lpad([n[,char]])` : pad the given string `n` characters to the left
+* `rpad([n[,char]])` : pad the given string `n` characters to the right
 
 ### Custom Modifiers
 
@@ -484,7 +486,30 @@ The `Context` class encapsulate the necessary data-manipulation API necessary fo
 
 The `Engine` is what binds the `Parser`, `Compiler` and `Context` together. Instances of this class may be used independently to render templates. The implementation allows retrieving the resulting output via a `Promise`, or through a `ReadableStream`.
 
-*TODO*
+* `Engine.extSep` : *`string`* - The separator character when specifying file extensions *(readonly)* *(default `','`)*
+* `Engine.modifiers` : *`object`* - An object specifying all the modifiers. The returned object is read-only; use `registerModifier` and `unregisterModifier`.
+* `Engine.registerModifier(fn)` : *`boolean`* - Register the given modifier function. The function should have a name and receive at least one argument; a `string`. Any subsequent argument will be specified by the template. See [custom modifiers](#custom-modifiers).
+* `Engine.unregisterModifier(modifier)` : *`boolean`* - Unregister the given modifier. The argument `modifier` may be a `function` (search by equality), or a `string` (search by name). Returns `true` if the modifier was removed.
+
+* `engine.options` : *`object`* - The options passed to the `Engine` constructor. If no options was specified, then an empty object is returned. The returned object may be modified.
+* `engine.resolve(name)` : *`Promise`* - Resolve the current template `name` through a `Promise`. The resolved value is an object with these keys: `filename` is the resolved file name, `fn` is optionally the compiled template function.
+* `engine.render(name[, data])` : *`Promise`* - Render the given template. This function will trigger the function `resolve`. The returned promise will also possess a function `stream()` that will return the render stream, used to monitor or get live update when rendering the template. THe resolving promise will return the final rendered string.
+
+  ```
+  engine.render('path/to/template').stream.on('data', function (buffer) {
+    console.log(buffer.toString());
+  });
+  ```
+
+  or
+
+  ```
+  engine.render('path/to/template').then(function (content) {
+    console.log(content);
+  });
+  ```
+
+* `engine.renderString(name, str[, data])` : *`Promise`* - Render the given string `str`. The argument `name` is optional, set to `null` if this string should be cached. Note that the cached `str` should *always* be associated with the same `name`.
 
 ### Internal Engine
 

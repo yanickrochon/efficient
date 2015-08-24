@@ -1,6 +1,6 @@
 [
   {
-    "@template": "Bye {{name}}",
+    "@template": "Bye {{name}} !",
 
     "type": "text",
     "content": "Bye ",
@@ -25,5 +25,12 @@
     "offset": 4,
     "line": 1,
     "column": 5
+  },
+  {
+    "type": "text",
+    "content": " !",
+    "offset": 12,
+    "line": 1,
+    "column": 13
   }
 ]

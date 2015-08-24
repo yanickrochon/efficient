@@ -22,9 +22,7 @@
   {
     "type": "conditional",
     "content": {
-      "context": {
-        "context": "foo"
-      },
+      "context": "foo",
       "expression": [
         {
           "type": "context",

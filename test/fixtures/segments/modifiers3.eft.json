@@ -1,0 +1,108 @@
+[
+  {
+    "@template": "{?{domain && data}lower}http://{{domain}upper}?d={{data}json|encodeURIComponent}{?{/}}",
+
+    "type": "conditional",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "domain"
+          }
+        },
+        {
+          "type": "operator",
+          "value": "&&"
+        },
+        {
+          "type": "context",
+          "value": {
+            "context": "data"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "lower",
+        "args": []
+      }
+    ],
+    "offset": 0,
+    "line": 1,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "http://",
+    "offset": 24,
+    "line": 1,
+    "column": 25
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "domain"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "upper",
+        "args": []
+      }
+    ],
+    "offset": 31,
+    "line": 1,
+    "column": 32
+  },
+  {
+    "type": "text",
+    "content": "?d=",
+    "offset": 46,
+    "line": 1,
+    "column": 47
+  },
+  {
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "data"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "json",
+        "args": []
+      },
+      {
+        "name": "encodeURIComponent",
+        "args": []
+      }
+    ],
+    "offset": 49,
+    "line": 1,
+    "column": 50
+  },
+  {
+    "type": "conditional",
+    "closing": true,
+    "offset": 80,
+    "line": 1,
+    "column": 81
+  }
+]

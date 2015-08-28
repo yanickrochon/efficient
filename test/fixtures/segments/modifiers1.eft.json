@@ -1,6 +1,6 @@
 [
   {
-    "@template": "{{ encodeURIComponent }encodeURIComponent}\n{{ decodeURIComponent }decodeURIComponent}\n{{ encodeURI }encodeURI}\n{{ decodeURI }decodeURI}\n{{ encodeHtml }encodeHtml}\n{{ decodeHtml }decodeHtml}\n{{ encodeXml }encodeXml}\n{{ decodeXml }decodeXml}\n{{ json }json}\n{{ upper }upper}\n{{ lower }lower}\n{{ mark }mask(\"?\")}\n{{ lpad }lpad(6,\"-\")}\n{{ rpad }rpad(6,\"+\")}",
+    "@template": "{{ encodeURIComponent }encodeURIComponent}\n{{ decodeURIComponent }decodeURIComponent}\n{{ encodeURI }encodeURI}\n{{ decodeURI }decodeURI}\n{{ encodeHTML }encodeHTML}\n{{ decodeHTML }decodeHTML}\n{{ encodeXm }encodeXML}\n{{ decodeXML }decodeXML}\n{{ json }json}\n{{ upper }upper}\n{{ lower }lower}\n{{ mark }mask(\"?\")}\n{{ padLeft }padLeft(6,\"-\")}\n{{ padRight }padRight(6,\"+\")}",
 
     "type": "output",
     "content": {
@@ -129,14 +129,14 @@
         {
           "type": "context",
           "value": {
-            "context": "encodeHtml"
+            "context": "encodeHTML"
           }
         }
       ]
     },
     "modifiers": [
       {
-        "name": "encodeHtml",
+        "name": "encodeHTML",
         "args": []
       }
     ],
@@ -159,14 +159,14 @@
         {
           "type": "context",
           "value": {
-            "context": "decodeHtml"
+            "context": "decodeHTML"
           }
         }
       ]
     },
     "modifiers": [
       {
-        "name": "decodeHtml",
+        "name": "decodeHTML",
         "args": []
       }
     ],
@@ -189,14 +189,14 @@
         {
           "type": "context",
           "value": {
-            "context": "encodeXml"
+            "context": "encodeXML"
           }
         }
       ]
     },
     "modifiers": [
       {
-        "name": "encodeXml",
+        "name": "encodeXML",
         "args": []
       }
     ],
@@ -219,14 +219,14 @@
         {
           "type": "context",
           "value": {
-            "context": "decodeXml"
+            "context": "decodeXML"
           }
         }
       ]
     },
     "modifiers": [
       {
-        "name": "decodeXml",
+        "name": "decodeXML",
         "args": []
       }
     ],
@@ -376,14 +376,14 @@
         {
           "type": "context",
           "value": {
-            "context": "lpad"
+            "context": "padLeft"
           }
         }
       ]
     },
     "modifiers": [
       {
-        "name": "lpad",
+        "name": "padLeft",
         "args": [
           [
             {
@@ -419,14 +419,14 @@
         {
           "type": "context",
           "value": {
-            "context": "rpad"
+            "context": "padRight"
           }
         }
       ]
     },
     "modifiers": [
       {
-        "name": "rpad",
+        "name": "padRight",
         "args": [
           [
             {

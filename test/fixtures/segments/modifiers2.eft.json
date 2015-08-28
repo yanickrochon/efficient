@@ -1,0 +1,44 @@
+[
+  {
+    "@template": "{{name}upper|padLeft(12,\"x\")}",
+
+    "type": "output",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "name"
+          }
+        }
+      ]
+    },
+    "modifiers": [
+      {
+        "name": "upper",
+        "args": []
+      },
+      {
+        "name": "padLeft",
+        "args": [
+          [
+            {
+              "type": "number",
+              "value": 12
+            }
+          ],
+          [
+            {
+              "type": "string",
+              "value": "x"
+            }
+          ]
+        ]
+      }
+    ],
+    "offset": 0,
+    "line": 1,
+    "column": 1
+  }
+]

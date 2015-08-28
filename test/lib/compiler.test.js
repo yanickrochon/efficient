@@ -3,6 +3,7 @@
 describe('Test compiler', function () {
 
   var Compiler = require('../../lib/compiler');
+  var modifiers = require('../../lib/modifiers');
 
   Compiler.DEBUG = true;      // DEBUG
   Compiler.BEAUTIFY = true;   //
@@ -91,13 +92,15 @@ describe('Test compiler', function () {
           return Promise.resolve(ctx);
         }
       },
-      modifiers: require('../../lib/engine').modifiers
+      modifier: function (name) {
+        return modifiers.registry[name].apply(this, Array.prototype.slice.call(arguments, 1));
+      }
     };
 
     return tpl(engine, ctx).then(function () {
       return output;
     }).catch(function (err) {
-      console.error(err.stack);
+      //console.error(err.stack);
       throw err;
     });
   }
@@ -688,16 +691,16 @@ describe('Test compiler', function () {
         decodeURIComponent: 'http%3A%2F%2Fw3schools.com%2Fmy%20test.asp%3Fname%3Dst%C3%A5le%26car%3Dsaab',
         encodeURI: 'my test.asp?name=ståle&car=saab',
         decodeURI: 'my%20test.asp?name=st%C3%A5le&car=saab',
-        encodeHtml: 'a>"&bé"',
-        decodeHtml: 'a&gt;&quot;&amp;b&eacute;&quot;',
-        encodeXml: 'a>"&bé"',
-        decodeXml: 'a&gt;&quot;&amp;b&#xE9;&quot;',
+        encodeHTML: 'a>"&bé"',
+        decodeHTML: 'a&gt;&quot;&amp;b&eacute;&quot;',
+        encodeXML: 'a>"&bé"',
+        decodeXML: 'a&gt;&quot;&amp;b&#xE9;&quot;',
         json: { foo: 'bar' },
         upper: 'hello',
         lower: 'WORLD',
         mask: "p4s5w0rd",
-        lpad: 123,
-        rpad: 456
+        padLeft: 123,
+        padRight: 456
       };
 
       execTemplate(fn, data).then(function (output) {
@@ -710,10 +713,10 @@ describe('Test compiler', function () {
           data.encodeURIComponent,
           data.decodeURI,
           data.encodeURI,
-          data.decodeHtml,
-          data.encodeHtml,
-          data.decodeXml,
-          data.encodeXml,
+          data.decodeHTML,
+          data.encodeHTML,
+          data.decodeXML,
+          data.encodeXML,
           '{"foo":"bar"}',
           'HELLO',
           'world',
@@ -724,9 +727,33 @@ describe('Test compiler', function () {
       }).then(done).catch(done);
     });
 
-    it('should chain multiple functions');
+    it('should chain multiple functions', function (done) {
+      var parsed = require('../fixtures/segments/modifiers2.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        name: 'john'
+      };
 
-    it('should be stackable');
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('xxxxxxxxJOHN');
+      }).then(done).catch(done);
+    });
+
+    it('should be stackable', function (done) {
+      var parsed = require('../fixtures/segments/modifiers3.eft');
+      var fn = Compiler.compile(parsed);
+      var data = {
+        domain: 'domain.com',
+        data: {
+          foo: 'bar',
+          buz: 123
+        }
+      };
+
+      execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('http://domain.com?d=%7b%22foo%22%3a%22bar%22%2c%22buz%22%3a123%7d');
+      }).then(done).catch(done);
+    });
 
   });
 

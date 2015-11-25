@@ -85,6 +85,8 @@ Represent a simple conditional one-way or two-way branching control flow. If the
 {?{/}}
 ```
 
+**Note**: the engine does not *yet* support the `if... elseif... endif` form. The equivalent, at the moment, is to do `if... else if... endif endif`.
+
 #### Switch : `*`
   Represent a simple conditional multiple branching control flow. The child segment being rendered is the one represented by the segment's expression. The value of the expression should numeric. 
 
@@ -94,26 +96,26 @@ Represent a simple conditional one-way or two-way branching control flow. If the
 
   ```
   {*{amount}}
-    None
+    None (amount == 0)
   {*{|}}
-    One
+    One (amount == 1)
   {*{|}}
-    Two
+    Two (amount == 2)
   {*{|}}
-    Few
+    Few (amount == 3)
   {*{|}}
-    Many
+    Many (amount < 0 || amount >= 4)
   {*{/}}`
   ```
 
 #### Iterator : `@`
-Represent an iteration (for..., loop, etc.) control flow. The expression determine the value being iterated. The value may be any one of these types :
+Represent an iteration (for..., loop, etc.) control flow. The expression determine the value being iterated. The `context` inside this segment will be changed to the iterator's current value, exposing `index`, `key` and `value`. The previous context being availble through the parent path (i.e. `..`).
 
-* `array` : will iterate over every array elements
-* `object` : will iterate over every object keys
-* `number` : will iterate from `0` to `n` (exclusively)
-  
-The `context` inside this segment will be changed to the iterator's current value, exposing `index`, `key` and `value`. The previous context being availble through the parent path (i.e. `..`).
+The iterable value may be any one of these types :
+
+* `array` : will iterate over every array elements, where `index` and `key` equal the current index of the array and `value` the value.
+* `object` : will iterate over every object keys, where `index` is the `key`'s index value and `value` the actual `key`'s value.
+* `number` : will iterate from `0` to `n - 1` (i.e. `[0..n[`), where `index`, `key` and `value` equal the current counter value.
 
 If the iterator has nothing to iterate, the child segment will never be rendered.
 
@@ -481,35 +483,67 @@ The `Context` class encapsulate the necessary data-manipulation API necessary fo
 * `context.pop()` : *`Context`* - Returns the parent context, or itself if there is no parent.
 * `context.get(path)` : *`Context`* - Return a new context given the specified path. It does not matter if the path actually exists or not. The returned `Context` instance's parent will be `this`.
 
+### Modifiers
+
+All modifiers are registered via a registry. These modifiers are global and may be accessed at any time, via any instance of the engine.
+
+* `modifiers.registry` : *`object`* - An object specifying all the modifiers. The returned object is frozen (i.e. read-only); use `registerModifier` and `unregisterModifier`.
+* `modifiers.registerModifier(fn)` : *`boolean`* - Register the given modifier function. The function should have a name and receive at least one argument; a `string`. Any subsequent argument will be specified by the template. See [custom modifiers](#custom-modifiers).
+* `modifiers.unregisterModifier(modifier)` : *`boolean`* - Unregister the given modifier. The argument `modifier` may be a `function` (search by equality), or a `string` (search by name). Returns `true` if the modifier was removed.
 
 ### Engine
 
 The `Engine` is what binds the `Parser`, `Compiler` and `Context` together. Instances of this class may be used independently to render templates. The implementation allows retrieving the resulting output via a `Promise`, or through a `ReadableStream`.
 
-* `Engine.extSep` : *`string`* - The separator character when specifying file extensions *(readonly)* *(default `','`)*
-* `Engine.modifiers` : *`object`* - An object specifying all the modifiers. The returned object is read-only; use `registerModifier` and `unregisterModifier`.
-* `Engine.registerModifier(fn)` : *`boolean`* - Register the given modifier function. The function should have a name and receive at least one argument; a `string`. Any subsequent argument will be specified by the template. See [custom modifiers](#custom-modifiers).
-* `Engine.unregisterModifier(modifier)` : *`boolean`* - Unregister the given modifier. The argument `modifier` may be a `function` (search by equality), or a `string` (search by name). Returns `true` if the modifier was removed.
+* `Engine.EXT_DELIMITER` : *`string`* - The character delimiter when specifying file extensions *(readonly)* *(default `','`)*
 
-* `engine.options` : *`object`* - The options passed to the `Engine` constructor. If no options was specified, then an empty object is returned. The returned object may be modified.
-* `engine.resolve(name)` : *`Promise`* - Resolve the current template `name` through a `Promise`. The resolved value is an object with these keys: `filename` is the resolved file name, `fn` is optionally the compiled template function.
+* `engine.options` : *`object`* - The options passed to the `Engine` constructor. If no options was specified, then an empty object is returned. The returned object may be modified at any time. (Modifications are not guaranteed to be applied immediately if rendering is in progress.)
+* `engine.resolve(name)` : *`Promise`* - Resolve the current template `name` through a `Promise`. The resolved value is an object with these keys: `filename` is the resolved file name, `fn` is optionally the compiled template function (ex: once the template has been rendered).
 * `engine.render(name[, data])` : *`Promise`* - Render the given template. This function will trigger the function `resolve`. The returned promise will also possess a function `stream()` that will return the render stream, used to monitor or get live update when rendering the template. THe resolving promise will return the final rendered string.
 
   ```
   engine.render('path/to/template').stream.on('data', function (buffer) {
+    // possibly multiple notifications for every template output
     console.log(buffer.toString());
   });
   ```
-
   or
-
   ```
   engine.render('path/to/template').then(function (content) {
+    // single notification once template is done rendering
     console.log(content);
   });
   ```
 
-* `engine.renderString(name, str[, data])` : *`Promise`* - Render the given string `str`. The argument `name` is optional, set to `null` if this string should be cached. Note that the cached `str` should *always* be associated with the same `name`.
+* `engine.renderString(name, str[, data])` : *`Promise`* - Render the given string `str`. The argument `name` is optional, set to `null` if this string should *not* be cached. Note that the cached `str` should *always* be associated with the same `name`, as rendering a different strings with the sane `name` *will* return unexpected output. If the `str` has been rendered once already, only `name` is required for subsequent rendering.
+
+  ```
+  engine.renderString('foo', 'Hello world!').then(function (content) {
+    // content = 'Hello world!'
+  });
+  ```
+   then, later
+  ```
+  // the template string will be ignored since we already rendered, and
+  // specified a key 
+  engine.renderString('foo', 'something else').then(function (content) {
+    // content = 'Hello world!'
+  });
+
+  // template string will not be cached
+  engine.renderString(null, 'something else').then(function (content) {
+    // content = 'something else'
+  });
+  ```
+
+  **Note**: this method is mainly used for debugging purposes and typical use case should use the `render` method.
+
+#### Engine Options
+
+* `paths` : *`object`* - specify valid paths to look for templates. The object maps template path prefix with an actual file system path. For example, specifying `{ 'foo': '/path/to/foo/views' }` and rendering `foo/index` will try to locate the template in `/path/to/foo/views/index`. The key `'*'` specify the default path when no prefix match (do not specify for *no* default paths). (default `{ '*': '.' }`)
+* `ext` : *`string`|`array`* - specify a list of file extensions when looking for template files. When specifying a `string`, use `Engine.EXT_DELIMITER` to separate each values. (default `['.eft', '.eft.html', '.html']`)
+  
+  **Note**: the engine will also try to locate the file without any extensions.
 
 ### Internal Engine
 

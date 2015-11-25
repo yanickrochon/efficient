@@ -26,14 +26,14 @@
   },
   "dependencies": {
     "entities": "^1.1.1",
-    "error-factory": "0.1.5",
+    "error-factory": "0.1.6",
     "js-beautify": "^1.5.10",
     "string-padder": "^1.0.3"
   },
   "devDependencies": {
-    "istanbul": "^0.3.17",
-    "mocha": "^2.2.5",
-    "should": "^7.0.2"
+    "istanbul": "^0.4.1",
+    "mocha": "^2.3.4",
+    "should": "^7.1.1"
   },
   "license": "MIT"
 }

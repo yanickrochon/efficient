@@ -1,0 +1,25 @@
+[
+  {
+    "@template": "{#{\"foo\"}}{#{|}}{#{/}}",
+
+    "type": "namedDeclare",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "string",
+          "value": "foo"
+        }
+      ]
+    },
+    "modifiers": []
+  },
+  {
+    "type": "namedDeclare",
+    "next": true
+  },
+  {
+    "type": "namedDeclare",
+    "closing": true
+  }
+]

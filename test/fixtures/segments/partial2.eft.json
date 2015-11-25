@@ -1,0 +1,25 @@
+[
+  {
+    "@template": "{>{foo\\\"foo\"}}{>{|}}{>{/}}",
+
+    "type": "partial",
+    "content": {
+      "context": "foo",
+      "expression": [
+        {
+          "type": "string",
+          "value": "foo"
+        }
+      ]
+    },
+    "modifiers": []
+  },
+  {
+    "type": "partial",
+    "next": true
+  },
+  {
+    "type": "partial",
+    "closing": true
+  }
+]

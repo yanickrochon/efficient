@@ -148,12 +148,29 @@ describe('Test compiler', function () {
       Compiler.DEBUG.should.be.true;
       Compiler.DEBUG = false;
       Compiler.DEBUG.should.be.false;
-    })
+    });
+
+    it('should ignore suspicious segments', function () {
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS.should.be.false;
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = true;
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS.should.be.true;
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS.should.be.false;
+    });
 
   });
 
 
   describe('Text-only Templates', function () {
+
+    it('should compile no args', function (done) {
+      var fn = Compiler.compile();
+
+      execTemplate(fn).then(function (output) {
+        output.buffer.should.be.empty;
+      }).then(done).catch(done);
+    })
 
     it('should compile single text segment', function (done) {
       var parsed = [
@@ -408,6 +425,12 @@ describe('Test compiler', function () {
         });
       })).then(function () { done(); }).catch(done);
     });
+
+    it('should fail when too many segments', function () {
+      var parsed = require('../fixtures/segments/conditional4.eft');
+
+      (function () { Compiler.compile(parsed); }).should.throw('Too many segments for conditional');
+    });
   });
 
 
@@ -513,6 +536,12 @@ describe('Test compiler', function () {
       }).then(done).catch(done);
     });
 
+    it('should fail when too many segments', function () {
+      var parsed = require('../fixtures/segments/iterator2.eft');
+
+      (function () { Compiler.compile(parsed); }).should.throw('Too many segments for iterator');
+    });
+
   });
 
 
@@ -541,6 +570,18 @@ describe('Test compiler', function () {
         output.raw.should.have.lengthOf(1);
         output.named.should.have.ownProperty('foo').be.a.Function;
       }).then(done).catch(done);
+    });
+
+    it('should fail when too many segments (declare)', function () {
+      var parsed = require('../fixtures/segments/named3.eft');
+
+      (function () { Compiler.compile(parsed); }).should.throw('Too many segments for named segment declare');
+    });
+
+    it('should fail when too many segments (render)', function () {
+      var parsed = require('../fixtures/segments/named4.eft');
+
+      (function () { Compiler.compile(parsed); }).should.throw('Too many segments for named segment');
     });
 
   });
@@ -623,6 +664,12 @@ describe('Test compiler', function () {
         output.buffer.should.equal('Start:Hello Foo !Bye Bar !:End');
         output.raw.should.have.lengthOf(4);
       }).then(done).catch(done);
+    });
+
+    it('should fail when too many segments', function () {
+      var parsed = require('../fixtures/segments/partial2.eft');
+
+      (function () { Compiler.compile(parsed); }).should.throw('Too many segments for partial');
     });
 
   });
@@ -758,11 +805,86 @@ describe('Test compiler', function () {
   });
 
 
-  describe('Error management', function () {
+  describe('Suspicious segments', function () {
 
-    // Add error management tests where templates should handle failures
+    before(function () {
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;
+    });
+
+    it('should throw', function () {
+      var parsed = require('../fixtures/suspicious.eft');
+
+      (function () { Compiler.compile(parsed); }).should.throw(/^Suspicious segment found/);
+    });
+
+    it('should ignore', function (done) {
+      var parsed = require('../fixtures/suspicious.eft');
+      var fn = Compiler.compile(parsed, { ignoreSuspiciousSegments: true });
+
+      execTemplate(fn).then(function (output) {
+        output.buffer.should.equal('Hello {foo{bar}}!');
+      }).then(done).catch(done);
+    });
+
+    it('should ignore globally', function () {
+      var parsed = require('../fixtures/suspicious.eft');
+
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = true;
+
+      Compiler.compile(parsed);
+
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;      
+
+      (function () { Compiler.compile(parsed); }).should.throw(/^Suspicious segment found/);
+    });
 
   });
 
+
+  describe('Handle compilation errors', function () {
+    var stateDebug;
+
+    before(function () {
+      stateDebug = Compiler.DEBUG;
+    });
+
+    afterEach(function () {
+      Compiler.DEBUG = stateDebug;
+    });
+
+    it('should return faulty segment', function () {
+      var parsed = require('../fixtures/suspicious.eft');
+
+      try {
+        Compiler.DEBUG = true;
+
+        Compiler.compile(parsed);
+        throw new Error('Test failed');
+      } catch (err) {
+        err.should.be.an.Error;
+        err.name.should.equal('CompilerException');
+        err.should.have.ownProperty('segment').be.an.Object;
+        err.segment.should.have.ownProperty('offset').equal(10);
+        err.segment.should.have.ownProperty('line').equal(1);
+        err.segment.should.have.ownProperty('column').equal(11);
+      }
+    });
+
+    it('should throw "Malformed parsed data"', function () {
+      Compiler.DEBUG = false;
+      (function () { Compiler.compile('bob'); }).should.throw('Malformed parsed data');
+    });
+
+    it('should throw "Invalid segment"', function () {
+      Compiler.DEBUG = true;
+      [
+        'bob'
+      ].forEach(function (parsed) {
+        (function () { Compiler.compile(parsed); }).should.throw('Invalid segment');
+      });
+    });
+
+
+  });
 
 });

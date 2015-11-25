@@ -1,0 +1,27 @@
+[
+  {
+    "@template": "{@{values}}{@{|}}{@{/}}",
+
+    "type": "iterator",
+    "content": {
+      "context": null,
+      "expression": [
+        {
+          "type": "context",
+          "value": {
+            "context": "values"
+          }
+        }
+      ]
+    },
+    "modifiers": []
+  },
+  {
+    "type": "iterator",
+    "next": true
+  },
+  {
+    "type": "iterator",
+    "closing": true
+  }
+]

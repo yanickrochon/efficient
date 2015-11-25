@@ -20,10 +20,7 @@
       ]
     },
     "modifiers": [],
-    "closing": true,
-    "offset": 6,
-    "line": 1,
-    "column": 7
+    "closing": true
   },
   {
     "type": "partial",

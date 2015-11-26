@@ -2,7 +2,7 @@
 {
   var segStack = [];
   var segTableInfo = {
-    'conditional':  { min: 1, max: 2 },
+    'conditional':  { min: 1, max: Infinity, lastHasNoExpression: true },
     'iterator':     { min: 1, max: 1 },
     'custom':       { min: 0, max: Infinity },
     'namedDeclare': { min: 1, max: 1 },
@@ -27,9 +27,15 @@
     }
   }
 
-  function nextSegment(type) {
+  function nextSegment(type, hasExpr) {
     if (checkSegment(type) && checkSegmentCount(type)) {
       ++segStack[segStack.length - 1].count;
+    }
+
+    if (!hasExpr && segTableInfo[type].lastHasNoExpression) {
+      segStack[segStack.length - 1].lastSegment = true;
+    } else if (segStack[segStack.length - 1].lastSegment) {
+      throw error("Unexpected " + type + " next segment");
     }
   }
 
@@ -182,8 +188,11 @@ segmentType
  / '>' { return 'partial'; }
  / invalidType:. { return invalidType; }
 
+segmentContext
+ = ctx:contextPath space* '\\' { return ctx; }
+
 segment
- = seg:( seg:outputSegment
+ = seg:( outputSegment
        / typedSegmentSelfClosing
        / typedSegmentOpen
        / typedSegmentNext
@@ -191,16 +200,16 @@ segment
        / textSegment ) { var loc = location().start;  seg.offset = loc.offset; seg.line = loc.line; seg.column = loc.column; return seg; }
 
 outputSegment
- = '{{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return { type:'output', content:body, modifiers:modifiers || [] }; }
+ = '{{' space* ctx:segmentContext? space* expr:expression space* '}' space* modifiers:modifiers? space* '}' { return { type:'output', context:ctx, expression:expr, modifiers:modifiers || [] }; }
 
 typedSegmentOpen
- = '{' type:segmentType '{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, content:body, modifiers:modifiers || [] }; }
+ = '{' type:segmentType '{' space* ctx:segmentContext? space* expr:expression space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, context:ctx, expression:expr, modifiers:modifiers || [] }; }
 
 typedSegmentSelfClosing
- = '{' type:segmentType '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, content:body, modifiers:modifiers || [], closing:true }; }
+ = '{' type:segmentType '{' space* ctx:segmentContext? expr:expression space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, context:ctx, expression:expr, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
- = '{' type:segmentType segmentType '{' space* body:segmentBody? space* '}' space* modifiers:modifiers? space* '}' { return nextSegment(type), { type:type, content:body, modifier:modifiers || [], next:true }; }
+ = '{' type:segmentType segmentType '{' space* expr:expression? space* '}' space* modifiers:modifiers? space* '}' { return nextSegment(type, !!expr), { type:type, expression:expr, modifier:modifiers || [], next:true }; }
 
 typedSegmentClose
  = '{' type:segmentType '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
@@ -208,11 +217,6 @@ typedSegmentClose
 textSegment
  = txt:( str:( [{][^{]* ) { return (str[0] || '') + str[1].join(''); }
        / str:[^{]+ { return str.join(''); } ) { return { type:'text', content:txt }; }
-
-
-// Segment components
-segmentBody
- = ctx:( contextPath space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0], expression:expr }; }
 
 modifiers
  = left:func '|' right:modifiers { return [{ name:left.name, args:left.args }].concat(right); }

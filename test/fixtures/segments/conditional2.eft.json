@@ -1,6 +1,6 @@
 [
   {
-    "@template": "{?{value}}Hello World{?{|}}Good Bye{?{/}}",
+    "@template": "{?{value}}Hello World{??{}}Good Bye{?{/}}",
 
     "type": "conditional",
     "content": {

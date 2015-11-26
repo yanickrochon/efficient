@@ -434,63 +434,6 @@ describe('Test compiler', function () {
   });
 
 
-  describe('Switch Segments', function () {
-
-    it('should compile single segment', function (done) {
-      var parsed = require('../fixtures/segments/switch1.eft');
-      var fn = Compiler.compile(parsed);
-      var values = ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0'];
-
-      Promise.all(values.map(function(t, value) {
-        var data = {
-          value: value
-        };
-
-        return execTemplate(fn, data);
-      })).then(function (res) {
-        res.map(function (output) { return output.buffer; }).should.eql(values);
-      }).then(done).catch(done);
-    });
-
-    it('should compile with more segments', function (done) {
-      var parsed = require('../fixtures/segments/switch2.eft');
-      var fn = Compiler.compile(parsed);
-      var values = ['a', 'b', 'c', '3', '4', '5', '6', '7', '8', '9', '10'];
-
-      Promise.all(values.map(function(t, value) {
-        var data = {
-          value: value
-        };
-
-        return execTemplate(fn, data);
-      })).then(function (res) {
-        res.map(function (output) { return output.buffer; }).should.eql(values);
-      }).then(done).catch(done);
-    });
-
-    it('should integrate with other segments', function (done) {
-      var parsed = require('../fixtures/segments/switch3.eft');
-      var fn = Compiler.compile(parsed);
-      var values = ['0', '1', '2', '3'];
-
-      Promise.all(values.map(function(value, index) {
-        var data = {
-          value: value
-        };
-
-        return execTemplate(fn, data);
-      })).then(function (res) {
-        res.map(function (output) {
-          return output.buffer;
-        }).should.eql(values.map(function (val) {
-          return 'pre' + val + 'post';
-        }));
-      }).then(done).catch(done);
-    });
-
-  });
-
-
   describe('Iterator Segments', function () {
 
     it('should iterate arrays', function (done) {

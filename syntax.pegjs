@@ -3,13 +3,12 @@
   var segStack = [];
   var segTableInfo = {
     'conditional':  { min: 1, max: 2 },
-    'switch':       { min: 1, max: Infinity },
     'iterator':     { min: 1, max: 1 },
     'custom':       { min: 0, max: Infinity },
     'namedDeclare': { min: 1, max: 1 },
     'namedRender':  { min: 0, max: 0 },
     'partial':      { min: 0, max: 0 },
-    '__ERR':      { min: 0, max: Infinity }
+    '__ERR':        { min: 0, max: Infinity }
   };
 
   function enterSegment(type, selfClosing) {
@@ -78,6 +77,7 @@ start
 space
  = ' '
  / '\n'
+ / '\n'
 
 digit
  = [0-9]
@@ -111,8 +111,8 @@ operator
       / '%' / '^'
       / '&&' / '||' / '&' / '|'
       / '=' { return '==='; }
-      / '!=' { return '!=='; }
-      / '<>' { return '!=='; }
+      / ('!=' / '<>') { return '!=='; }
+      / '<' / '<=' / '>=' / '>'
       ) { return { type:'operator', value:op }; }
 
 negate
@@ -158,10 +158,10 @@ propertyPath
  / variable
 
 context
- = path:contextPath ':' props:propertyPath space? args:arguments space? { return { context:path, args:args, props:props }; }
- / path:contextPath space? args:arguments { return { context:path, args:args }; }
- / path:contextPath ':' props:propertyPath { return { context:path, props:props }; }
- / path:contextPath { return { context:path }; }
+ = path:contextPath ':' props:propertyPath space? args:arguments space? { return { path:path, args:args, props:props }; }
+ / path:contextPath space? args:arguments { return { path:path, args:args }; }
+ / path:contextPath ':' props:propertyPath { return { path:path, props:props }; }
+ / path:contextPath { return { path:path }; }
 
 
 // Compouned type
@@ -175,7 +175,6 @@ value
 // Segments
 segmentType
  = '?' { return 'conditional'; }
- / '*' { return 'switch'; }
  / '@' { return 'iterator'; }
  / '&' { return 'custom'; }
  / '#' { return 'namedDeclare'; }
@@ -189,7 +188,7 @@ segment
        / typedSegmentOpen
        / typedSegmentNext
        / typedSegmentClose
-       / textSegment ) { seg.offset = offset(); seg.line = line(); seg.column = column(); return seg; }
+       / textSegment ) { var loc = location().start;  seg.offset = loc.offset; seg.line = loc.line; seg.column = loc.column; return seg; }
 
 outputSegment
  = '{{' space* body:segmentBody space* '}' space* modifiers:modifiers? space* '}' { return { type:'output', content:body, modifiers:modifiers || [] }; }
@@ -201,7 +200,7 @@ typedSegmentSelfClosing
  = '{' type:segmentType '{' space* body:segmentBody space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, content:body, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
- = '{' type:segmentType '{' space* '|' space* '}' space* '}' { return nextSegment(type), { type:type, next:true }; }
+ = '{' type:segmentType segmentType '{' space* body:segmentBody? space* '}' space* modifiers:modifiers? space* '}' { return nextSegment(type), { type:type, content:body, modifier:modifiers || [], next:true }; }
 
 typedSegmentClose
  = '{' type:segmentType '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }
@@ -213,7 +212,7 @@ textSegment
 
 // Segment components
 segmentBody
- = ctx:( context space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0].context, expression:expr }; }
+ = ctx:( contextPath space* '\\' )? space* expr:expression space* { return { context:ctx && ctx[0], expression:expr }; }
 
 modifiers
  = left:func '|' right:modifiers { return [{ name:left.name, args:left.args }].concat(right); }

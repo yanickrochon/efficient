@@ -308,7 +308,7 @@ describe('Test Parser', function () {
 
 
     it('should parse two segments', function () {
-      var str = '{?{true}}{?{|}}{?{/}}';
+      var str = '{?{true}}{??{null}}{?{/}}';
       var segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
@@ -328,6 +328,15 @@ describe('Test Parser', function () {
 
       segments[1].type.should.equal('conditional');
       segments[1].next.should.be.true;
+      segments[1].content.should.be.instanceof(Object).and.eql({
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": null
+          }
+        ]
+      });
 
       segments[2].type.should.equal('conditional');
       segments[2].closing.should.be.true;
@@ -349,8 +358,8 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{?{true}}{?{|}}{?{|}}{?{/}}',
-        '{?{true}}{?{|}}{?{|}}{?{|}}{?{/}}'
+        '{?{true}}{??{true}}{??{true}}{?{/}}',
+        '{?{true}}{??{true}}{??{true}}{??{true}}{?{/}}'
       ].forEach(function (str) {
         +(function () { Parser.parse(str); }).should.throw();
       });
@@ -386,7 +395,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse many segments', function () {
-      var str = '{*{true}}{*{|}}{*{|}}{*{|}}{*{|}}{*{|}}{*{|}}{*{/}}';
+      var str = '{*{1}}{**{2}}{**{3}}{**{4}}{**{5}}{**{6}}{**{7}}{*{/}}';
       var segments = Parser.parse(str);
       var expectedCount = 8;
 
@@ -399,8 +408,8 @@ describe('Test Parser', function () {
         "context": null,
         "expression": [
           {
-            "type": "reserved",
-            "value": true
+            "type": "number",
+            "value": 1
           }
         ]
       });
@@ -408,6 +417,15 @@ describe('Test Parser', function () {
       for (var i = 1; i < expectedCount - 1; ++i) {
         segments[i].type.should.equal('switch');
         segments[i].next.should.be.true;
+        segments[i].content.should.be.instanceof(Object).and.eql({
+          "context": null,
+          "expression": [
+            {
+              "type": "number",
+              "value": i + 1
+            }
+          ]
+        });
       }
 
       segments[expectedCount - 1].type.should.equal('switch');
@@ -470,8 +488,8 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{@{true}}{@{|}}{@{/}}',
-        '{@{true}}{@{|}}{@{|}}{@{/}}'
+        '{@{1}}{@@{2}}{@{/}}',
+        '{@{true}}{@@{true}}{@@{true}}{@{/}}'
       ].forEach(function (str) {
         +(function () { Parser.parse(str); }).should.throw();
       });
@@ -506,10 +524,10 @@ describe('Test Parser', function () {
     it('should parse various segments', function () {
       var tests = {
         '{&{true}}{&{/}}': 2,
-        '{&{true}}{&{|}}{&{/}}': 3,
-        '{&{true}}{&{|}}{&{|}}{&{|}}{&{/}}': 5,
-        '{&{true}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{/}}': 7,
-        '{&{true}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{|}}{&{/}}': 15,
+        '{&{true}}{&&{true}}{&{/}}': 3,
+        '{&{true}}{&&{true}}{&&{true}}{&&{true}}{&{/}}': 5,
+        '{&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&{/}}': 7,
+        '{&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&{/}}': 15,
       };
 
       Object.keys(tests).forEach(function (str) {
@@ -595,8 +613,8 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{#{true}}{#{|}}{#{/}}',
-        '{#{true}}{#{|}}{#{|}}{#{/}}'
+        '{#{true}}{##{true}}{#{/}}',
+        '{#{true}}{##{true}}{##{true}}{#{/}}'
       ].forEach(function (str) {
         +(function () { Parser.parse(str); }).should.throw();
       });
@@ -632,8 +650,8 @@ describe('Test Parser', function () {
 
       [
         '{+{true}}{+{/}}',
-        '{+{true}}{+{|}}{+{/}}',
-        '{+{true}}{+{|}}{+{|}}{#{/}}'
+        '{+{true}}{++{true}}{+{/}}',
+        '{+{true}}{++{true}}{++{true}}{#{/}}'
       ].forEach(function (str) {
         +(function () { Parser.parse(str); }).should.throw();
       });
@@ -669,8 +687,8 @@ describe('Test Parser', function () {
 
       [
         '{>{true}}{>{/}}',
-        '{>{true}}{>{|}}{>{/}}',
-        '{>{true}}{>{|}}{>{|}}{>{/}}'
+        '{>{true}}{>>{true}}{>{/}}',
+        '{>{true}}{>>{true}}{>>{true}}{>{/}}'
       ].forEach(function (str) {
         +(function () { Parser.parse(str); }).should.throw();
       });
@@ -685,7 +703,7 @@ describe('Test Parser', function () {
     [
       '{Q{true}}{Q{/}}',
       '{P{true}}{P{|}}{P{/}}',
-      '{-{true}}{-{|}}{-{|}}{-{/}}'
+      '{-{true}}{--{true}}{-{/}}'
     ].forEach(function (str) {
       +(function () { Parser.parse(str); }).should.throw();
     });
@@ -744,7 +762,10 @@ describe('Test Parser', function () {
 
     [
       '{&{/}}',
-      '{&{|}}'
+      '{&&{1}}',
+      '{?{true}}{?{/}}{??{1}}',
+      '{?{true}}{?{/}}{?{/}}',
+      '{?{true}}{&{/}}'
     ].forEach(function (str) {
       //console.log("*** TRYING MODIFIER PATTERN", str);
       +(function () { Parser.parse(str); }).should.throw();

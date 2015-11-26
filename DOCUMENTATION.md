@@ -7,7 +7,6 @@
   * [Output Segments](#output-segments)
   * [Typed Segments](#typed-segments)
     * [Conditional](#conditional--)
-    * [Switch](#switch--)
     * [Iterator](#iterator--)
     * [Custom](#custom--)
     * [Named](#named--and-)
@@ -80,33 +79,12 @@ Represent a simple conditional one-way or two-way branching control flow. If the
 ```
 {?{user}}
   Hello {{user.name}}{?{meessages}} ({{messages:length}}){?{/}}
-{?{|}}
+{??{}}
   <a href="#login">Login</a>
 {?{/}}
 ```
 
 **Note**: the engine does not *yet* support the `if... elseif... endif` form. The equivalent, at the moment, is to do `if... else if... endif endif`.
-
-#### Switch : `*`
-  Represent a simple conditional multiple branching control flow. The child segment being rendered is the one represented by the segment's expression. The value of the expression should numeric. 
-
-  The last child segment will always be the default one being rendered. In other words, a switch segment will *always* render one of it's child segment.
-
-  **Example**
-
-  ```
-  {*{amount}}
-    None (amount == 0)
-  {*{|}}
-    One (amount == 1)
-  {*{|}}
-    Two (amount == 2)
-  {*{|}}
-    Few (amount == 3)
-  {*{|}}
-    Many (amount < 0 || amount >= 4)
-  {*{/}}`
-  ```
 
 #### Iterator : `@`
 Represent an iteration (for..., loop, etc.) control flow. The expression determine the value being iterated. The `context` inside this segment will be changed to the iterator's current value, exposing `index`, `key` and `value`. The previous context being availble through the parent path (i.e. `..`).

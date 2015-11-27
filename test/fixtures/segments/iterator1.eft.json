@@ -3,17 +3,15 @@
     "@template": "{@{values}}{{index}}{{key}}{{value}};{@{/}}",
 
     "type": "iterator",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "values"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "values"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,
@@ -21,17 +19,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "index"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "index"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 11,
     "line": 1,
@@ -39,17 +35,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "key"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "key"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 20,
     "line": 1,
@@ -57,17 +51,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "value"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "value"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 27,
     "line": 1,

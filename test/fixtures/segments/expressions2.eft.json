@@ -3,15 +3,13 @@
     "@template": "{{true}}:{{!true}}:{{!!true}}:{{!!!true}}:{{!0}}:{{!1}}",
 
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "reserved",
-          "value": true
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "reserved",
+        "value": true
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,
@@ -26,19 +24,17 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "negate",
-          "value": "!"
-        },
-        {
-          "type": "reserved",
-          "value": true
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "negate",
+        "value": "!"
+      },
+      {
+        "type": "reserved",
+        "value": true
+      }
+    ],
     "modifiers": [],
     "offset": 9,
     "line": 1,
@@ -53,19 +49,17 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "negate",
-          "value": "!!"
-        },
-        {
-          "type": "reserved",
-          "value": true
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "negate",
+        "value": "!!"
+      },
+      {
+        "type": "reserved",
+        "value": true
+      }
+    ],
     "modifiers": [],
     "offset": 19,
     "line": 1,
@@ -80,19 +74,17 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "negate",
-          "value": "!!!"
-        },
-        {
-          "type": "reserved",
-          "value": true
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "negate",
+        "value": "!!!"
+      },
+      {
+        "type": "reserved",
+        "value": true
+      }
+    ],
     "modifiers": [],
     "offset": 30,
     "line": 1,
@@ -107,19 +99,17 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "negate",
-          "value": "!"
-        },
-        {
-          "type": "number",
-          "value": 0
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "negate",
+        "value": "!"
+      },
+      {
+        "type": "number",
+        "value": 0
+      }
+    ],
     "modifiers": [],
     "offset": 42,
     "line": 1,
@@ -134,19 +124,17 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "negate",
-          "value": "!"
-        },
-        {
-          "type": "number",
-          "value": 1
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "negate",
+        "value": "!"
+      },
+      {
+        "type": "number",
+        "value": 1
+      }
+    ],
     "modifiers": [],
     "offset": 49,
     "line": 1,

@@ -10,29 +10,28 @@
   },
   {
     "type": "partial",
-    "content": {
-      "context": "foo",
-      "expression": [
-        {
-          "type": "string",
-          "value": "foo"
-        }
-      ]
-    },
+    "context": "foo",
+    "expression": [
+      {
+        "type": "string",
+        "value": "foo"
+      }
+    ],
     "modifiers": [],
-    "closing": true
+    "closing": true,
+    "offset": 6,
+    "line": 1,
+    "column": 7
   },
   {
     "type": "partial",
-    "content": {
-      "context": "bar",
-      "expression": [
-        {
-          "type": "string",
-          "value": "bar"
-        }
-      ]
-    },
+    "context": "bar",
+    "expression": [
+      {
+        "type": "string",
+        "value": "bar"
+      }
+    ],
     "modifiers": [],
     "closing": true,
     "offset": 21,

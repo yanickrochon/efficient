@@ -3,17 +3,15 @@
     "@template": "{&{custom /}}",
 
     "type": "custom",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "custom"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "context": "custom"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "closing": true,
     "offset": 0,

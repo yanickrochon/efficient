@@ -1,17 +1,15 @@
 [
   {
-    "@template": "{&{\"callback\"}}Seg1{&{|}}Seg2{&{|}}Seg3{&{|}}Seg4{&{|}}Seg5{&{/}}",
+    "@template": "{&{\"callback\"}}Seg1{&&{}}Seg2{&&{}}Seg3{&&{}}Seg4{&&{}}Seg5{&{/}}",
 
     "type": "custom",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "string",
-          "value": "callback"
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "string",
+        "value": "callback"
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,
@@ -26,6 +24,7 @@
   },
   {
     "type": "custom",
+    "modifiers": [],
     "next": true,
     "offset": 19,
     "line": 1,
@@ -40,6 +39,7 @@
   },
   {
     "type": "custom",
+    "modifiers": [],
     "next": true,
     "offset": 29,
     "line": 1,
@@ -54,6 +54,7 @@
   },
   {
     "type": "custom",
+    "modifiers": [],
     "next": true,
     "offset": 39,
     "line": 1,
@@ -68,6 +69,7 @@
   },
   {
     "type": "custom",
+    "modifiers": [],
     "next": true,
     "offset": 49,
     "line": 1,

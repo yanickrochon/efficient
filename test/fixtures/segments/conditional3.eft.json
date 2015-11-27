@@ -1,19 +1,17 @@
 [
   {
-    "@template": "{{pre}}{?{foo\\ value}}Hello World{?{|}}Bye World{?{/}}{{post}}",
+    "@template": "{{pre}}{?{foo\\ value}}Hello World{??{}}Bye World{?{/}}{{post}}",
 
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "pre"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "pre"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,
@@ -21,17 +19,15 @@
   },
   {
     "type": "conditional",
-    "content": {
-      "context": "foo",
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "value"
-          }
+    "context": "foo",
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "value"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 7,
     "line": 1,
@@ -46,6 +42,8 @@
   },
   {
     "type": "conditional",
+    "expression": null,
+    "modifier": [],
     "next": true,
     "offset": 33,
     "line": 1,
@@ -67,17 +65,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "post"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "post"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 54,
     "line": 1,

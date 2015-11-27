@@ -3,17 +3,15 @@
     "@template": "{{ encodeURIComponent }encodeURIComponent}\n{{ decodeURIComponent }decodeURIComponent}\n{{ encodeURI }encodeURI}\n{{ decodeURI }decodeURI}\n{{ encodeHTML }encodeHTML}\n{{ decodeHTML }decodeHTML}\n{{ encodeXm }encodeXML}\n{{ decodeXML }decodeXML}\n{{ json }json}\n{{ upper }upper}\n{{ lower }lower}\n{{ mark }mask(\"?\")}\n{{ padLeft }padLeft(6,\"-\")}\n{{ padRight }padRight(6,\"+\")}",
 
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "encodeURIComponent"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "encodeURIComponent"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "encodeURIComponent",
@@ -33,17 +31,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "decodeURIComponent"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "decodeURIComponent"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "decodeURIComponent",
@@ -63,17 +59,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "encodeURI"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "encodeURI"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "encodeURI",
@@ -93,17 +87,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "decodeURI"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "decodeURI"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "decodeURI",
@@ -123,17 +115,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "encodeHTML"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "encodeHTML"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "encodeHTML",
@@ -153,17 +143,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "decodeHTML"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "decodeHTML"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "decodeHTML",
@@ -183,17 +171,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "encodeXML"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "encodeXm"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "encodeXML",
@@ -207,143 +193,133 @@
   {
     "type": "text",
     "content": "\n",
-    "offset": 214,
+    "offset": 213,
     "line": 7,
-    "column": 25
+    "column": 24
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "decodeXML"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "decodeXML"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "decodeXML",
         "args": []
       }
     ],
-    "offset": 215,
+    "offset": 214,
     "line": 8,
     "column": 1
   },
   {
     "type": "text",
     "content": "\n",
-    "offset": 239,
+    "offset": 238,
     "line": 8,
     "column": 25
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "json"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "json"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "json",
         "args": []
       }
     ],
-    "offset": 240,
+    "offset": 239,
     "line": 9,
     "column": 1
   },
   {
     "type": "text",
     "content": "\n",
-    "offset": 254,
+    "offset": 253,
     "line": 9,
     "column": 15
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "upper"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "upper"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "upper",
         "args": []
       }
     ],
-    "offset": 255,
+    "offset": 254,
     "line": 10,
     "column": 1
   },
   {
     "type": "text",
     "content": "\n",
-    "offset": 271,
+    "offset": 270,
     "line": 10,
     "column": 17
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "lower"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "lower"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "lower",
         "args": []
       }
     ],
-    "offset": 272,
+    "offset": 271,
     "line": 11,
     "column": 1
   },
   {
     "type": "text",
     "content": "\n",
-    "offset": 288,
+    "offset": 287,
     "line": 11,
     "column": 17
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "mark"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "mark"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "mask",
@@ -357,30 +333,28 @@
         ]
       }
     ],
-    "offset": 289,
+    "offset": 288,
     "line": 12,
     "column": 1
   },
   {
     "type": "text",
     "content": "\n",
-    "offset": 308,
+    "offset": 307,
     "line": 12,
     "column": 20
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "padLeft"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "padLeft"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "padLeft",
@@ -400,30 +374,28 @@
         ]
       }
     ],
-    "offset": 309,
+    "offset": 308,
     "line": 13,
     "column": 1
   },
   {
     "type": "text",
     "content": "\n",
-    "offset": 330,
+    "offset": 335,
     "line": 13,
-    "column": 22
+    "column": 28
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "padRight"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "padRight"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "padRight",
@@ -443,7 +415,7 @@
         ]
       }
     ],
-    "offset": 331,
+    "offset": 336,
     "line": 14,
     "column": 1
   }

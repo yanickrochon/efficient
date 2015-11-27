@@ -3,60 +3,58 @@
     "@template": "{{ fn1(a, 11) + foo:bar.fn2(13, b) }}",
 
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "fn1",
-            "args": [
-              [
-                {
-                  "type": "context",
-                  "value": {
-                    "context": "a"
-                  }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "context": "fn1",
+          "args": [
+            [
+              {
+                "type": "context",
+                "value": {
+                  "context": "a"
                 }
-              ],
-              [
-                {
-                  "type": "number",
-                  "value": 11
-                }
-              ]
-            ]
-          }
-        },
-        {
-          "type": "operator",
-          "value": "+"
-        },
-        {
-          "type": "context",
-          "value": {
-            "context": "foo",
-            "args": [
-              [
-                {
-                  "type": "number",
-                  "value": 13
-                }
-              ],
-              [
-                {
-                  "type": "context",
-                  "value": {
-                    "context": "b"
-                  }
-                }
-              ]
+              }
             ],
-            "props": "bar.fn2"
-          }
+            [
+              {
+                "type": "number",
+                "value": 11
+              }
+            ]
+          ]
         }
-      ]
-    },
+      },
+      {
+        "type": "operator",
+        "value": "+"
+      },
+      {
+        "type": "context",
+        "value": {
+          "context": "foo",
+          "args": [
+            [
+              {
+                "type": "number",
+                "value": 13
+              }
+            ],
+            [
+              {
+                "type": "context",
+                "value": {
+                  "context": "b"
+                }
+              }
+            ]
+          ],
+          "props": "bar.fn2"
+        }
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,

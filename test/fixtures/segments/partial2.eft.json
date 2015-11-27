@@ -1,6 +1,6 @@
 [
   {
-    "@template": "{>{foo\\\"foo\"}}{>{|}}{>{/}}",
+    "@template": "{>{foo\\\"foo\"}}{>>{}}{>{/}}",
 
     "type": "partial",
     "content": {

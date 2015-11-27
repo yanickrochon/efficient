@@ -3,15 +3,13 @@
     "@template": "{#{\"foo\"}}{#{/}}",
 
     "type": "namedDeclare",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "string",
-          "value": "foo"
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "string",
+        "value": "foo"
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,

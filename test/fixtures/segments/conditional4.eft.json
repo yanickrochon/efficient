@@ -1,6 +1,6 @@
 [
   {
-    "@template": "{?{foo\\ value}}{?{|}}{?{|}}{?{/}}",
+    "@template": "{?{foo\\ value}}{??{}}{??{}}{?{/}}",
 
     "type": "conditional",
     "content": {

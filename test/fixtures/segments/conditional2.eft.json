@@ -3,17 +3,15 @@
     "@template": "{?{value}}Hello World{??{}}Good Bye{?{/}}",
 
     "type": "conditional",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "value"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "value"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,
@@ -28,6 +26,8 @@
   },
   {
     "type": "conditional",
+    "expression": null,
+    "modifier": [],
     "next": true,
     "offset": 21,
     "line": 1,
@@ -43,8 +43,8 @@
   {
     "type": "conditional",
     "closing": true,
-    "offset": 36,
+    "offset": 35,
     "line": 1,
-    "column": 37
+    "column": 36
   }
 ]

@@ -3,27 +3,25 @@
     "@template": "{?{domain && data}lower}http://{{domain}upper}?d={{data}json|encodeURIComponent}{?{/}}",
 
     "type": "conditional",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "domain"
-          }
-        },
-        {
-          "type": "operator",
-          "value": "&&"
-        },
-        {
-          "type": "context",
-          "value": {
-            "context": "data"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "domain"
         }
-      ]
-    },
+      },
+      {
+        "type": "operator",
+        "value": "&&"
+      },
+      {
+        "type": "context",
+        "value": {
+          "path": "data"
+        }
+      }
+    ],
     "modifiers": [
       {
         "name": "lower",
@@ -43,17 +41,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "domain"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "domain"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "upper",
@@ -73,17 +69,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "data"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "data"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [
       {
         "name": "json",

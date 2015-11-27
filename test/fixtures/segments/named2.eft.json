@@ -3,15 +3,13 @@
     "@template": "{#{\"foo\"}}Hello {{user}}{#{/}}{+{\"foo\" /}}",
 
     "type": "namedDeclare",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "string",
-          "value": "foo"
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "string",
+        "value": "foo"
+      }
+    ],
     "modifiers": [],
     "offset": 0,
     "line": 1,
@@ -26,17 +24,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "user"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "context": "user"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 16,
     "line": 1,
@@ -51,15 +47,13 @@
   },
   {
     "type": "namedRender",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "string",
-          "value": "foo"
-        }
-      ]
-    },
+    "context": null,
+    "expression": [
+      {
+        "type": "string",
+        "value": "foo"
+      }
+    ],
     "modifiers": [],
     "closing": true,
     "offset": 30,

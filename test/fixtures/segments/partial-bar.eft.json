@@ -10,17 +10,15 @@
   },
   {
     "type": "output",
-    "content": {
-      "context": null,
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "name"
-          }
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "context": "name"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": [],
     "offset": 4,
     "line": 1,

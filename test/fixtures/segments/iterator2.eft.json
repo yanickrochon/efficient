@@ -1,6 +1,6 @@
 [
   {
-    "@template": "{@{values}}{@{|}}{@{/}}",
+    "@template": "{@{values}}{@@{}}{@{/}}",
 
     "type": "iterator",
     "content": {

@@ -3,17 +3,15 @@
     "@template": "{?{foo\\ value}}{??{}}{??{}}{?{/}}",
 
     "type": "conditional",
-    "content": {
-      "context": "foo",
-      "expression": [
-        {
-          "type": "context",
-          "value": {
-            "context": "value"
-          }
+    "context": "foo",
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "context": "value"
         }
-      ]
-    },
+      }
+    ],
     "modifiers": []
   },
   {

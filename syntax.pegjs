@@ -32,7 +32,7 @@
       ++segStack[segStack.length - 1].count;
     }
 
-    if (!hasExpr && segTableInfo[type].lastHasNoExpression) {
+    if (!hasExpr && segTableInfo[type].lastHasNoExpression && !segStack[segStack.length - 1].lastSegment) {
       segStack[segStack.length - 1].lastSegment = true;
     } else if (segStack[segStack.length - 1].lastSegment) {
       throw error("Unexpected " + type + " next segment");

@@ -1,20 +1,19 @@
 [
   {
     "@template": "{{ fn1(a, 11) + foo:bar.fn2(13, b) }}",
-
     "type": "output",
     "context": null,
     "expression": [
       {
         "type": "context",
         "value": {
-          "context": "fn1",
+          "path": "fn1",
           "args": [
             [
               {
                 "type": "context",
                 "value": {
-                  "context": "a"
+                  "path": "a"
                 }
               }
             ],
@@ -34,7 +33,7 @@
       {
         "type": "context",
         "value": {
-          "context": "foo",
+          "path": "foo",
           "args": [
             [
               {
@@ -46,7 +45,7 @@
               {
                 "type": "context",
                 "value": {
-                  "context": "b"
+                  "path": "b"
                 }
               }
             ]

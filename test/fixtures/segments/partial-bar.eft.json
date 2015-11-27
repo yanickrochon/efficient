@@ -15,7 +15,7 @@
       {
         "type": "context",
         "value": {
-          "context": "name"
+          "path": "name"
         }
       }
     ],

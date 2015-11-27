@@ -164,14 +164,6 @@ describe('Test compiler', function () {
 
   describe('Text-only Templates', function () {
 
-    it('should compile no args', function (done) {
-      var fn = Compiler.compile();
-
-      execTemplate(fn).then(function (output) {
-        output.buffer.should.be.empty;
-      }).then(done).catch(done);
-    })
-
     it('should compile single text segment', function (done) {
       var parsed = [
         {
@@ -224,25 +216,23 @@ describe('Test compiler', function () {
         {
           "@template": "{{\"Hello \" + foo}}",
           "type": "output",
-          "content": {
-            "context": null,
-            "expression": [
-              {
-                "type": "string",
-                "value": "Hello "
-              },
-              {
-                "type": "operator",
-                "value": "+"
-              },
-              {
-                "type": "context",
-                "value": {
-                  "context": "foo"
-                }
+          "context": null,
+          "expression": [
+            {
+              "type": "string",
+              "value": "Hello "
+            },
+            {
+              "type": "operator",
+              "value": "+"
+            },
+            {
+              "type": "context",
+              "value": {
+                "path": "foo"
               }
-            ]
-          },
+            }
+          ],
           "modifiers": [],
           "offset": 0,
           "line": 1,
@@ -266,25 +256,23 @@ describe('Test compiler', function () {
           "@template": "{{foo\\ add + 2}} {{bar\\ mul * 10}}",
 
           "type": "output",
-          "content": {
-            "context": "foo",
-            "expression": [
-              {
-                "type": "context",
-                "value": {
-                  "context": "add"
-                }
-              },
-              {
-                "type": "operator",
-                "value": "+"
-              },
-              {
-                "type": "number",
-                "value": 2
+          "context": "foo",
+          "expression": [
+            {
+              "type": "context",
+              "value": {
+                "path": "add"
               }
-            ]
-          },
+            },
+            {
+              "type": "operator",
+              "value": "+"
+            },
+            {
+              "type": "number",
+              "value": 2
+            }
+          ],
           "modifiers": [],
           "offset": 0,
           "line": 1,
@@ -299,25 +287,23 @@ describe('Test compiler', function () {
         },
         {
           "type": "output",
-          "content": {
-            "context": "bar",
-            "expression": [
-              {
-                "type": "context",
-                "value": {
-                  "context": "mul"
-                }
-              },
-              {
-                "type": "operator",
-                "value": "*"
-              },
-              {
-                "type": "number",
-                "value": 10
+          "context": "bar",
+          "expression": [
+            {
+              "type": "context",
+              "value": {
+                "path": "mul"
               }
-            ]
-          },
+            },
+            {
+              "type": "operator",
+              "value": "*"
+            },
+            {
+              "type": "number",
+              "value": 10
+            }
+          ],
           "modifiers": [],
           "offset": 17,
           "line": 1,
@@ -429,7 +415,7 @@ describe('Test compiler', function () {
     it('should fail when too many segments', function () {
       var parsed = require('../fixtures/segments/conditional4.eft');
 
-      (function () { Compiler.compile(parsed); }).should.throw('Too many segments for conditional');
+      (function () { Compiler.compile(parsed); }).should.throw('Unexpected token else');
     });
   });
 
@@ -813,17 +799,13 @@ describe('Test compiler', function () {
       }
     });
 
-    it('should throw "Malformed parsed data"', function () {
-      Compiler.DEBUG = false;
-      (function () { Compiler.compile('bob'); }).should.throw('Malformed parsed data');
-    });
-
     it('should throw "Invalid segment"', function () {
-      Compiler.DEBUG = true;
       [
-        'bob'
+        undefined, true, false,
+        'bob',
+        0, NaN
       ].forEach(function (parsed) {
-        (function () { Compiler.compile(parsed); }).should.throw('Invalid segment');
+        (function () { Compiler.compile(parsed); }).should.throw(/^Invalid segments/);
       });
     });
 

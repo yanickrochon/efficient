@@ -1,6 +1,6 @@
 [
   {
-    "@template": "{{ encodeURIComponent }encodeURIComponent}\n{{ decodeURIComponent }decodeURIComponent}\n{{ encodeURI }encodeURI}\n{{ decodeURI }decodeURI}\n{{ encodeHTML }encodeHTML}\n{{ decodeHTML }decodeHTML}\n{{ encodeXm }encodeXML}\n{{ decodeXML }decodeXML}\n{{ json }json}\n{{ upper }upper}\n{{ lower }lower}\n{{ mark }mask(\"?\")}\n{{ padLeft }padLeft(6,\"-\")}\n{{ padRight }padRight(6,\"+\")}",
+    "@template": "{{ encodeURIComponent }encodeURIComponent}\n{{ decodeURIComponent }decodeURIComponent}\n{{ encodeURI }encodeURI}\n{{ decodeURI }decodeURI}\n{{ encodeHTML }encodeHTML}\n{{ decodeHTML }decodeHTML}\n{{ encodeXML }encodeXML}\n{{ decodeXML }decodeXML}\n{{ json }json}\n{{ upper }upper}\n{{ lower }lower}\n{{ mark }mask(\"?\")}\n{{ padLeft }padLeft(6,\"-\")}\n{{ padRight }padRight(6,\"+\")}",
 
     "type": "output",
     "context": null,
@@ -176,7 +176,7 @@
       {
         "type": "context",
         "value": {
-          "path": "encodeXm"
+          "path": "encodeXML"
         }
       }
     ],

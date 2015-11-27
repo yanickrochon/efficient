@@ -29,7 +29,7 @@
       {
         "type": "context",
         "value": {
-          "context": "user"
+          "path": "user"
         }
       }
     ],

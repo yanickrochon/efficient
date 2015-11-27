@@ -70,17 +70,15 @@ describe('Test Parser', function () {
           segments.should.have.lengthOf(1);
 
           segments[0].type.should.equal('output');
-          segments[0].content.should.be.instanceof(Object).and.eql({
-            "context": null,
-            "expression": [
-              {
-                "type": "context",
-                "value": {
-                  "context": "foo"
-                }
+          segments[0].should.have.ownProperty('context').equal(null);
+          segments[0].expression.should.eql([
+            {
+              "type": "context",
+              "value": {
+                "path": "foo"
               }
-            ]
-          });
+            }
+          ]);
           segments[0].modifiers.should.have.lengthOf(0);
           segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
@@ -99,17 +97,15 @@ describe('Test Parser', function () {
           segments.should.be.have.lengthOf(1);
 
           segments[0].type.should.equal('output');
-          segments[0].content.should.be.instanceof(Object).and.eql({
-            "context": "bar",
-            "expression": [
-              {
-                "type": "context",
-                "value": {
-                  "context": "foo"
-                }
+          segments[0].context.should.equal('bar');
+          segments[0].expression.should.eql([
+            {
+              "type": "context",
+              "value": {
+                "path": "foo"
               }
-            ]
-          });
+            }
+          ]);
           segments[0].modifiers.should.have.lengthOf(0);
           segments[0].offset.should.equal(0);
           segments[0].line.should.equal(1);
@@ -129,17 +125,15 @@ describe('Test Parser', function () {
           segments.should.have.lengthOf(1);
 
           segments[0].type.should.equal('output');
-          segments[0].content.should.be.instanceof(Object).and.eql({
-            "context": null,
-            "expression": [
-              {
-                "type": "context",
-                "value": {
-                  "context": "foo"
-                }
+          segments[0].should.have.ownProperty('context').equal(null);
+          segments[0].expression.should.eql([
+            {
+              "type": "context",
+              "value": {
+                "path": "foo"
               }
-            ]
-          });
+            }
+          ]);
           segments[0].modifiers.should.be.instanceof(Array).and.eql([
             {
               "name": "a",
@@ -167,7 +161,7 @@ describe('Test Parser', function () {
                   {
                     "type": "context",
                     "value": {
-                      "context": "bar"
+                      "path": "bar"
                     }
                   }
                 ]
@@ -192,17 +186,15 @@ describe('Test Parser', function () {
           segments.should.have.lengthOf(1);
 
           segments[0].type.should.equal('output');
-          segments[0].content.should.be.instanceof(Object).and.eql({
-            "context": "bar",
-            "expression": [
-              {
-                "type": "context",
-                "value": {
-                  "context": "foo"
-                }
+          segments[0].should.have.ownProperty('context').equal('bar');
+          segments[0].expression.should.eql([
+            {
+              "type": "context",
+              "value": {
+                "path": "foo"
               }
-            ]
-          });
+            }
+          ]);
           segments[0].modifiers.should.be.instanceof(Array).and.eql([
             {
               "name": "a",
@@ -230,7 +222,7 @@ describe('Test Parser', function () {
                   {
                     "type": "context",
                     "value": {
-                      "context": "bar"
+                      "path": "bar"
                     }
                   }
                 ]
@@ -259,12 +251,11 @@ describe('Test Parser', function () {
           segments[0].column.should.equal(1);
 
           segments[1].type.should.equal('output');
-          segments[1].content.should.be.an.Object;
-          should(segments[1].content.context).be.null;
-          segments[1].content.expression.should.be.instanceof(Array).and.eql([{
+          segments[1].should.have.ownProperty('context').equal(null);
+          segments[1].expression.should.be.instanceof(Array).and.eql([{
             type: 'context',
             value: {
-              context: 'foo'
+              path: 'foo'
             }
           }]);
           segments[1].modifiers.should.eql([]);
@@ -291,15 +282,13 @@ describe('Test Parser', function () {
       segments.should.have.lengthOf(2);
 
       segments[0].type.should.equal('conditional');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        "context": null,
-        "expression": [
-          {
-            "type": "reserved",
-            "value": true
-          }
-        ]
-      });
+      segments[0].should.have.ownProperty('context').equal(null);
+      segments[0].expression.should.eql([
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]);
 
       segments[1].type.should.equal('conditional');
       segments[1].closing.should.be.true;
@@ -316,27 +305,23 @@ describe('Test Parser', function () {
       segments.should.have.lengthOf(3);
 
       segments[0].type.should.equal('conditional');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        "context": null,
-        "expression": [
-          {
-            "type": "reserved",
-            "value": true
-          }
-        ]
-      });
+      segments[0].should.have.ownProperty('context').equal(null);
+      segments[0].expression.should.eql([
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]);
 
       segments[1].type.should.equal('conditional');
-      segments[1].next.should.be.true;
-      segments[1].content.should.be.instanceof(Object).and.eql({
-        "context": null,
-        "expression": [
-          {
-            "type": "reserved",
-            "value": null
-          }
-        ]
-      });
+      segments[1].next.should.equal(true);
+      segments[1].should.not.have.ownProperty('context');
+      segments[1].expression.should.eql([
+        {
+          "type": "reserved",
+          "value": null
+        }
+      ]);
 
       segments[2].type.should.equal('conditional');
       segments[2].closing.should.be.true;
@@ -358,87 +343,8 @@ describe('Test Parser', function () {
       this.timeout(200);
 
       [
-        '{?{true}}{??{true}}{??{true}}{?{/}}',
-        '{?{true}}{??{true}}{??{true}}{??{true}}{?{/}}'
-      ].forEach(function (str) {
-        +(function () { Parser.parse(str); }).should.throw();
-      });
-    });
-
-  });
-
-
-  describe('Test switch segments', function () {
-
-    it('should parse single segment', function () {
-      var str = '{*{true}}{*{/}}';
-      var segments = Parser.parse(str);
-
-      //console.log(JSON.stringify(segments, null, 2));
-
-      segments.should.have.lengthOf(2);
-
-      segments[0].type.should.equal('switch');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        "context": null,
-        "expression": [
-          {
-            "type": "reserved",
-            "value": true
-          }
-        ]
-      });
-
-      segments[1].type.should.equal('switch');
-      segments[1].closing.should.be.true;
-
-    });
-
-    it('should parse many segments', function () {
-      var str = '{*{1}}{**{2}}{**{3}}{**{4}}{**{5}}{**{6}}{**{7}}{*{/}}';
-      var segments = Parser.parse(str);
-      var expectedCount = 8;
-
-      //console.log(JSON.stringify(segments, null, 2));
-
-      segments.should.have.lengthOf(8);
-
-      segments[0].type.should.equal('switch');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        "context": null,
-        "expression": [
-          {
-            "type": "number",
-            "value": 1
-          }
-        ]
-      });
-
-      for (var i = 1; i < expectedCount - 1; ++i) {
-        segments[i].type.should.equal('switch');
-        segments[i].next.should.be.true;
-        segments[i].content.should.be.instanceof(Object).and.eql({
-          "context": null,
-          "expression": [
-            {
-              "type": "number",
-              "value": i + 1
-            }
-          ]
-        });
-      }
-
-      segments[expectedCount - 1].type.should.equal('switch');
-      segments[expectedCount - 1].closing.should.be.true;
-
-    });
-
-    it('should fail when no closing segment', function () {
-      this.timeout(200);
-
-      [
-        '{*{true}}',
-        '{*{true /}}'
+        '{?{true}}{??{}}{??{}}{?{/}}',
+        '{?{true}}{??{true}}{??{}}{??{}}{?{/}}'
       ].forEach(function (str) {
         +(function () { Parser.parse(str); }).should.throw();
       });
@@ -458,15 +364,13 @@ describe('Test Parser', function () {
       segments.should.have.lengthOf(2);
 
       segments[0].type.should.equal('iterator');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        "context": null,
-        "expression": [
-          {
-            "type": "reserved",
-            "value": true
-          }
-        ]
-      });
+      segments[0].should.have.ownProperty('context').equal(null);
+      segments[0].expression.should.eql([
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]);
 
       segments[1].type.should.equal('iterator');
       segments[1].closing.should.be.true;
@@ -508,15 +412,13 @@ describe('Test Parser', function () {
       segments.should.have.lengthOf(1);
 
       segments[0].type.should.equal('custom');
-      segments[0].content.should.be.instanceof(Object).and.eql( {
-        "context": null,
-        "expression": [
-          {
-            "type": "reserved",
-            "value": true
-          }
-        ]
-      });
+      segments[0].should.have.ownProperty('context').equal(null);
+      segments[0].expression.should.eql([
+        {
+          "type": "reserved",
+          "value": true
+        }
+      ]);
       segments[0].closing.should.be.true;
 
     });
@@ -537,15 +439,13 @@ describe('Test Parser', function () {
         segments.should.have.lengthOf(expectedCount);
 
         segments[0].type.should.equal('custom');
-        segments[0].content.should.be.instanceof(Object).and.eql({
-          "context": null,
-          "expression": [
-            {
-              "type": "reserved",
-              "value": true
-            }
-          ]
-        });
+        segments[0].should.have.ownProperty('context').equal(null);
+        segments[0].expression.should.eql([
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ]);
 
         for (var i = 1; i < expectedCount - 1; ++i) {
           segments[i].type.should.equal('custom');
@@ -571,17 +471,15 @@ describe('Test Parser', function () {
 
       segments.should.have.lengthOf(2);
 
-      segments[0].should.be.instanceof(Object).and.eql({
+      segments[0].should.eql({
         "type": "namedDeclare",
-        "content": {
-          "context": null,
-          "expression": [
-            {
-              "type": "reserved",
-              "value": true
-            }
-          ]
-        },
+        "context": null,
+        "expression": [
+          {
+            "type": "reserved",
+            "value": true
+          }
+        ],
         "modifiers": [],
         "offset": 0,
         "line": 1,
@@ -633,13 +531,11 @@ describe('Test Parser', function () {
       segments.should.have.lengthOf(1);
 
       segments[0].type.should.equal('namedRender');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        context: null,
-        expression: [ {
-          type: 'reserved',
-          value: true
-        } ]
-      });
+      segments[0].should.have.ownProperty('context').equal(null);
+      segments[0].expression.should.eql([ {
+        type: 'reserved',
+        value: true
+      } ]);
       segments[0].modifiers.should.be.instanceof(Array).and.have.lengthOf(0);
       segments[0].closing.should.be.true;
 
@@ -670,13 +566,11 @@ describe('Test Parser', function () {
       segments.should.have.lengthOf(1);
 
       segments[0].type.should.equal('partial');
-      segments[0].content.should.be.instanceof(Object).and.eql({
-        context: null,
-        expression: [ {
-          type: 'reserved',
-          value: true
-        } ]
-      });
+      segments[0].should.have.ownProperty('context').equal(null);
+      segments[0].expression.should.eql([ {
+        type: 'reserved',
+        value: true
+      } ]);
       segments[0].modifiers.should.be.instanceof(Array).and.have.lengthOf(0);
       segments[0].closing.should.be.true;
 
@@ -790,9 +684,9 @@ describe('Test Parser', function () {
         var parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
-        parsed[0].content.expression[0].should.eql({
-          type:type,
-          value:tests[expr]
+        parsed[0].expression[0].should.eql({
+          type: type,
+          value: tests[expr]
         });
       });
     });
@@ -814,7 +708,7 @@ describe('Test Parser', function () {
       Object.keys(tests).forEach(function (expr) {
         var parsed = Parser.parse(expr);
 
-        var values = parsed[0].content.expression.map(function (token) {
+        var values = parsed[0].expression.map(function (token) {
           switch (token.type) {
             case 'parenOpen': return '(';
             case 'parenClose': return ')';
@@ -844,9 +738,9 @@ describe('Test Parser', function () {
         var parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
-        parsed[0].content.expression[0].should.eql({
-          type:type,
-          value:tests[expr]
+        parsed[0].expression[0].should.eql({
+          type: type,
+          value: tests[expr]
         });
       });
     });
@@ -864,10 +758,10 @@ describe('Test Parser', function () {
         var parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
-        parsed[0].content.expression[0].should.eql({
-          type:type,
-          value:{
-            context:tests[expr]
+        parsed[0].expression[0].should.eql({
+          type: type,
+          value: {
+            path: tests[expr]
           }
         });
       });
@@ -876,20 +770,20 @@ describe('Test Parser', function () {
     it('should parse callable contexts', function () {
       var type = 'context';
       var tests = {
-        '{{foo()}}': { context:'foo', args:[] },
-        '{{foo.bar()}}': { context:'foo.bar', args:[] },
-        '{{foo(1)}}': { context:'foo', args:[[{ type:'number', value:1 }]] },
-        '{{foo(1,2,3)}}': { context:'foo', args:[[{ type:'number', value:1 }], [{ type:'number', value:2 }], [{ type:'number', value:3 }]] },
-        '{{foo.bar(1,2,3)}}': { context:'foo.bar', args:[[{ type:'number', value:1 }], [{ type:'number', value:2 }], [{ type:'number', value:3 }]] }
+        '{{foo()}}': { path:'foo', args:[] },
+        '{{foo.bar()}}': {path:'foo.bar', args:[] },
+        '{{foo(1)}}': { path:'foo', args:[[{ type:'number', value:1 }]] },
+        '{{foo(1,2,3)}}': { path:'foo', args:[[{ type:'number', value:1 }], [{ type:'number', value:2 }], [{ type:'number', value:3 }]] },
+        '{{foo.bar(1,2,3)}}': { path:'foo.bar', args:[[{ type:'number', value:1 }], [{ type:'number', value:2 }], [{ type:'number', value:3 }]] }
       };
 
       Object.keys(tests).forEach(function (expr) {
         var parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
-        parsed[0].content.expression[0].should.eql({
-          type:type,
-          value:tests[expr]
+        parsed[0].expression[0].should.eql({
+          type: type,
+          value: tests[expr]
         });
       });
     });

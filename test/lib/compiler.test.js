@@ -25,7 +25,7 @@ describe('Test compiler', function () {
       err: function err(err, ptr) {
         console.error("Run-time error near " + JSON.stringify(ptr) + " in template");
       },
-      iterator: function (values, ctx, cb) {
+      iterator: function (ctx, values, cb) {
         var arr;
 
         if (values instanceof Array) {
@@ -72,14 +72,14 @@ describe('Test compiler', function () {
       getSegment: function (name) {
         return output.named[name] || function (c) { return c; };
       },
-      callCustom: function(path, ctx, segments, modifier) {
+      callCustom: function(ctx, path, segments) {
         var engine = this;
         var custom = ctx.get(String(path)).data;
         var promise = Promise.resolve(ctx);
 
         if (typeof custom === 'function') {
           return promise.then(function (ctx) {
-            return custom.call(engine, ctx, segments, modifier);
+            return custom.call(engine, ctx, segments);
           });
         } else {
           return promise;
@@ -762,7 +762,7 @@ describe('Test compiler', function () {
 
       Compiler.compile(parsed);
 
-      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;      
+      Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;
 
       (function () { Compiler.compile(parsed); }).should.throw(/^Suspicious segment found/);
     });

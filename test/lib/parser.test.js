@@ -426,10 +426,10 @@ describe('Test Parser', function () {
     it('should parse various segments', function () {
       var tests = {
         '{&{true}}{&{/}}': 2,
-        '{&{true}}{&&{true}}{&{/}}': 3,
-        '{&{true}}{&&{true}}{&&{true}}{&&{true}}{&{/}}': 5,
-        '{&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&{/}}': 7,
-        '{&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&&{true}}{&{/}}': 15,
+        '{&{true}}{&&{}}{&{/}}': 3,
+        '{&{true}}{&&{}}{&&{}}{&&{}}{&{/}}': 5,
+        '{&{true}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&{/}}': 7,
+        '{&{true}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&&{}}{&{/}}': 15,
       };
 
       Object.keys(tests).forEach(function (str) {
@@ -457,6 +457,19 @@ describe('Test Parser', function () {
 
       });
 
+    });
+
+    it('should fail if unexpected expression', function () {
+      this.timeout(200);
+
+      [
+        '{&{1}}{&&{2}}{&{/}}',
+        '{&{true}}{&&{true}}{&&{true}}{&{/}}',
+        '{&{true}}{&&{}}{&&{true}}{&{/}}',
+        '{&{true}}{&&{true}}{&&{}}{&{/}}'
+      ].forEach(function (str) {
+        +(function () { Parser.parse(str); }).should.throw();
+      });
     });
 
   });

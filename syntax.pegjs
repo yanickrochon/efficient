@@ -4,7 +4,7 @@
   var segTableInfo = {
     'conditional':  { min: 1, max: Infinity, lastHasNoExpression: true },
     'iterator':     { min: 1, max: 1 },
-    'custom':       { min: 0, max: Infinity },
+    'custom':       { min: 0, max: Infinity, noExpressionInNext: true },
     'namedDeclare': { min: 1, max: 1 },
     'namedRender':  { min: 0, max: 0 },
     'partial':      { min: 0, max: 0 },
@@ -36,6 +36,8 @@
       segStack[segStack.length - 1].lastSegment = true;
     } else if (segStack[segStack.length - 1].lastSegment) {
       throw error("Unexpected " + type + " next segment");
+    } else if (hasExpr && segTableInfo[type].noExpressionInNext) {
+      throw error("Unexpected expression in " + type + " next segment");
     }
   }
 

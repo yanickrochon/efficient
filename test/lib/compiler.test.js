@@ -25,7 +25,7 @@ describe('Test compiler', function () {
       err: function err(err, ptr) {
         console.error("Run-time error near " + JSON.stringify(ptr) + " in template");
       },
-      iterator: function (ctx, values, cb) {
+      iterator: function (values, ctx, cb) {
         var arr;
 
         if (values instanceof Array) {
@@ -66,13 +66,13 @@ describe('Test compiler', function () {
           });
         }, Promise.resolve(ctx));
       },
-      setSegment: function (name, fn) {
+      setSegment: function (name, ctx, fn) {
         output.named[name] = fn;
       },
       getSegment: function (name) {
         return output.named[name] || function (c) { return c; };
       },
-      callCustom: function(ctx, path, segments) {
+      callCustom: function(path, ctx, segments) {
         var engine = this;
         var custom = ctx.get(String(path)).data;
         var promise = Promise.resolve(ctx);
@@ -85,7 +85,7 @@ describe('Test compiler', function () {
           return promise;
         }
       },
-      render: function (name, ctx) {
+      render: function (name, ctx/*, outputModifier*/) {
         if (partialMap && partialMap[name]) {
           return partialMap[name](engine, ctx);
         } else {
@@ -157,6 +157,49 @@ describe('Test compiler', function () {
       Compiler.IGNORE_SUSPICIOUS_SEGMENTS.should.be.true;
       Compiler.IGNORE_SUSPICIOUS_SEGMENTS = false;
       Compiler.IGNORE_SUSPICIOUS_SEGMENTS.should.be.false;
+    });
+
+  });
+
+  describe('Debug information', function () {
+    var stateDebug;
+
+    before(function () {
+      stateDebug = Compiler.DEBUG;
+    });
+
+    after(function () {
+      Compiler.DEBUG = stateDebug;
+    });
+
+    it('should contain debug information', function () {
+      var parsed = [
+        {
+          type: 'text',
+          content: 'test'
+        }
+      ];
+
+      Compiler.DEBUG = true;
+
+      var compiled = Compiler.compile(parsed);
+
+      compiled.toString().match(/var (.*?);[\s\S]*?\1\s*?=/).should.not.be.null;
+    });
+
+    it('should not contain debug information', function () {
+      var parsed = [
+        {
+          type: 'text',
+          content: 'test'
+        }
+      ];
+
+      Compiler.DEBUG = false;
+
+      var compiled = Compiler.compile(parsed);
+
+      String(compiled.toString().match(/var (.*?);[\s\S]*?\1\s*?=/)).should.equal('null');
     });
 
   });
@@ -412,8 +455,28 @@ describe('Test compiler', function () {
       })).then(function () { done(); }).catch(done);
     });
 
-    it('should fail when too many segments', function () {
+    it('should handle else if', function (done) {
       var parsed = require('../fixtures/segments/conditional4.eft');
+      var fn = Compiler.compile(parsed);
+
+      Promise.all([
+        execTemplate(fn, { a: true }).then(function (output) {
+          output.buffer.should.equal('a');
+        }),
+        execTemplate(fn, { b: true }).then(function (output) {
+          output.buffer.should.equal('b');
+        }),
+        execTemplate(fn, { c: true }).then(function (output) {
+          output.buffer.should.equal('c');
+        }),
+        execTemplate(fn).then(function (output) {
+          output.buffer.should.equal('d');
+        })
+      ]).then(function () { done(); }).catch(done);
+    });
+
+    it('should fail when too many segments', function () {
+      var parsed = require('../fixtures/segments/conditional5.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Unexpected token else');
     });
@@ -803,12 +866,24 @@ describe('Test compiler', function () {
       [
         undefined, true, false,
         'bob',
-        0, NaN
+        0, NaN,
+        {}, function () {}, /./
       ].forEach(function (parsed) {
         (function () { Compiler.compile(parsed); }).should.throw(/^Invalid segments/);
       });
     });
 
+    it('should throw "Malformed parsed data"', function () {
+      Compiler.DEBUG = false;
+
+      [
+        true,
+        'bob',
+        {}, function () {}, /./
+      ].forEach(function (parsed) {
+        (function () { Compiler.compile([parsed]); }).should.throw('Malformed parsed data');
+      });
+    });
 
   });
 

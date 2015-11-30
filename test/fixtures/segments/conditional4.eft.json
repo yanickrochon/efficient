@@ -1,29 +1,96 @@
 [
   {
-    "@template": "{?{foo\\ value}}{??{}}{??{}}{?{/}}",
+    "@template": "{?{a}}a{??{b}}b{??{c}}c{??{}}d{?{/}}",
 
     "type": "conditional",
-    "context": "foo",
+    "context": null,
     "expression": [
       {
         "type": "context",
         "value": {
-          "context": "value"
+          "path": "a"
         }
       }
     ],
-    "modifiers": []
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "a",
+    "offset": 6,
+    "line": 1,
+    "column": 7
   },
   {
     "type": "conditional",
-    "next": true
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "b"
+        }
+      }
+    ],
+    "modifier": [],
+    "next": true,
+    "offset": 7,
+    "line": 1,
+    "column": 8
+  },
+  {
+    "type": "text",
+    "content": "b",
+    "offset": 14,
+    "line": 1,
+    "column": 15
   },
   {
     "type": "conditional",
-    "next": true
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "c"
+        }
+      }
+    ],
+    "modifier": [],
+    "next": true,
+    "offset": 15,
+    "line": 1,
+    "column": 16
+  },
+  {
+    "type": "text",
+    "content": "c",
+    "offset": 22,
+    "line": 1,
+    "column": 23
   },
   {
     "type": "conditional",
-    "closing": true
+    "expression": null,
+    "modifier": [],
+    "next": true,
+    "offset": 23,
+    "line": 1,
+    "column": 24
+  },
+  {
+    "type": "text",
+    "content": "d",
+    "offset": 29,
+    "line": 1,
+    "column": 30
+  },
+  {
+    "type": "conditional",
+    "closing": true,
+    "offset": 30,
+    "line": 1,
+    "column": 31
   }
 ]

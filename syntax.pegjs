@@ -208,7 +208,7 @@ typedSegmentOpen
  = '{' type:segmentType '{' space* ctx:segmentContext? space* expr:expression space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type), { type:type, context:ctx, expression:expr, modifiers:modifiers || [] }; }
 
 typedSegmentSelfClosing
- = '{' type:segmentType '{' space* ctx:segmentContext? expr:expression space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, context:ctx, expression:expr, modifiers:modifiers || [], closing:true }; }
+ = '{' type:segmentType '{' space* ctx:segmentContext? space* expr:expression space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, context:ctx, expression:expr, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
  = '{' type:segmentType segmentType '{' space* expr:expression? space* '}' space* modifiers:modifiers? space* '}' { return nextSegment(type, !!expr), { type:type, expression:expr, modifier:modifiers || [], next:true }; }

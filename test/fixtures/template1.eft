@@ -1,0 +1,13 @@
+Hello {{subject}} !
+
+{?{value}}
+  {?{foo\ wrong}}
+
+  {??{value}}
+    {@{~bar\ value}}
+      {&{~buz\ "fn"}}{{..value}}:{{value}}{&{/}}
+    {@{/}}
+  {??{}}
+
+  {?{/}}
+{?{/}}

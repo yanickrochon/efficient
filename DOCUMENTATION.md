@@ -65,9 +65,10 @@ Output segments will echo whatever `expression` is specified using any specified
 * `{type{expression}} ... {type{/}}`
 * `{type{expression}modifiers} ... {type{/}}`
 * `{type{context\ expression}modifiers} ... {type{/}}`
-* `{type{expression}} ... {type{|}} ... {type{/}}`
-* `{type{expression}modifiers} ... {type{|}} ... {type{/}}`
-* `{type{context\ expression}modifiers} ... {type{|}} ... {type{/}}`
+* `{type{expression}} ... {typetype{expression}} ... {type{/}}`
+* `{type{expression}} ... {typetype{expression}} ... {{typetype{}} ... {type{/}}`
+* `{type{expression}} ... {typetype{}} ... {type{/}}`
+* `{type{context\ expression}modifiers} ... {typetype{}modifiers} ... {type{/}}`
 * etc.
 
 Typed segments are control flow segments. Their `expression` are evaluated using any specified `context`, and the resulting values are sent to the segment handlers when rendering the templates. Any output within the child segments, or handlers, may or may not be sent through the specified `modifiers`.
@@ -79,12 +80,12 @@ Represent a simple conditional one-way or two-way branching control flow. If the
 ```
 {?{user}}
   Hello {{user.name}}{?{meessages}} ({{messages:length}}){?{/}}
+{??{guest}}
+  Hello Guest!
 {??{}}
   <a href="#login">Login</a>
 {?{/}}
 ```
-
-**Note**: the engine does not *yet* support the `if... elseif... endif` form. The equivalent, at the moment, is to do `if... else if... endif endif`.
 
 #### Iterator : `@`
 Represent an iteration (for..., loop, etc.) control flow. The expression determine the value being iterated. The `context` inside this segment will be changed to the iterator's current value, exposing `index`, `key` and `value`. The previous context being availble through the parent path (i.e. `..`).
@@ -127,7 +128,7 @@ Would invoke a function assuming a template `context` similar to this :
     id: 123,
     avatarPicture: function (ctx, segments, modifier) {
       // "this" is the internal engine instance
-      this.out(generateUserAvatar(ctx.data.id));
+      this.out(modifier(generateUserAvatar(ctx.data.id)));
     }
   }
 }
@@ -142,12 +143,14 @@ To invoke an asynchronous handler, simply return a `Promise`.
     avatarPicture: function (ctx, segments, modifier) {
       var engine = this;
       return fetchUserAvatar(ctx.data.id).then(function (img) {}
-        engine.out('<img src="' + img.src + '" alt="' + img.name + '">');
+        engine.out(modifier('<img src="' + img.src + '" alt="' + img.name + '">'));
       });
     }
   }
 }
 ```
+
+**NOTE**: every custom functions will be passed `modifier` as third argument. This function is an helper [modifier](#modifiers) (by default, an identity function) that should be called before sending anything through `this.out` (i.e. `engin.out`). If `modifier` is not used, not all modifiers will be applied, but only those stacked outside of the custom segment (ex: if the template is being rendered from another template).
 
 #### Named : `#` and `+`
 Represent reusable blocks, or segments, that may be rendered multiple times, optionally using different contexts. In order to render named segments, these need to be declared using the declaration segment type (`#`), then invoked (or rendered) using the render segment (`+`). The `expression` defines the name of the segment (either when declaring and rendering).
@@ -372,6 +375,18 @@ As a limitation, functions may only be specified through a context path (optiona
 
 ## Modifiers
 
+Modifiers are transformer functions that are applied during output. Multiple modifiers (with arguments) may be applied and stacked without restrictions.
+
+For example :
+
+```
+{@{user}lower}{{value}customFilter("some value", true)|json}{@{/}}
+```
+
+Will call `someFilter`, a custom registered modifier, with two arguments, then send that modifier output through `JSON.strigify`. Then, the entire output will be modified to `lower`case.
+
+Note that modifiers are stacked even when calling partials, and named segments. The only exception are [custom functions](#custom--).
+
 ### Core Modifiers
 
 * `encodeURIComponent` : See [encodeURIComponent()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent) for more information.
@@ -476,7 +491,7 @@ The `Engine` is what binds the `Parser`, `Compiler` and `Context` together. Inst
 * `Engine.EXT_DELIMITER` : *`string`* - The character delimiter when specifying file extensions *(readonly)* *(default `','`)*
 
 * `engine.options` : *`object`* - The options passed to the `Engine` constructor. If no options was specified, then an empty object is returned. The returned object may be modified at any time. (Modifications are not guaranteed to be applied immediately if rendering is in progress.)
-* `engine.resolve(name)` : *`Promise`* - Resolve the current template `name` through a `Promise`. The resolved value is an object with these keys: `filename` is the resolved file name, `fn` is optionally the compiled template function (ex: once the template has been rendered).
+* `engine.resolve(name)` : *`Promise`* - Resolve the current template `name` through a `Promise`. The resolved value is the full name of the template. In case of files, the full absolute path; in case of defined templates, `name` is returned.
 * `engine.render(name[, data])` : *`Promise`* - Render the given template. This function will trigger the function `resolve`. The returned promise will also possess a function `stream()` that will return the render stream, used to monitor or get live update when rendering the template. THe resolving promise will return the final rendered string.
 
   ```
@@ -493,28 +508,17 @@ The `Engine` is what binds the `Parser`, `Compiler` and `Context` together. Inst
   });
   ```
 
-* `engine.renderString(name, str[, data])` : *`Promise`* - Render the given string `str`. The argument `name` is optional, set to `null` if this string should *not* be cached. Note that the cached `str` should *always* be associated with the same `name`, as rendering a different strings with the sane `name` *will* return unexpected output. If the `str` has been rendered once already, only `name` is required for subsequent rendering.
+* `engine.defineTemplate(name, str)` - define the specified template string (`str`) and resolve it to the given `name`. This function only defines template to the local engine instance. Therefore, defined templates are not available through other engine instances. This function is synchronous and does not return anything.
 
   ```
-  engine.renderString('foo', 'Hello world!').then(function (content) {
+  engine.defineTemplate('foo', 'Hello world!');
+  
+  engine.render('foo').then(function (content) {
     // content = 'Hello world!'
   });
   ```
-   then, later
-  ```
-  // the template string will be ignored since we already rendered, and
-  // specified a key 
-  engine.renderString('foo', 'something else').then(function (content) {
-    // content = 'Hello world!'
-  });
 
-  // template string will not be cached
-  engine.renderString(null, 'something else').then(function (content) {
-    // content = 'something else'
-  });
-  ```
-
-  **Note**: this method is mainly used for debugging purposes and typical use case should use the `render` method.
+  Define different templates with the same name will override any previous template. This is not recommended.
 
 #### Engine Options
 
@@ -523,8 +527,14 @@ The `Engine` is what binds the `Parser`, `Compiler` and `Context` together. Inst
   
   **Note**: the engine will also try to locate the file without any extensions.
 
+* `timeout` : *`number`* - specify a timeout value when rendering templates. If a template takes longer than the prescribed timeout (in milliseconds), then the `engine.render` will fail and the promise will be rejected.
+
 ### Internal Engine
 
-An internal engine is only created when rendering a template. It provides, to the template, a framework API to handle all the heavy lifting, keeping the template logic light and small. The same internal engine instance is passed to any rendered partials.
+An internal engine is only created when rendering a template. It provides to the template a framework API to handle all the heavy lifting, keeping the template logic light and small. The same internal engine instance is passed to any rendered partials, therefore named segments and contexts are persistent.
 
-*TODO*
+* 'stream' : *`Stream`* - returns the raw internal Stream object being used to output data. This stream is handled internally and should not be tempered with by user code.
+* 'stop'([`message`]) - stop rendering now. After calling this function, any output will produce an error. This function is synchronous and, upon returning, the stream will be closed.
+* 'out'(`str`) - send data to the output stream. The value `str` should be a string or it will be converted into such automatically. If there was any stacked modifier, they will be applied before calling `stream.push`.
+
+**Note**: there *are* other methods, but they are undocumented as they should be for internal use only and no user code should even need to use them.

@@ -522,7 +522,7 @@ The `Engine` is what binds the `Parser`, `Compiler` and `Context` together. Inst
 
 #### Engine Options
 
-* `paths` : *`object`* - specify valid paths to look for templates. The object maps template path prefix with an actual file system path. For example, specifying `{ 'foo': '/path/to/foo/views' }` and rendering `foo/index` will try to locate the template in `/path/to/foo/views/index`. The key `'*'` specify the default path when no prefix match (do not specify for *no* default paths). (default `{ '*': '.' }`)
+* `paths` : *`object`* - specify valid paths to look for templates. The object maps template path prefix with an actual file system path. For example, specifying `{ 'foo': '/path/to/foo/views' }` and rendering `foo/index` will try to locate the template in `/path/to/foo/views/index`. The key `'*'` specify the default path when no prefix match (do not specify if you want *no* default paths). (default `{ '*': '.' }`)
 * `ext` : *`string`|`array`* - specify a list of file extensions when looking for template files. When specifying a `string`, use `Engine.EXT_DELIMITER` to separate each values. (default `['.eft', '.eft.html', '.html']`)
   
   **Note**: the engine will also try to locate the file without any extensions.

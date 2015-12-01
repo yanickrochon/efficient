@@ -2,20 +2,26 @@
 
 describe('Test engine', function () {
 
+
   var path = require('path');
 
   var Engine = require('../../lib/engine');
 
-  var engineOptions = {
-    paths: {
-      'fixtures/testing': path.join(__dirname, '..', 'fixtures'),
-      '*': path.join(__dirname, '..', 'fixtures')
-    }
-  };
-
+  const FIXTURES_PATH = path.join(__dirname, '..', 'fixtures');
+  
 
   describe('Resolving templates', function () {
     var engine;
+    var engineOptions = {
+      paths: {
+        'foo/bar': FIXTURES_PATH,
+        'fixtures/testing': FIXTURES_PATH,
+        '*': FIXTURES_PATH,
+        'a/b': FIXTURES_PATH,
+        'a/b/c/d/': FIXTURES_PATH,
+      },
+      ext: '.txt, bob,      .eft,'
+    };
 
     before(function () {
       engine = Engine(engineOptions);
@@ -30,27 +36,38 @@ describe('Test engine', function () {
     });
 
     it('should resolve path', function (done) {
+      var otherEngine = new Engine({
+        paths: { '*': FIXTURES_PATH }
+      });
+
       Promise.all([
         engine.resolve('template1'),
         engine.resolve('fixtures/testing/template1'),
+        engine.resolve('a/b/c/d/template1'),
+        engine.resolve('foo/bar/../fixtures/template1'),
+        engine.resolve('a/b/template1')
       ]).then(function (results) {
-        results.should.have.lengthOf(2);
-        Object.keys(engine._cache).should.have.lengthOf(2);
+        
+        Object.keys(engine._cache).should.have.lengthOf(results.length);
         Object.keys(Engine._cache).should.have.lengthOf(1);
 
-        results[0].should.equal(results[1]);
+        for (var i = 1; i < results.length; ++i) {
+          results[0].should.equal(results[i]);
+        }
 
-        // read global cache
-        return Promise.all([
-          engine.resolve(path.join(__dirname, '..', 'fixtures', 'template1')),
-          engine.resolve(results[0])
-        ]).then(function (absResults) {
-          absResults[0].should.equal(absResults[1]);
-          absResults[0].should.equal(results[0]);
+        Engine._cache.should.have.ownProperty(results[0]);
+        engine._cache.should.not.have.ownProperty(results[0]);
+        otherEngine._cache.should.not.have.ownProperty(results[0]);
+
+        return otherEngine.resolve(results[0]).then(function (file) {
+          Object.keys(otherEngine._cache).should.have.lengthOf(0); // got from global
+          Object.keys(Engine._cache).should.have.lengthOf(1);
+
+          engine._cache.should.not.have.ownProperty(file);
+
+          file.should.equal(results[0]);
         });
       }).then(done).catch(done);
-
-
     });
 
     it('should not resolve', function (done) {
@@ -93,7 +110,11 @@ describe('Test engine', function () {
     var engine;
 
     before(function () {
-      engine = Engine(engineOptions);
+      engine = Engine({
+        paths: {
+          '*': FIXTURES_PATH
+        }
+      });
     });
 
     it('should render correct context', function (done) {
@@ -180,7 +201,7 @@ describe('Test engine', function () {
 
     before(function () {
       engine = Engine({
-        timeout: 200  // 1 sec timeout
+        timeout: 100  // 1 sec timeout
       });
     });
 
@@ -306,7 +327,7 @@ describe('Test engine', function () {
       engine.render('tmpl.custom.timeout', data).then(function (output) {
         throw new Error("Rendering did not timeout");
       }, function (err) {
-        err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Rendering timeout (200ms)');
+        err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Rendering timeout (100ms)');
 
         done();
       }).catch(done);
@@ -320,12 +341,13 @@ describe('Test engine', function () {
 
     before(function () {
       engine = Engine({
-        timeout: 200
+        timeout: 100
       });
-      engine.defineTemplate('custom', '{&{"foo" /}}');
     });
 
     it('should ignore missing custom functions', function (done) {
+      engine.defineTemplate('custom', '{&{"foo" /}}');
+
       Promise.all([
         engine.render('custom').then(function (output) {
           output.should.be.empty;
@@ -340,6 +362,22 @@ describe('Test engine', function () {
       ]).then(function () { done(); }, done);
     });
 
+    it('should pass modifier', function (done) {
+      var data = {
+        foo: function (ctx, segments) {
+          this.out('john');
+        }
+      };
+      engine.defineTemplate('custom.modifier', '{&{"foo" /}upper|padLeft(10,"x")}');
+
+      engine.render('custom.modifier', data).then(function (output) {
+        output.should.equal('xxxxxxJOHN');
+
+        done();
+      }).catch(done);
+
+    });
+
   });
 
 
@@ -348,7 +386,7 @@ describe('Test engine', function () {
 
     before(function () {
       engine = Engine({
-        timeout: 200
+        timeout: 100
       });
       engine.defineTemplate('iterator', '{@{foo}}{{index}}:{{key}}:{{value}};{@{/}}');
     });
@@ -415,7 +453,7 @@ describe('Test engine', function () {
 
     before(function () {
       engine = Engine({
-        timeout: 200
+        timeout: 100
       });
     });
 
@@ -513,25 +551,147 @@ describe('Test engine', function () {
 
 
   describe('Partials', function () {
+    var engine;
 
-    it('should render simple partial');
+    before(function () {
+      engine = Engine({
+        timeout: 100
+      });
+    });
 
-    it('should render partial with correct context');
+    it('should render simple partial', function (done) {
+      engine.defineTemplate('partial.simple.master', 'Hello {>{"partial.simple.secondary"/}} !');
+      engine.defineTemplate('partial.simple.secondary', 'John');
 
-    it('should apply modifiers');
+      engine.render('partial.simple.master').then(function (output) {
+        output.should.equal('Hello John !');
+
+        done();
+      }).catch(done);
+    });
+
+    it('should render partial with correct context', function (done) {
+      engine.defineTemplate('partial.context.master', 'Hello {>{foo\\ "partial.context.secondary"/}} !');
+      engine.defineTemplate('partial.context.secondary', '{>{bar\\ "partial.context.third"/}}');
+      engine.defineTemplate('partial.context.third', '{>{"partial.context.fourth"/}}');
+      engine.defineTemplate('partial.context.fourth', '{{name}}');
+
+      engine.render('partial.context.master', {
+        foo: {
+          bar: {
+            name: 'Max'
+          }
+        }
+      }).then(function (output) {
+        output.should.equal('Hello Max !');
+
+        done();
+      }).catch(done);
+    });
+
+    it('should apply modifiers', function (done) {
+      engine.defineTemplate('partial.modifier.master', 'Hello {>{"partial.modifier.secondary"/}lower} !');
+      engine.defineTemplate('partial.modifier.secondary', '{>{"partial.modifier.third"/}padLeft(5,"-")}');
+      engine.defineTemplate('partial.modifier.third', '{{name}upper}');
+
+      engine.render('partial.modifier.master', {
+        name: 'Bob'
+      }).then(function (output) {
+        output.should.equal('Hello --bob !');
+
+        done();
+      }).catch(done);
+    });
+
+    it('should fail with template not found', function (done) {
+      engine.defineTemplate('partial.found.master', 'Hello {>{"partial.found.secondary"/}} !');
+
+      engine.render('partial.found.master', {
+        name: 'Bob'
+      }).then(function (output) {
+        throw new Error('Should have failed when template not found');
+      }, function (err) {
+        err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Template not found : partial.found.secondary');
+        done();
+      }).catch(done);
+    })
 
   });
 
 
   describe('Named segments', function () {
+    var engine;
 
-    it('should render named segment');
+    before(function () {
+      engine = Engine({
+        timeout: 100
+      });
+    });
 
-    it('should render with correct context');
+    it('should render named segment', function (done) {
+      engine.defineTemplate('named.declare', '{#{"custom"}}Hello{#{/}}');
+      engine.defineTemplate('named.render', '{#{"custom"}}Hello{#{/}}{+{"custom" /}}');
 
-    it('should render with compound context');
+      Promise.all([
+        engine.render('named.declare'),
+        engine.render('named.render')
+      ]).then(function (results) {
 
-    it('should apply modifiers');
+        results[0].should.be.empty;
+        results[1].should.equal('Hello');
+
+        done();
+      }).catch(done);
+    });
+
+    it('should render with correct context', function (done) {
+      var data = {
+        foo: {
+          greeting: 'Test'
+        },
+        bar: {
+          name: 'template'
+        }
+      };
+
+      engine.defineTemplate('named.render.context', '{#{foo\\ "custom"}}{{..greeting}} {{name}}{#{/}}{+{bar\\ "custom" /}}');
+
+      engine.render('named.render.context', data).then(function (output) {
+        output.should.equal('Test template');
+
+        done();
+      }).catch(done);
+    });
+
+    it('should ignore missing segments', function (done) {
+      engine.defineTemplate('named.render.missing', 'Hello {+{"missing"/}} !');
+
+      engine.render('named.render.missing').then(function (output) {
+        output.should.equal('Hello  !');
+
+        done();
+      }).catch(done);
+
+    })
+
+    it('should apply modifiers', function (done) {
+      var data = {
+        foo: {
+          greeting: 'Test'
+        },
+        bar: {
+          name: 'template'
+        }
+      };
+
+      engine.defineTemplate('named.render.context', '{#{foo\\ "custom"}lower}{{..greeting}} {{name}padLeft(10,"0")}{#{/}}{+{bar\\ "custom" /}upper}');
+
+      engine.render('named.render.context', data).then(function (output) {
+        output.should.equal('TEST 00TEMPLATE');
+
+        done();
+      }).catch(done);
+    });
 
   });
 

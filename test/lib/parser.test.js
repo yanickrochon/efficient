@@ -704,6 +704,57 @@ describe('Test Parser', function () {
       });
     });
 
+    it('should parse operators', function () {
+      var tests = {
+        '+':'+', '-':'-', '*':'*', '/':'/',
+        '%':'%', '^':'^',
+        '<':'<', '>':'>',
+        '<=':'<=', '>=':'>=',
+        '&&':'&&', '||':'||', '&':'&',
+        '=':'===',
+        '!=':'!==', '<>':'!=='
+      };
+
+      Object.keys(tests).forEach(function (operator) {
+        var expr = '{{1' + operator + '1}}';
+        var parsed = Parser.parse(expr);
+
+        parsed.should.have.lengthOf(1);
+        parsed[0].should.have.ownProperty('type').and.equal('output');
+        parsed[0].should.have.ownProperty('expression');
+
+        var parsedExpr = parsed[0].expression;
+
+        parsedExpr[1].type.should.equal('operator');
+        parsedExpr[1].value.should.equal(tests[operator]);
+      });
+    });
+
+    it('should parse negate', function () {
+      var tpl;
+      var parsed;
+
+      for (var i=0; i<10; ++i) {
+        tpl = '{{' + '!'.repeat(i+1) + 'a}}';
+
+        parsed = Parser.parse(tpl);
+
+        parsed.should.have.lengthOf(1);
+        parsed[0].should.have.ownProperty('type').equal('output');
+        parsed[0].should.have.ownProperty('expression').and.have.lengthOf(2);
+        parsed[0].expression[0].should.have.ownProperty('type').equal('negate');
+        parsed[0].expression[0].should.have.ownProperty('value').equal('!'.repeat(i+1));
+      }
+
+      parsed = Parser.parse('{{!a+b}}');
+      parsed[0].should.have.ownProperty('type').equal('output');
+      parsed[0].should.have.ownProperty('expression').and.have.lengthOf(4);
+      parsed[0].expression[0].should.have.ownProperty('type').equal('negate');
+      parsed[0].expression[0].should.have.ownProperty('value').equal('!');
+
+
+    });
+
     it('should parse simple math', function () {
       var tests = {
         '{{2+2}}': [2, '+', 2],
@@ -799,6 +850,100 @@ describe('Test Parser', function () {
           value: tests[expr]
         });
       });
+    });
+
+  });
+
+
+  describe('Testing contexts', function () {
+
+    it('should parse simple path', function () {
+      var parsed = Parser.parse('{{foo.bar.buz}}');
+
+      parsed.should.have.lengthOf(1);
+      parsed[0].should.have.ownProperty('type').equal('output');
+      parsed[0].should.have.ownProperty('expression').and.have.lengthOf(1);
+      parsed[0].expression[0].should.have.ownProperty('type').equal('context');
+      parsed[0].expression[0].should.have.ownProperty('value').and.have.ownProperty('path').equal('foo.bar.buz');
+      parsed[0].expression[0].value.should.not.have.ownProperty('props');
+    });
+
+    it('should parse path with properties', function () {
+      var parsed = Parser.parse('{{foo.bar:buz.meh}}');
+
+      parsed.should.have.lengthOf(1);
+      parsed[0].should.have.ownProperty('type').equal('output');
+      parsed[0].should.have.ownProperty('expression').and.have.lengthOf(1);
+      parsed[0].expression[0].should.have.ownProperty('type').equal('context');
+      parsed[0].expression[0].should.have.ownProperty('value');
+      parsed[0].expression[0].value.should.have.ownProperty('path').equal('foo.bar');
+      parsed[0].expression[0].value.should.have.ownProperty('props').equal('buz.meh');
+    });
+
+    it('should parse path with args', function () {
+      var parsed = Parser.parse('{{foo.bar(1, "a", a.b(true))}}');
+
+      parsed.should.have.lengthOf(1);
+      parsed[0].should.have.ownProperty('type').equal('output');
+      parsed[0].should.have.ownProperty('expression').and.have.lengthOf(1);
+      parsed[0].expression[0].should.have.ownProperty('type').equal('context');
+      parsed[0].expression[0].should.have.ownProperty('value');
+      parsed[0].expression[0].value.should.have.ownProperty('path').equal('foo.bar');
+      parsed[0].expression[0].value.should.not.have.ownProperty('props');
+      parsed[0].expression[0].value.should.have.ownProperty('args');
+      parsed[0].expression[0].value.args.should.have.lengthOf(3);
+
+      parsed[0].expression[0].value.args[0].should.eql([{
+        type: 'number',
+        value: 1
+      }]);
+      parsed[0].expression[0].value.args[1].should.eql([{
+        type: 'string',
+        value: 'a'
+      }]);
+      parsed[0].expression[0].value.args[2].should.eql([{
+        type: 'context',
+        value: {
+          path: 'a.b',
+          args: [
+            [ { type: 'reserved', value:true } ]
+          ]
+        }
+      }]);
+    });
+
+    it('should parse path with properties and args', function () {
+      var parsed = Parser.parse('{{foo.bar:buz.meh(1, "a", a:b(true))}}');
+
+      parsed.should.have.lengthOf(1);
+      parsed[0].should.have.ownProperty('type').equal('output');
+      parsed[0].should.have.ownProperty('expression').and.have.lengthOf(1);
+      parsed[0].expression[0].should.have.ownProperty('type').equal('context');
+      parsed[0].expression[0].should.have.ownProperty('value');
+      parsed[0].expression[0].value.should.have.ownProperty('path').equal('foo.bar');
+      parsed[0].expression[0].value.should.have.ownProperty('props').equal('buz.meh');
+      parsed[0].expression[0].value.should.have.ownProperty('args');
+      parsed[0].expression[0].value.args.should.have.lengthOf(3);
+
+      parsed[0].expression[0].value.args[0].should.eql([{
+        type: 'number',
+        value: 1
+      }]);
+      parsed[0].expression[0].value.args[1].should.eql([{
+        type: 'string',
+        value: 'a'
+      }]);
+      parsed[0].expression[0].value.args[2].should.eql([{
+        type: 'context',
+        value: {
+          path: 'a',
+          props: 'b',
+          args: [
+            [ { type: 'reserved', value:true } ]
+          ]
+        }
+      }]);
+
     });
 
   });

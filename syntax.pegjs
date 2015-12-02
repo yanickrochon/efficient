@@ -120,7 +120,7 @@ operator
       / '&&' / '||' / '&' / '|'
       / '=' { return '==='; }
       / ('!=' / '<>') { return '!=='; }
-      / '<' / '<=' / '>=' / '>'
+      / '<=' / '<' / '>=' / '>'
       ) { return { type:'operator', value:op }; }
 
 negate
@@ -162,7 +162,7 @@ contextPath
  / parent:( '~' / p:'.'+ { return p.join(''); } )
 
 propertyPath
- = left:variable space? '.' space? right:propertyPath { return left + '.' + right; }
+ = left:variable '.' right:propertyPath { return left + '.' + right; }
  / variable
 
 context

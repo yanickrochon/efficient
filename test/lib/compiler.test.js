@@ -522,6 +522,8 @@ describe('Test compiler', function () {
         values: 3
       };
 
+      console.log(fn.toString());
+
       execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('000;111;222;');
         output.raw.should.have.lengthOf(data.values);

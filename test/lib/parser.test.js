@@ -987,6 +987,7 @@ describe('Test Parser', function () {
         '{{foo}a|b()}': [ { name:'a', args:[] }, { name:'b', args:[] } ],
         '{{foo}a|b(1)}': [ { name:'a', args:[] }, { name:'b', args:[[{ type:'number', value:1 }]] } ],
         '{{foo}a|b(1)|c}': [ { name:'a', args:[] }, { name:'b', args:[[{ type:'number', value:1 }]] }, { name:'c', args:[] } ],
+        '{{foo}_}': [ { name:'_', args:[] } ],
       };
 
       Object.keys(tests).forEach(function (expr) {

@@ -91,7 +91,7 @@ digit
  = [0-9]
 
 letter
- = [a-zA-Z]
+ = [a-zA-Z_]
 
 
 // Base types

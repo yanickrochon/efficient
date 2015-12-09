@@ -704,6 +704,24 @@ describe('Test Parser', function () {
       });
     });
 
+    it('should parse strings', function () {
+      var tests = {
+        '{{\'\'}}': '',
+        '{{""}}': '',
+        '{{" "}}': ' ',
+        '{{"foo"}}': 'foo'
+      };
+
+      Object.keys(tests).forEach(function (tpl) {
+        var parsed = Parser.parse(tpl);
+
+        parsed[0].expression[0].should.eql({
+          type: 'string',
+          value: tests[tpl]
+        });
+      })
+    });
+
     it('should parse operators', function () {
       var tests = {
         '+':'+', '-':'-', '*':'*', '/':'/',
@@ -784,6 +802,24 @@ describe('Test Parser', function () {
         values.should.eql(tests[expr]);
       });
     });
+
+    it('should parse string contatenation', function () {
+      var tests = {
+        '{{"" + ""}}': '',
+        '{{"foo" + "bar"}}': 'foobar'
+      };
+
+      Object.keys(tests).forEach(function (tpl) {
+        var parsed = Parser.parse(tpl);
+
+        parsed[0].expression.reduce(function (str, arg) {
+          if (arg.type === 'string') {
+            str = str + arg.value;
+          }
+          return str;
+        }, '').should.equal(tests[tpl]);
+      });
+    })
 
     it('should parse reserved keywords', function () {
       var type = 'reserved';

@@ -96,8 +96,8 @@ letter
 
 // Base types
 string
- = '"' str:( '\\"' / [^"] )+ '"' { return str.join(''); }
- / "'" str:( "\\'" / [^'] )+ "'" { return str.join(''); }
+ = '"' str:( '\\"' / [^"] )* '"' { return str.join(''); }
+ / "'" str:( "\\'" / [^'] )* "'" { return str.join(''); }
 
 number
  = i:digit+ '.' d:digit+ { return parseFloat(i.join('') + '.' + d.join(''), 10); }

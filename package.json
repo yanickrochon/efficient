@@ -1,6 +1,6 @@
 {
   "name": "efficient",
-  "version": "1.0.6-rc",
+  "version": "1.0.7-rc",
   "description": "An Efficient and lightweight asynchronous template with a lot of promises!",
   "author": "Yanick Rochon <yanick.rochon@gmail.com>",
   "main": "index.js",

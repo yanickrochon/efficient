@@ -1,6 +1,6 @@
 {
   "name": "efficient",
-  "version": "1.0.8-rc",
+  "version": "1.0.9",
   "description": "An Efficient and lightweight asynchronous template with a lot of promises!",
   "author": "Yanick Rochon <yanick.rochon@gmail.com>",
   "main": "index.js",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "istanbul": "^0.4.1",
     "mocha": "^2.3.4",
-    "should": "^7.1.1"
+    "should": "^8.0.2"
   },
   "license": "MIT"
 }

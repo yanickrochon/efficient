@@ -8,6 +8,8 @@ describe('Test compiler', function () {
   Compiler.DEBUG = true;      // DEBUG
   Compiler.BEAUTIFY = true;   //
 
+  this.timeout(3000);
+
 
   function execTemplate(tpl, data, partialMap) {
     var Context = require('../../lib/context');

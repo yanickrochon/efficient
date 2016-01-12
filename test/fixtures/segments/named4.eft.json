@@ -1,19 +1,6 @@
 [
   {
-    "@template": "{+{\"foo\"}}{+{/}}",
+    "@template": "{#{foo\\ \"test\"}}Hello {{user}} and {{..bar.user{#{/}}{+{render.bar\\ \"test\"/}}",
 
-    "type": "namedRender",
-    "context": null,
-    "expression": [
-      {
-        "type": "string",
-        "value": "foo"
-      }
-    ],
-    "modifiers": []
-  },
-  {
-    "type": "namedRender",
-    "closing": true
   }
 ]

@@ -1,0 +1,18 @@
+[
+  {
+    "@template": "{?{foo\\ value /}}",
+
+    "type": "conditional",
+    "context": "foo",
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "value"
+        }
+      }
+    ],
+    "modifiers": [],
+    "closing": true
+  }
+]

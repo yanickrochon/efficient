@@ -69,10 +69,21 @@ describe('Test compiler', function () {
         }, Promise.resolve(ctx));
       },
       setSegment: function (name, ctx, fn) {
-        output.named[name] = fn;
+        output.named[name] = {
+          fn: fn,
+          ctx: ctx
+        };
       },
       getSegment: function (name) {
-        return output.named[name] || function (c) { return c; };
+        const seg = output.named[name];
+
+        if (!seg) {
+          return function () {};
+        } else {
+          return function (ctx) {
+            return seg.fn(seg.ctx.push(ctx.data));
+          }
+        };
       },
       callCustom: function(path, ctx, segments/*, outputModifier*/) {
         var engine = this;
@@ -209,7 +220,7 @@ describe('Test compiler', function () {
 
   describe('Text-only Templates', function () {
 
-    it('should compile single text segment', function (done) {
+    it('should compile single text segment', function () {
       var parsed = [
         {
           "type": "text",
@@ -218,12 +229,12 @@ describe('Test compiler', function () {
       ];
       var fn = Compiler.compile(parsed);
 
-      execTemplate(fn).then(function (output) {
+      return execTemplate(fn).then(function (output) {
         output.buffer.should.equal('Hello World');
-      }).then(done, done);
+      });
     });
 
-    it('should optimize consecutive text segments', function (done) {
+    it('should optimize consecutive text segments', function () {
       /// NOTE : this situation is technically impossible, but the compiler should support it anyway
       var parsed = [
         {
@@ -245,10 +256,10 @@ describe('Test compiler', function () {
       ];
       var fn = Compiler.compile(parsed);
 
-      execTemplate(fn).then(function (output) {
+      return execTemplate(fn).then(function (output) {
         output.raw.length.should.equal(1);
         output.buffer.should.equal('Hello World!');
-      }).then(done, done);
+      });
     });
 
   });
@@ -256,7 +267,7 @@ describe('Test compiler', function () {
 
   describe('Output Segments', function () {
 
-    it('should compile single segment', function (done) {
+    it('should compile single segment', function () {
       var parsed = [
         {
           "@template": "{{\"Hello \" + foo}}",
@@ -291,11 +302,11 @@ describe('Test compiler', function () {
       }).then(function (output) {
         output.raw.should.have.lengthOf(1);
         output.buffer.should.equal('Hello John');
-      }).then(done, done);
+      });
     });
 
 
-    it('should compile with different contexts', function (done) {
+    it('should compile with different contexts', function () {
       var parsed = [
         {
           "@template": "{{foo\\ add + 2}} {{bar\\ mul * 10}}",
@@ -365,10 +376,10 @@ describe('Test compiler', function () {
       };
       var fn = Compiler.compile(parsed);
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.raw.should.have.lengthOf(2);
         output.buffer.should.equal('12 50');
-      }).then(done, done);
+      });
     });
 
   });
@@ -376,7 +387,7 @@ describe('Test compiler', function () {
 
   describe('Conditional Segments', function () {
 
-    it('should compile single segment', function (done) {
+    it('should compile single segment', function () {
       var parsed = require('../fixtures/segments/conditional1.eft');
       var fn = Compiler.compile(parsed);
       var tests = [
@@ -386,7 +397,7 @@ describe('Test compiler', function () {
         true, {}, [], function () {}, -1, 1, /./
       ]];
 
-      Promise.all(tests.map(function(values, truthy) {
+      return Promise.all(tests.map(function(values, truthy) {
         return Promise.all(values.map(function (value) {
           var data = {
             value: value
@@ -398,10 +409,10 @@ describe('Test compiler', function () {
             return truthy ? 'Hello World': '';
           }));
         });
-      })).then(function () { done(); }).catch(done);
+      })).then(function () {});
     });
 
-    it('should compile with else segment', function (done) {
+    it('should compile with else segment', function () {
       var parsed = require('../fixtures/segments/conditional2.eft');
       var fn = Compiler.compile(parsed);
       var tests = [
@@ -411,7 +422,7 @@ describe('Test compiler', function () {
         true, {}, [], function () {}, -1, 1, /./
       ]];
 
-      Promise.all(tests.map(function(values, truthy) {
+      return Promise.all(tests.map(function(values, truthy) {
         return Promise.all(values.map(function (value) {
           var data = {
             value: value
@@ -423,10 +434,10 @@ describe('Test compiler', function () {
             return truthy ? 'Hello World': 'Good Bye';
           }));
         });
-      })).then(function () { done(); }).catch(done);
+      })).then(function () {});
     });
 
-    it('should integrate with other segments', function (done) {
+    it('should integrate with other segments', function () {
       var parsed = require('../fixtures/segments/conditional3.eft');
       var fn = Compiler.compile(parsed);
       var tests = [
@@ -438,7 +449,7 @@ describe('Test compiler', function () {
       var PREVAL = '>>>';
       var POSTVAL = '<<<';
 
-      Promise.all(tests.map(function(values, truthy) {
+      return Promise.all(tests.map(function(values, truthy) {
         return Promise.all(values.map(function (value) {
           var data = {
             pre: PREVAL,
@@ -454,14 +465,14 @@ describe('Test compiler', function () {
             return PREVAL + (truthy ? 'Hello World': 'Bye World') + POSTVAL;
           }));
         });
-      })).then(function () { done(); }).catch(done);
+      })).then(function () {});
     });
 
-    it('should handle else if', function (done) {
+    it('should handle else if', function () {
       var parsed = require('../fixtures/segments/conditional4.eft');
       var fn = Compiler.compile(parsed);
 
-      Promise.all([
+      return Promise.all([
         execTemplate(fn, { a: true }).then(function (output) {
           output.buffer.should.equal('a');
         }),
@@ -474,7 +485,7 @@ describe('Test compiler', function () {
         execTemplate(fn).then(function (output) {
           output.buffer.should.equal('d');
         })
-      ]).then(function () { done(); }).catch(done);
+      ]).then(function () {});
     });
 
     it('should fail when too many segments', function () {
@@ -494,20 +505,20 @@ describe('Test compiler', function () {
 
   describe('Iterator Segments', function () {
 
-    it('should iterate arrays', function (done) {
+    it('should iterate arrays', function () {
       var parsed = require('../fixtures/segments/iterator1.eft');
       var fn = Compiler.compile(parsed);
       var data = {
         values: ['a', 'b', 'c']
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('0aa;1bb;2cc;');
         output.raw.should.have.lengthOf(data.values.length);
-      }).then(done, done);
+      });
     });
 
-    it('should iterate objects', function (done) {
+    it('should iterate objects', function () {
       var parsed = require('../fixtures/segments/iterator1.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -518,23 +529,23 @@ describe('Test compiler', function () {
         }
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('0aA;1bB;2cC;');
         output.raw.should.have.lengthOf(Object.keys(data.values).length);
-      }).then(done, done);
+      });
     });
 
-    it('should iterate counter', function (done) {
+    it('should iterate counter', function () {
       var parsed = require('../fixtures/segments/iterator1.eft');
       var fn = Compiler.compile(parsed);
       var data = {
         values: 3
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('000;111;222;');
         output.raw.should.have.lengthOf(data.values);
-      }).then(done, done);
+      });
     });
 
     it('should fail when too many segments', function () {
@@ -548,30 +559,30 @@ describe('Test compiler', function () {
 
   describe('Named Segments', function () {
 
-    it('should set named segments', function (done) {
+    it('should set named segments', function () {
       var parsed = require('../fixtures/segments/named1.eft');
       var fn = Compiler.compile(parsed);
 
-      execTemplate(fn).then(function (output) {
+      return execTemplate(fn).then(function (output) {
         output.buffer.should.be.empty;
         output.raw.should.be.empty;
         //console.log(JSON.stringify(output.named, null, 2));
         //output.named.should.have.ownProperty('foo').be.instanceOf(Function);
-      }).then(done, done);
+      });
     });
 
-    it('should render named segments', function (done) {
+    it('should render named segments', function () {
       var parsed = require('../fixtures/segments/named2.eft');
       var fn = Compiler.compile(parsed);
       var data = {
         'user': 'John'
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('Hello John');
         output.raw.should.have.lengthOf(1);
         //output.named.should.have.ownProperty('foo').be.instanceOf(Function)
-      }).then(done, done);
+      });
     });
 
     it('should fail when too many segments (declare)', function () {
@@ -587,31 +598,35 @@ describe('Test compiler', function () {
     });
 
 
-    /*
     it('should pass correct context', function () {
-      var parsed = require('../fixtures/segments/named4.eft');
+      var parsed = require('../fixtures/segments/named5.eft');
       var fn = Compiler.compile(parsed);
       var data = {
-        'foo': {
-          'user': 'John'
-        },
-        'bar': {
-          'user': 'Bob'
+        named: {
+          declare: {
+            test: {
+              foo: { user: 'John' }
+            }
+          },
+          render: {
+            test: {
+              bar: { user: 'Bob' }
+            }
+          }
         }
       };
 
-      execTemplate(fn, data).then(function (output) {
-        output.buffer.should.equal('Hello John and Bob!');
-      }).then(done, done);
+      return execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('Hello Bob and John');
+      });
     });
-    */
 
   });
 
 
   describe('Custom Segments', function () {
 
-    it('should parse custom segments', function (done) {
+    it('should parse custom segments', function () {
       var parsed = require('../fixtures/segments/custom1.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -622,13 +637,13 @@ describe('Test compiler', function () {
       };
       var callbackCalled = false;
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.be.empty;
         callbackCalled.should.equal(true);
-      }).then(done, done);
+      });
     });
 
-    it('should render single segments', function (done) {
+    it('should render single segments', function () {
       var parsed = require('../fixtures/segments/custom2.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -637,13 +652,13 @@ describe('Test compiler', function () {
         }
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.raw.should.have.lengthOf(1);
         output.buffer.should.equal('Seg3');
-      }).then(done, done);
+      });
     });
 
-    it('should render all segments', function (done) {
+    it('should render all segments', function () {
       var parsed = require('../fixtures/segments/custom2.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -654,10 +669,10 @@ describe('Test compiler', function () {
         }
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.raw.should.have.lengthOf(5);
         output.buffer.should.equal('Seg1Seg2Seg3Seg4Seg5');
-      }).then(done, done);
+      });
     });
 
   });
@@ -666,7 +681,7 @@ describe('Test compiler', function () {
 
   describe('Partial Segments', function () {
 
-    it('should render partial', function (done) {
+    it('should render partial', function () {
       var parsed = require('../fixtures/segments/partial1.eft');
       var partialMap = {
         'foo': Compiler.compile(require('../fixtures/segments/partial-foo.eft')),
@@ -685,7 +700,7 @@ describe('Test compiler', function () {
       execTemplate(fn, data, partialMap).then(function (output) {
         output.buffer.should.equal('Start:Hello Foo !Bye Bar !:End');
         output.raw.should.have.lengthOf(4);
-      }).then(done, done);
+      });
     });
 
     it('should fail when too many segments', function () {
@@ -699,29 +714,29 @@ describe('Test compiler', function () {
 
   describe('Expressions', function () {
 
-    it('should honor operator priority', function (done) {
+    it('should honor operator priority', function () {
       var parsed = require('../fixtures/segments/expressions1.eft');
       var fn = Compiler.compile(parsed);
       var data = {
         values: 5
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('45');
         output.raw.should.have.lengthOf(1);
-      }).then(done, done);
+      });
     });
 
-    it('should negate', function (done) {
+    it('should negate', function () {
       var parsed = require('../fixtures/segments/expressions2.eft');
       var fn = Compiler.compile(parsed);
 
-      execTemplate(fn).then(function (output) {
+      return execTemplate(fn).then(function (output) {
         output.buffer.should.equal('true:false:true:false:true:false');
-      }).then(done, done);
+      });
     })
 
-    it('should invoke functions', function (done) {
+    it('should invoke functions', function () {
       var parsed = require('../fixtures/segments/expressions3.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -739,10 +754,10 @@ describe('Test compiler', function () {
         }
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         // 2 * 11 + 13 + 3 = 22 + 16 = 38
         output.buffer.should.equal('38');
-      }).then(done, done);
+      });
 
     });
 
@@ -752,7 +767,7 @@ describe('Test compiler', function () {
 
   describe('Modifiers', function () {
 
-    it('should apply simple', function (done) {
+    it('should apply simple', function () {
       var parsed = require('../fixtures/segments/modifiers1.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -772,7 +787,7 @@ describe('Test compiler', function () {
         padRight: 456
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         var bufArr = output.buffer.split('\n');
 
         bufArr.should.have.lengthOf(Object.keys(data).length);
@@ -793,22 +808,22 @@ describe('Test compiler', function () {
           '---123',
           '456+++'
         ]);
-      }).then(done, done);
+      });
     });
 
-    it('should chain multiple functions', function (done) {
+    it('should chain multiple functions', function () {
       var parsed = require('../fixtures/segments/modifiers2.eft');
       var fn = Compiler.compile(parsed);
       var data = {
         name: 'john'
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('xxxxxxxxJOHN');
-      }).then(done, done);
+      });
     });
 
-    it('should be stackable', function (done) {
+    it('should be stackable', function () {
       var parsed = require('../fixtures/segments/modifiers3.eft');
       var fn = Compiler.compile(parsed);
       var data = {
@@ -819,9 +834,9 @@ describe('Test compiler', function () {
         }
       };
 
-      execTemplate(fn, data).then(function (output) {
+      return execTemplate(fn, data).then(function (output) {
         output.buffer.should.equal('http://domain.com?d=%7b%22foo%22%3a%22bar%22%2c%22buz%22%3a123%7d');
-      }).then(done, done);
+      });
     });
 
   });
@@ -839,13 +854,13 @@ describe('Test compiler', function () {
       (function () { Compiler.compile(parsed); }).should.throw(/^Suspicious segment found/);
     });
 
-    it('should ignore', function (done) {
+    it('should ignore', function () {
       var parsed = require('../fixtures/suspicious.eft');
       var fn = Compiler.compile(parsed, { ignoreSuspiciousSegments: true });
 
-      execTemplate(fn).then(function (output) {
+      return execTemplate(fn).then(function (output) {
         output.buffer.should.equal('Hello {foo{bar}}!');
-      }).then(done, done);
+      });
     });
 
     it('should ignore globally', function () {

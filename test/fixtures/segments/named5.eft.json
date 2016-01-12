@@ -1,0 +1,86 @@
+[
+  {
+    "@template": "{#{named.declare.test.foo\\ \"test\"}}Hello {{user}} and {{..user}}{#{/}}{+{named.render.test.bar\\ \"test\"/}}",
+
+    "type": "namedDeclare",
+    "context": "named.declare.test.foo",
+    "expression": [
+      {
+        "type": "string",
+        "value": "test"
+      }
+    ],
+    "modifiers": [],
+    "offset": 0,
+    "line": 1,
+    "column": 1
+  },
+  {
+    "type": "text",
+    "content": "Hello ",
+    "offset": 35,
+    "line": 1,
+    "column": 36
+  },
+  {
+    "type": "output",
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "user"
+        }
+      }
+    ],
+    "modifiers": [],
+    "offset": 41,
+    "line": 1,
+    "column": 42
+  },
+  {
+    "type": "text",
+    "content": " and ",
+    "offset": 49,
+    "line": 1,
+    "column": 50
+  },
+  {
+    "type": "output",
+    "context": null,
+    "expression": [
+      {
+        "type": "context",
+        "value": {
+          "path": "..user"
+        }
+      }
+    ],
+    "modifiers": [],
+    "offset": 54,
+    "line": 1,
+    "column": 55
+  },
+  {
+    "type": "namedDeclare",
+    "closing": true,
+    "offset": 64,
+    "line": 1,
+    "column": 65
+  },
+  {
+    "type": "namedRender",
+    "context": "named.render.test.bar",
+    "expression": [
+      {
+        "type": "string",
+        "value": "test"
+      }
+    ],
+    "modifiers": [],
+    "closing": true,
+    "offset": 70,
+    "line": 1,
+    "column": 71
+  }
+]

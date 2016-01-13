@@ -1,18 +1,16 @@
-
+'use strict';
 
 describe('Test engine', function () {
 
-
-  var path = require('path');
-
-  var Engine = require('../../lib/engine');
+  const path = require('path');
+  const Engine = require('../../lib/engine');
 
   const FIXTURES_PATH = path.join(__dirname, '..', 'fixtures');
   
 
   describe('Resolving templates', function () {
-    var engine;
-    var engineOptions = {
+    let engine;
+    const engineOptions = {
       paths: {
         'foo/bar': FIXTURES_PATH,
         'fixtures/testing': FIXTURES_PATH,
@@ -27,20 +25,18 @@ describe('Test engine', function () {
       engine = Engine(engineOptions);
     });
 
-    it('should resolve default path "*"', function (done) {
-      engine.resolve('template1').then(function (fileName) {
+    it('should resolve default path "*"', function () {
+      return engine.resolve('template1').then(function (fileName) {
         fileName.should.endWith('template1.eft');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should resolve path', function (done) {
-      var otherEngine = new Engine({
+    it('should resolve path', function () {
+      const otherEngine = new Engine({
         paths: { '*': FIXTURES_PATH }
       });
 
-      Promise.all([
+      return Promise.all([
         engine.resolve('template1'),
         engine.resolve('fixtures/testing/template1'),
         engine.resolve('a/b/c/d/template1'),
@@ -51,7 +47,7 @@ describe('Test engine', function () {
         Object.keys(engine._cache).should.have.lengthOf(results.length);
         Object.keys(Engine._cache).should.have.lengthOf(1);
 
-        for (var i = 1; i < results.length; ++i) {
+        for (let i = 1; i < results.length; ++i) {
           results[0].should.equal(results[i]);
         }
 
@@ -67,20 +63,20 @@ describe('Test engine', function () {
 
           file.should.equal(results[0]);
         });
-      }).then(done).catch(done);
+      });
     });
 
-    it('should not resolve', function (done) {
-      engine.resolve('non-existent').then(function (fileName) {
+    it('should not resolve', function () {
+      return engine.resolve('non-existent').then(function (fileName) {
         throw new Error('Should not have found ' + fileName);
       }, function (err) {
         err.should.be.instanceOf(Error);
-      }).then(done).catch(done);
+      });
     });
 
-    it('should fail to read file', function (done) {
-      var fs = require('fs');
-      var _readFile = fs.readFile;
+    it('should fail to read file', function () {
+      const fs = require('fs');
+      const _readFile = fs.readFile;
 
       fs.readFile = function (file, options, cb) {
         cb(new Error('Test I/O error'));
@@ -88,7 +84,7 @@ describe('Test engine', function () {
 
       delete engine._cache['tempalte1'];
 
-      engine.render('template1').then(function () {
+      return engine.render('template1').then(function () {
         fs.readFile = _readFile;        
 
         throw new Error('Should have failed reading file');
@@ -96,29 +92,41 @@ describe('Test engine', function () {
         fs.readFile = _readFile;
 
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Test I/O error');
-
-        done();
       });
+    });
+  });
 
+
+  describe('Defining templates', function () {
+    let engine;
+
+    before(function () {
+      engine = Engine();
     });
 
+    it('should throw on invalid template', function () {
+      (function () {
+        engine.defineTemplate('tpl', '{?{/}}');
+      }).should.throw(/^Unexpected conditional closing segment/);
+    });
 
   });
 
 
   describe('Rendering templates', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
         paths: {
           '*': FIXTURES_PATH
-        }
+        },
+        timeout: 50
       });
     });
 
-    it('should render correct context', function (done) {
-      var data = {
+    it('should render correct context', function () {
+      const data = {
         subject: 'World',
         value: 1,
         foo: {
@@ -136,21 +144,18 @@ describe('Test engine', function () {
         }
       };
 
-      engine.render('template1', data).then(function (output) {
-
+      return engine.render('template1', data).then(function (output) {
         output.indexOf('Hello World !').should.not.equal(-1);
         output.indexOf('$0:4').should.not.equal(-1);
         output.indexOf('$1:4').should.not.equal(-1);
         output.indexOf('$2:4').should.not.equal(-1);
-
-        done();
-      }).catch(done);
+      });
     });
 
     it('should register string template', function () {
-      var tpl = 'Test';
-      var globalKeys = Object.keys(Engine._cache);
-      var localKeys = Object.keys(engine._cache);
+      const tpl = 'Test';
+      const globalKeys = Object.keys(Engine._cache);
+      const localKeys = Object.keys(engine._cache);
 
       engine.defineTemplate('tpl', tpl)
 
@@ -160,20 +165,52 @@ describe('Test engine', function () {
       engine._cache.should.have.ownProperty('tpl');
     });
 
+    it('should fail when parsing', function () {
+      return engine.render('error').then(function () {
+        throw new Error("Should have failed when parsing file");
+      }, function (err) {
+        err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Missing conditional closing segment (error:1:1)');
+      });
+    });
+
+    it('should timeout', function () {
+      const tpl = '{{timer()}}';
+      const data = {
+        timer: function () {
+          return tplPromise = new Promise(function (resolve) {
+            setTimeout(function () {
+              resolve();
+            }, 100);
+          });
+        }
+      };
+      let tplPromise;
+
+      engine.defineTemplate('timeout', tpl);
+
+      return engine.render('timeout', data).then(function () {
+        throw new Error("Should have timed out");
+      }, function (err) {
+        err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Rendering timeout (50ms)');
+
+        return tplPromise;
+      });
+    });
+
   });
 
 
   describe('Rendering partals', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine();  // no options, don't need it
     });
 
-    it('should wrap modifiers', function (done) {
-      var tmpl1 = 'Hello {>{foo\\ "tmpl2"/}upper|padLeft(10,"0")}';
-      var tmpl2 = '{{text}substr(3)}';
-      var data = {
+    it('should wrap modifiers', function () {
+      const tmpl1 = 'Hello {>{foo\\ "tmpl2"/}upper|padLeft(10,"0")}';
+      const tmpl2 = '{{text}substr(3)}';
+      const data = {
         text: '***bob',
         foo: {
           text: '---john'
@@ -188,16 +225,16 @@ describe('Test engine', function () {
       engine._cache.should.have.ownProperty('tmpl1');
       engine._cache.should.have.ownProperty('tmpl2');
 
-      engine.render('tmpl1', data).then(function (output) {
+      return engine.render('tmpl1', data).then(function (output) {
         output.should.equal('Hello 000000JOHN');
-      }).then(done).catch(done);
+      });
     });
 
   });
 
 
   describe('Control flow', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
@@ -205,9 +242,9 @@ describe('Test engine', function () {
       });
     });
 
-    it('should abort rendering from expression', function (done) {
-      var tmpl = 'Hello {{foo()}} !';
-      var data = {
+    it('should abort rendering from expression', function () {
+      const tmpl = 'Hello {{foo()}} !';
+      const data = {
         foo: function () {
           throw new Error('Aborted from expression');
         }
@@ -215,18 +252,16 @@ describe('Test engine', function () {
 
       engine.defineTemplate('tmpl.expr', tmpl);
 
-      engine.render('tmpl.expr', data).then(function (output) {
+      return engine.render('tmpl.expr', data).then(function (output) {
         throw new Error("Rendering was not aborted");
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Aborted from expression');
-
-        done();
-      }).catch(done);
+      })
     });
 
-    it('should abort rendering from custom (reject)', function (done) {
-      var tmpl = 'Hello {&{"foo"/}} !';
-      var data = {
+    it('should abort rendering from custom (reject)', function () {
+      const tmpl = 'Hello {&{"foo"/}} !';
+      const data = {
         foo: function () {
           return new Promise(function (resolve, reject) {
             setTimeout(function () {
@@ -238,18 +273,16 @@ describe('Test engine', function () {
 
       engine.defineTemplate('tmpl.custom.reject', tmpl);
 
-      engine.render('tmpl.custom.reject', data).then(function (output) {
+      return engine.render('tmpl.custom.reject', data).then(function (output) {
         throw new Error("Rendering was not aborted");
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Aborted from custom reject');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should abort rendering from custom (throw)', function (done) {
-      var tmpl = 'Hello {&{"foo"/}} !';
-      var data = {
+    it('should abort rendering from custom (throw)', function () {
+      const tmpl = 'Hello {&{"foo"/}} !';
+      const data = {
         foo: function () {
           return new Promise(function () {
             throw new Error('Aborted from custom async throw');
@@ -259,20 +292,18 @@ describe('Test engine', function () {
 
       engine.defineTemplate('tmpl.custom.throw', tmpl);
 
-      engine.render('tmpl.custom.throw', data).then(function (output) {
+      return engine.render('tmpl.custom.throw', data).then(function (output) {
         throw new Error("Rendering was not aborted");
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Aborted from custom async throw');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should abort rendering upon stop async', function (done) {
-      var tmpl = 'Hello {&{"foo"/}} !';
-      var data = {
+    it('should abort rendering upon stop async', function () {
+      const tmpl = 'Hello {&{"foo"/}} !';
+      const data = {
         foo: function () {
-          var engine = this;
+          let engine = this;
           return Promise.resolve().then(function () {
             engine.stop();
           });
@@ -281,20 +312,18 @@ describe('Test engine', function () {
 
       engine.defineTemplate('tmpl.custom.stop', tmpl);
 
-      engine.render('tmpl.custom.stop', data).then(function (output) {
+      return engine.render('tmpl.custom.stop', data).then(function (output) {
         throw new Error("Rendering was not aborted");
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Rendering aborted');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should abort rendering upon stop async with custom message', function (done) {
-      var tmpl = 'Hello {&{"foo"/}} !';
-      var data = {
+    it('should abort rendering upon stop async with custom message', function () {
+      const tmpl = 'Hello {&{"foo"/}} !';
+      const data = {
         foo: function () {
-          var engine = this;
+          let engine = this;
           return Promise.resolve().then(function () {
             engine.stop('Custom message test');
           });
@@ -303,18 +332,16 @@ describe('Test engine', function () {
 
       engine.defineTemplate('tmpl.custom.stop.msg', tmpl);
 
-      engine.render('tmpl.custom.stop.msg', data).then(function (output) {
+      return engine.render('tmpl.custom.stop.msg', data).then(function (output) {
         throw new Error("Rendering was not aborted");
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Rendering aborted : Custom message test');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should timeout', function (done) {
-      var tmpl = 'Hello {&{"foo"/}}';
-      var data = {
+    it('should timeout', function () {
+      const tmpl = 'Hello {&{"foo"/}}';
+      const data = {
         foo: function () {
           return new Promise(function () {
             // will not resolve....
@@ -324,20 +351,18 @@ describe('Test engine', function () {
 
       engine.defineTemplate('tmpl.custom.timeout', tmpl);
 
-      engine.render('tmpl.custom.timeout', data).then(function (output) {
+      return engine.render('tmpl.custom.timeout', data).then(function (output) {
         throw new Error("Rendering did not timeout");
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Rendering timeout (100ms)');
-
-        done();
-      }).catch(done);
+      });
     });
 
   });
 
 
   describe('Custom', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
@@ -345,10 +370,10 @@ describe('Test engine', function () {
       });
     });
 
-    it('should ignore missing custom functions', function (done) {
+    it('should ignore missing custom functions', function () {
       engine.defineTemplate('custom', '{&{"foo" /}}');
 
-      Promise.all([
+      return Promise.all([
         engine.render('custom').then(function (output) {
           output.should.be.empty;
         }),
@@ -359,30 +384,27 @@ describe('Test engine', function () {
         }).then(function (output) {
           output.should.equal('foo');
         })
-      ]).then(function () { done(); }, done);
+      ]).then(function () {});
     });
 
-    it('should pass modifier', function (done) {
-      var data = {
+    it('should pass modifier', function () {
+      const data = {
         foo: function (ctx, segments) {
           this.out('john');
         }
       };
       engine.defineTemplate('custom.modifier', '{&{"foo" /}upper|padLeft(10,"x")}');
 
-      engine.render('custom.modifier', data).then(function (output) {
+      return engine.render('custom.modifier', data).then(function (output) {
         output.should.equal('xxxxxxJOHN');
-
-        done();
-      }).catch(done);
-
+      });
     });
 
   });
 
 
   describe('Iterators', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
@@ -391,8 +413,8 @@ describe('Test engine', function () {
       engine.defineTemplate('iterator', '{@{foo}}{{index}}:{{key}}:{{value}};{@{/}}');
     });
 
-    it('should iterate from object', function (done) {
-      var obj = {
+    it('should iterate from object', function () {
+      let obj = {
         foo: {
           a: 'A',
           b: 'B',
@@ -400,14 +422,13 @@ describe('Test engine', function () {
         }
       };
 
-      engine.render('iterator', obj).then(function (output) {
+      return engine.render('iterator', obj).then(function (output) {
         output.should.equal('0:a:A;1:b:B;2:c:C;');
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should iterate from array', function (done) {
-      var obj = {
+    it('should iterate from array', function () {
+      let obj = {
         foo: [
           'A',
           'B',
@@ -415,41 +436,39 @@ describe('Test engine', function () {
         ]
       };
 
-      engine.render('iterator', obj).then(function (output) {
+      return engine.render('iterator', obj).then(function (output) {
         output.should.equal('0:0:A;1:1:B;2:2:C;');
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should iterate from counter', function (done) {
-      var obj = {
+    it('should iterate from counter', function () {
+      let obj = {
         foo: 3
       };
 
-      engine.render('iterator', obj).then(function (output) {
+      return engine.render('iterator', obj).then(function (output) {
         output.should.equal('0:0:0;1:1:1;2:2:2;');
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should skip invalid or empty iterators', function (done) {
-      Promise.all([
+    it('should skip invalid or empty iterators', function () {
+      return Promise.all([
         undefined, null, true, false,
         0, NaN,
         function () {}, /./, 
         {}, []
       ].map(function (iterator) {
         return engine.render('iterator', { foo: iterator }).then(function (output) {
-          output.should.be.empty;
+          output.should.be.empty();
         });
-      })).then(function () { done(); }, done);
-    })
+      })).then(function () {});
+    });
 
   });
 
 
   describe('Modifiers', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
@@ -457,19 +476,18 @@ describe('Test engine', function () {
       });
     });
 
-    it('should apply single modifier', function (done) {
+    it('should apply single modifier', function () {
       engine.defineTemplate('modifier.single', '{{foo}upper}');
 
-      engine.render('modifier.single', {
+      return engine.render('modifier.single', {
         foo: 'hello'
       }).then(function (output) {
         output.should.equal('HELLO');
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should apply multiple modifiers in correct order', function (done) {
-      var data = {
+    it('should apply multiple modifiers in correct order', function () {
+      const data = {
         foo: 'b'
       };
 
@@ -477,7 +495,7 @@ describe('Test engine', function () {
       engine.defineTemplate('modifier.multiple.2', '{{foo}padLeft(2,"a")|upper|padRight(3,"c")}');
       engine.defineTemplate('modifier.multiple.3', '{{foo}padLeft(2,"a")|padRight(3,"c")|upper}');
 
-      Promise.all([
+      return Promise.all([
         engine.render('modifier.multiple.1', data).then(function (output) {
           output.should.equal('aBc');
         }),
@@ -487,13 +505,12 @@ describe('Test engine', function () {
         engine.render('modifier.multiple.3', data).then(function (output) {
           output.should.equal('ABC');
         })
-      ]).then(function () { done(); }, done);
-
+      ]).then(function () {});
     });
 
-    it('should call with multiple arguments', function (done) {
-      var modifiers = require('../../lib/modifiers');
-      var data = {
+    it('should call with multiple arguments', function () {
+      const modifiers = require('../../lib/modifiers');
+      const data = {
         foo: 1
       };
 
@@ -508,7 +525,7 @@ describe('Test engine', function () {
       engine.defineTemplate('modifier.args.4', '{{foo}adder(2,3,4,5)}');
       engine.defineTemplate('modifier.args.5', '{{foo}adder(2,3,4,5,6)}');
 
-      Promise.all([
+      return Promise.all([
         engine.render('modifier.args.0', data).then(function (output) {
           output.should.equal('1');
         }),
@@ -529,29 +546,24 @@ describe('Test engine', function () {
         })
       ]).then(function () {
         modifiers.unregister('adder');
-
-        done();
-      }, done);
-
+      });
     });
 
-    it('should fail with invalid modifier', function (done) {
+    it('should fail with invalid modifier', function () {
       engine.defineTemplate('modifier.invalid', '{{foo}invalid}');
 
-      engine.render('modifier.invalid').then(function () {
+      return engine.render('modifier.invalid').then(function () {
         throw new Error('Test should have failed');
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Invalid modifier invalid');
-
-        done();
-      }).catch(done);
+      });
     })
 
   });
 
 
   describe('Partials', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
@@ -559,24 +571,22 @@ describe('Test engine', function () {
       });
     });
 
-    it('should render simple partial', function (done) {
+    it('should render simple partial', function () {
       engine.defineTemplate('partial.simple.master', 'Hello {>{"partial.simple.secondary"/}} !');
       engine.defineTemplate('partial.simple.secondary', 'John');
 
-      engine.render('partial.simple.master').then(function (output) {
+      return engine.render('partial.simple.master').then(function (output) {
         output.should.equal('Hello John !');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should render partial with correct context', function (done) {
+    it('should render partial with correct context', function () {
       engine.defineTemplate('partial.context.master', 'Hello {>{foo\\ "partial.context.secondary"/}} !');
       engine.defineTemplate('partial.context.secondary', '{>{bar\\ "partial.context.third"/}}');
       engine.defineTemplate('partial.context.third', '{>{"partial.context.fourth"/}}');
       engine.defineTemplate('partial.context.fourth', '{{name}}');
 
-      engine.render('partial.context.master', {
+      return engine.render('partial.context.master', {
         foo: {
           bar: {
             name: 'Max'
@@ -584,43 +594,38 @@ describe('Test engine', function () {
         }
       }).then(function (output) {
         output.should.equal('Hello Max !');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should apply modifiers', function (done) {
+    it('should apply modifiers', function () {
       engine.defineTemplate('partial.modifier.master', 'Hello {>{"partial.modifier.secondary"/}lower} !');
       engine.defineTemplate('partial.modifier.secondary', '{>{"partial.modifier.third"/}padLeft(5,"-")}');
       engine.defineTemplate('partial.modifier.third', '{{name}upper}');
 
-      engine.render('partial.modifier.master', {
+      return engine.render('partial.modifier.master', {
         name: 'Bob'
       }).then(function (output) {
         output.should.equal('Hello --bob !');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should fail with template not found', function (done) {
+    it('should fail with template not found', function () {
       engine.defineTemplate('partial.found.master', 'Hello {>{"partial.found.secondary"/}} !');
 
-      engine.render('partial.found.master', {
+      return engine.render('partial.found.master', {
         name: 'Bob'
       }).then(function (output) {
         throw new Error('Should have failed when template not found');
       }, function (err) {
         err.should.be.instanceOf(Error).and.have.ownProperty('message').equal('Template not found : partial.found.secondary');
-        done();
-      }).catch(done);
+      });
     })
 
   });
 
 
   describe('Named segments', function () {
-    var engine;
+    let engine;
 
     before(function () {
       engine = Engine({
@@ -628,24 +633,21 @@ describe('Test engine', function () {
       });
     });
 
-    it('should render named segment', function (done) {
+    it('should render named segment', function () {
       engine.defineTemplate('named.declare', '{#{"custom"}}Hello{#{/}}');
       engine.defineTemplate('named.render', '{#{"custom"}}Hello{#{/}}{+{"custom" /}}');
 
-      Promise.all([
+      return Promise.all([
         engine.render('named.declare'),
         engine.render('named.render')
       ]).then(function (results) {
-
         results[0].should.be.empty;
         results[1].should.equal('Hello');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should render with correct context', function (done) {
-      var data = {
+    it('should render with correct context', function () {
+      const data = {
         foo: {
           greeting: 'Test'
         },
@@ -656,26 +658,22 @@ describe('Test engine', function () {
 
       engine.defineTemplate('named.render.context', '{#{foo\\ "custom"}}{{..greeting}} {{name}}{#{/}}{+{bar\\ "custom" /}}');
 
-      engine.render('named.render.context', data).then(function (output) {
+      return engine.render('named.render.context', data).then(function (output) {
         output.should.equal('Test template');
-
-        done();
-      }).catch(done);
+      });
     });
 
-    it('should ignore missing segments', function (done) {
+    it('should ignore missing segments', function () {
       engine.defineTemplate('named.render.missing', 'Hello {+{"missing"/}} !');
 
-      engine.render('named.render.missing').then(function (output) {
+      return engine.render('named.render.missing').then(function (output) {
         output.should.equal('Hello  !');
-
-        done();
-      }).catch(done);
+      });
 
     })
 
-    it('should apply modifiers', function (done) {
-      var data = {
+    it('should apply modifiers', function () {
+      const data = {
         foo: {
           greeting: 'Test'
         },
@@ -686,11 +684,9 @@ describe('Test engine', function () {
 
       engine.defineTemplate('named.render.context', '{#{foo\\ "custom"}lower}{{..greeting}} {{name}padLeft(10,"0")}{#{/}}{+{bar\\ "custom" /}upper}');
 
-      engine.render('named.render.context', data).then(function (output) {
+      return engine.render('named.render.context', data).then(function (output) {
         output.should.equal('TEST 00TEMPLATE');
-
-        done();
-      }).catch(done);
+      });
     });
 
   });

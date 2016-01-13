@@ -640,6 +640,40 @@ describe('Test compiler', function () {
       });
     });
 
+
+    it('should eval async', function () {
+      const parsed = require('../fixtures/segments/named6.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
+        name: function () {
+          return new Promise(function (resolve) {
+            setTimeout(function () {
+              resolve('test');
+            }, 50);
+          });
+
+        },
+        foo: function () {
+          return new Promise(function (resolve) {
+            setTimeout(function () {
+              resolve('Hello');
+            }, 50);
+          });
+        },
+        bar: function () {
+          return new Promise(function (resolve) {
+            setTimeout(function () {
+              resolve('World');
+            }, 20);
+          });
+        }
+      };
+
+      return execTemplate(fn, data).then(function (output) {
+        output.buffer.should.equal('Hello World!');
+      });
+    });
+
   });
 
 

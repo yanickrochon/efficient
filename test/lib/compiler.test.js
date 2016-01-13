@@ -1,9 +1,10 @@
-
+'use strict';
 
 describe('Test compiler', function () {
 
-  var Compiler = require('../../lib/compiler');
-  var modifiers = require('../../lib/modifiers');
+  const Compiler = require('../../lib/compiler');
+  const modifiers = require('../../lib/modifiers');
+  const Context = require('../../lib/context');
 
   Compiler.DEBUG = true;      // DEBUG
   Compiler.BEAUTIFY = true;   //
@@ -12,14 +13,13 @@ describe('Test compiler', function () {
 
 
   function execTemplate(tpl, data, partialMap) {
-    var Context = require('../../lib/context');
-    var ctx = new Context(data);
-    var output = {
+    const ctx = new Context(data);
+    const output = {
       raw: [],
       buffer: '',
       named: {}
     };
-    var engine = {
+    const engine = {
       out: function out(str) {
         output.raw.push(str);
         output.buffer += str;
@@ -28,7 +28,7 @@ describe('Test compiler', function () {
         console.error("Run-time error near " + JSON.stringify(ptr) + " in template");
       },
       iterator: function (values, ctx, cb) {
-        var arr;
+        let arr;
 
         if (values instanceof Array) {
           arr = values.map(function (val, index) {
@@ -86,9 +86,9 @@ describe('Test compiler', function () {
         };
       },
       callCustom: function(path, ctx, segments/*, outputModifier*/) {
-        var engine = this;
-        var custom = ctx.get(String(path)).data;
-        var promise = Promise.resolve(ctx);
+        const engine = this;
+        const custom = ctx.get(String(path)).data;
+        const promise = Promise.resolve(ctx);
 
         if (typeof custom === 'function') {
           return promise.then(function (ctx) {
@@ -120,8 +120,8 @@ describe('Test compiler', function () {
 
 
   describe('Test Compiler Flags', function () {
-    var stateBeautify;
-    var stateDebug;
+    let stateBeautify;
+    let stateDebug;
 
     before(function () {
       stateBeautify = Compiler.BEAUTIFY;
@@ -134,21 +134,19 @@ describe('Test compiler', function () {
     });
 
     it('should beautify', function () {
-      var parsed = [
+      const parsed = [
         {
           "type": "text",
           "content": "Hello World"
         }
       ];
-      var fn1;
-      var fn2;
 
       Compiler.BEAUTIFY = false;
       Compiler.BEAUTIFY.should.equal(false);
-      fn1 = Compiler.compile(parsed);
+      let fn1 = Compiler.compile(parsed);
       Compiler.BEAUTIFY = true;
       Compiler.BEAUTIFY.should.not.equal(false);   // THIS IS WEIRD AND INCONSISTENT, it's an Object now...
-      fn2 = Compiler.compile(parsed);
+      let fn2 = Compiler.compile(parsed);
 
       fn2.toString().length.should.be.greaterThan(fn1.toString().length);
 
@@ -175,7 +173,7 @@ describe('Test compiler', function () {
   });
 
   describe('Debug information', function () {
-    var stateDebug;
+    let stateDebug;
 
     before(function () {
       stateDebug = Compiler.DEBUG;
@@ -186,7 +184,7 @@ describe('Test compiler', function () {
     });
 
     it('should contain debug information', function () {
-      var parsed = [
+      const parsed = [
         {
           type: 'text',
           content: 'test'
@@ -195,13 +193,13 @@ describe('Test compiler', function () {
 
       Compiler.DEBUG = true;
 
-      var compiled = Compiler.compile(parsed);
+      const compiled = Compiler.compile(parsed);
 
       compiled.toString().match(/var (.*?);[\s\S]*?\1\s*?=/).should.not.be.null;
     });
 
     it('should not contain debug information', function () {
-      var parsed = [
+      const parsed = [
         {
           type: 'text',
           content: 'test'
@@ -210,7 +208,7 @@ describe('Test compiler', function () {
 
       Compiler.DEBUG = false;
 
-      var compiled = Compiler.compile(parsed);
+      const compiled = Compiler.compile(parsed);
 
       String(compiled.toString().match(/var (.*?);[\s\S]*?\1\s*?=/)).should.equal('null');
     });
@@ -221,13 +219,13 @@ describe('Test compiler', function () {
   describe('Text-only Templates', function () {
 
     it('should compile single text segment', function () {
-      var parsed = [
+      const parsed = [
         {
           "type": "text",
           "content": "Hello World"
         }
       ];
-      var fn = Compiler.compile(parsed);
+      const fn = Compiler.compile(parsed);
 
       return execTemplate(fn).then(function (output) {
         output.buffer.should.equal('Hello World');
@@ -236,7 +234,7 @@ describe('Test compiler', function () {
 
     it('should optimize consecutive text segments', function () {
       /// NOTE : this situation is technically impossible, but the compiler should support it anyway
-      var parsed = [
+      const parsed = [
         {
           "type": "text",
           "content": "Hello"
@@ -254,7 +252,7 @@ describe('Test compiler', function () {
           "content": "!"
         }
       ];
-      var fn = Compiler.compile(parsed);
+      const fn = Compiler.compile(parsed);
 
       return execTemplate(fn).then(function (output) {
         output.raw.length.should.equal(1);
@@ -267,8 +265,29 @@ describe('Test compiler', function () {
 
   describe('Output Segments', function () {
 
+    it('should ignore empty output', function () {
+      const parsed = [
+        {
+          "@template": "{{''}}",
+          "type": "output",
+          "context": null,
+          "expression": [],
+          "modifiers": [],
+          "offset": 0,
+          "line": 1,
+          "column": 1
+        }
+      ];
+      const fn = Compiler.compile(parsed);
+
+      return execTemplate(fn).then(function (output) {
+        output.raw.should.have.lengthOf(0);
+        output.buffer.should.equal('');
+      });
+    });
+
     it('should compile single segment', function () {
-      var parsed = [
+      const parsed = [
         {
           "@template": "{{\"Hello \" + foo}}",
           "type": "output",
@@ -295,9 +314,9 @@ describe('Test compiler', function () {
           "column": 1
         }
       ];
-      var fn = Compiler.compile(parsed);
+      const fn = Compiler.compile(parsed);
 
-      execTemplate(fn, {
+      return execTemplate(fn, {
         foo: 'John'
       }).then(function (output) {
         output.raw.should.have.lengthOf(1);
@@ -307,7 +326,7 @@ describe('Test compiler', function () {
 
 
     it('should compile with different contexts', function () {
-      var parsed = [
+      const parsed = [
         {
           "@template": "{{foo\\ add + 2}} {{bar\\ mul * 10}}",
 
@@ -366,7 +385,7 @@ describe('Test compiler', function () {
           "column": 18
         }
       ];
-      var data = {
+      const data = {
         foo: {
           add: 10
         },
@@ -374,7 +393,7 @@ describe('Test compiler', function () {
           mul: 5
         }
       };
-      var fn = Compiler.compile(parsed);
+      const fn = Compiler.compile(parsed);
 
       return execTemplate(fn, data).then(function (output) {
         output.raw.should.have.lengthOf(2);
@@ -388,9 +407,9 @@ describe('Test compiler', function () {
   describe('Conditional Segments', function () {
 
     it('should compile single segment', function () {
-      var parsed = require('../fixtures/segments/conditional1.eft');
-      var fn = Compiler.compile(parsed);
-      var tests = [
+      const parsed = require('../fixtures/segments/conditional1.eft');
+      const fn = Compiler.compile(parsed);
+      const tests = [
       [    // false
         false, null, undefined, 0, ''
       ],[  // true
@@ -399,7 +418,7 @@ describe('Test compiler', function () {
 
       return Promise.all(tests.map(function(values, truthy) {
         return Promise.all(values.map(function (value) {
-          var data = {
+          const data = {
             value: value
           };
 
@@ -413,9 +432,9 @@ describe('Test compiler', function () {
     });
 
     it('should compile with else segment', function () {
-      var parsed = require('../fixtures/segments/conditional2.eft');
-      var fn = Compiler.compile(parsed);
-      var tests = [
+      const parsed = require('../fixtures/segments/conditional2.eft');
+      const fn = Compiler.compile(parsed);
+      const tests = [
       [    // false
         false, null, undefined, 0, ''
       ],[  // true
@@ -424,7 +443,7 @@ describe('Test compiler', function () {
 
       return Promise.all(tests.map(function(values, truthy) {
         return Promise.all(values.map(function (value) {
-          var data = {
+          const data = {
             value: value
           };
 
@@ -438,20 +457,20 @@ describe('Test compiler', function () {
     });
 
     it('should integrate with other segments', function () {
-      var parsed = require('../fixtures/segments/conditional3.eft');
-      var fn = Compiler.compile(parsed);
-      var tests = [
+      const parsed = require('../fixtures/segments/conditional3.eft');
+      const fn = Compiler.compile(parsed);
+      const tests = [
       [    // false
         false, null, undefined, 0, ''
       ],[  // true
         true, {}, [], function () {}, -1, 1, /./
       ]];
-      var PREVAL = '>>>';
-      var POSTVAL = '<<<';
+      const PREVAL = '>>>';
+      const POSTVAL = '<<<';
 
       return Promise.all(tests.map(function(values, truthy) {
         return Promise.all(values.map(function (value) {
-          var data = {
+          const data = {
             pre: PREVAL,
             foo: {
               value: value,
@@ -469,8 +488,8 @@ describe('Test compiler', function () {
     });
 
     it('should handle else if', function () {
-      var parsed = require('../fixtures/segments/conditional4.eft');
-      var fn = Compiler.compile(parsed);
+      const parsed = require('../fixtures/segments/conditional4.eft');
+      const fn = Compiler.compile(parsed);
 
       return Promise.all([
         execTemplate(fn, { a: true }).then(function (output) {
@@ -489,13 +508,13 @@ describe('Test compiler', function () {
     });
 
     it('should fail when too many segments', function () {
-      var parsed = require('../fixtures/segments/conditional5.eft');
+      const parsed = require('../fixtures/segments/conditional5.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Unexpected token else');
     });
 
     it('should fail if missing segment body', function () {
-      var parsed = require('../fixtures/segments/conditional6.eft');
+      const parsed = require('../fixtures/segments/conditional6.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Missing conditional body');
     });
@@ -506,9 +525,9 @@ describe('Test compiler', function () {
   describe('Iterator Segments', function () {
 
     it('should iterate arrays', function () {
-      var parsed = require('../fixtures/segments/iterator1.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/iterator1.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         values: ['a', 'b', 'c']
       };
 
@@ -519,9 +538,9 @@ describe('Test compiler', function () {
     });
 
     it('should iterate objects', function () {
-      var parsed = require('../fixtures/segments/iterator1.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/iterator1.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         values: {
           'a': 'A',
           'b': 'B',
@@ -536,9 +555,9 @@ describe('Test compiler', function () {
     });
 
     it('should iterate counter', function () {
-      var parsed = require('../fixtures/segments/iterator1.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/iterator1.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         values: 3
       };
 
@@ -549,7 +568,7 @@ describe('Test compiler', function () {
     });
 
     it('should fail when too many segments', function () {
-      var parsed = require('../fixtures/segments/iterator2.eft');
+      const parsed = require('../fixtures/segments/iterator2.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Too many segments for iterator');
     });
@@ -560,8 +579,8 @@ describe('Test compiler', function () {
   describe('Named Segments', function () {
 
     it('should set named segments', function () {
-      var parsed = require('../fixtures/segments/named1.eft');
-      var fn = Compiler.compile(parsed);
+      const parsed = require('../fixtures/segments/named1.eft');
+      const fn = Compiler.compile(parsed);
 
       return execTemplate(fn).then(function (output) {
         output.buffer.should.be.empty;
@@ -572,9 +591,9 @@ describe('Test compiler', function () {
     });
 
     it('should render named segments', function () {
-      var parsed = require('../fixtures/segments/named2.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/named2.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         'user': 'John'
       };
 
@@ -586,22 +605,22 @@ describe('Test compiler', function () {
     });
 
     it('should fail when too many segments (declare)', function () {
-      var parsed = require('../fixtures/segments/named3.eft');
+      const parsed = require('../fixtures/segments/named3.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Too many segments for named segment declare');
     });
 
     it('should fail when too many segments (render)', function () {
-      var parsed = require('../fixtures/segments/named4.eft');
+      const parsed = require('../fixtures/segments/named4.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Too many segments for named segment');
     });
 
 
     it('should pass correct context', function () {
-      var parsed = require('../fixtures/segments/named5.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/named5.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         named: {
           declare: {
             test: {
@@ -627,15 +646,15 @@ describe('Test compiler', function () {
   describe('Custom Segments', function () {
 
     it('should parse custom segments', function () {
-      var parsed = require('../fixtures/segments/custom1.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/custom1.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         'callback': function () {
           callbackCalled = true;
         },
         'custom': 'callback'
       };
-      var callbackCalled = false;
+      let callbackCalled = false;
 
       return execTemplate(fn, data).then(function (output) {
         output.buffer.should.be.empty;
@@ -644,9 +663,9 @@ describe('Test compiler', function () {
     });
 
     it('should render single segments', function () {
-      var parsed = require('../fixtures/segments/custom2.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/custom2.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         'callback': function (ctx, segments) {
           return segments[2](ctx);
         }
@@ -659,9 +678,9 @@ describe('Test compiler', function () {
     });
 
     it('should render all segments', function () {
-      var parsed = require('../fixtures/segments/custom2.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/custom2.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         'callback': function (ctx, segments) {
           return segments.reduce(function (p, seg) {
             return p.then(seg(ctx));
@@ -682,13 +701,13 @@ describe('Test compiler', function () {
   describe('Partial Segments', function () {
 
     it('should render partial', function () {
-      var parsed = require('../fixtures/segments/partial1.eft');
-      var partialMap = {
+      const parsed = require('../fixtures/segments/partial1.eft');
+      const partialMap = {
         'foo': Compiler.compile(require('../fixtures/segments/partial-foo.eft')),
         'bar': Compiler.compile(require('../fixtures/segments/partial-bar.eft'))
       };
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const fn = Compiler.compile(parsed);
+      const data = {
         foo: {
           name: 'Foo'
         },
@@ -704,7 +723,7 @@ describe('Test compiler', function () {
     });
 
     it('should fail when too many segments', function () {
-      var parsed = require('../fixtures/segments/partial2.eft');
+      const parsed = require('../fixtures/segments/partial2.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw('Too many segments for partial');
     });
@@ -715,9 +734,9 @@ describe('Test compiler', function () {
   describe('Expressions', function () {
 
     it('should honor operator priority', function () {
-      var parsed = require('../fixtures/segments/expressions1.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/expressions1.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         values: 5
       };
 
@@ -728,8 +747,8 @@ describe('Test compiler', function () {
     });
 
     it('should negate', function () {
-      var parsed = require('../fixtures/segments/expressions2.eft');
-      var fn = Compiler.compile(parsed);
+      const parsed = require('../fixtures/segments/expressions2.eft');
+      const fn = Compiler.compile(parsed);
 
       return execTemplate(fn).then(function (output) {
         output.buffer.should.equal('true:false:true:false:true:false');
@@ -737,9 +756,9 @@ describe('Test compiler', function () {
     })
 
     it('should invoke functions', function () {
-      var parsed = require('../fixtures/segments/expressions3.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/expressions3.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         a: 2,
         b: 3,
         fn1: function fn1(a, b) {
@@ -768,9 +787,9 @@ describe('Test compiler', function () {
   describe('Modifiers', function () {
 
     it('should apply simple', function () {
-      var parsed = require('../fixtures/segments/modifiers1.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/modifiers1.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         encodeURIComponent: 'http://w3schools.com/my test.asp?name=ståle&car=saab',
         decodeURIComponent: 'http%3A%2F%2Fw3schools.com%2Fmy%20test.asp%3Fname%3Dst%C3%A5le%26car%3Dsaab',
         encodeURI: 'my test.asp?name=ståle&car=saab',
@@ -788,7 +807,7 @@ describe('Test compiler', function () {
       };
 
       return execTemplate(fn, data).then(function (output) {
-        var bufArr = output.buffer.split('\n');
+        const bufArr = output.buffer.split('\n');
 
         bufArr.should.have.lengthOf(Object.keys(data).length);
 
@@ -812,9 +831,9 @@ describe('Test compiler', function () {
     });
 
     it('should chain multiple functions', function () {
-      var parsed = require('../fixtures/segments/modifiers2.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/modifiers2.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         name: 'john'
       };
 
@@ -824,9 +843,9 @@ describe('Test compiler', function () {
     });
 
     it('should be stackable', function () {
-      var parsed = require('../fixtures/segments/modifiers3.eft');
-      var fn = Compiler.compile(parsed);
-      var data = {
+      const parsed = require('../fixtures/segments/modifiers3.eft');
+      const fn = Compiler.compile(parsed);
+      const data = {
         domain: 'domain.com',
         data: {
           foo: 'bar',
@@ -849,14 +868,14 @@ describe('Test compiler', function () {
     });
 
     it('should throw', function () {
-      var parsed = require('../fixtures/suspicious.eft');
+      const parsed = require('../fixtures/suspicious.eft');
 
       (function () { Compiler.compile(parsed); }).should.throw(/^Suspicious segment found/);
     });
 
     it('should ignore', function () {
-      var parsed = require('../fixtures/suspicious.eft');
-      var fn = Compiler.compile(parsed, { ignoreSuspiciousSegments: true });
+      const parsed = require('../fixtures/suspicious.eft');
+      const fn = Compiler.compile(parsed, { ignoreSuspiciousSegments: true });
 
       return execTemplate(fn).then(function (output) {
         output.buffer.should.equal('Hello {foo{bar}}!');
@@ -864,7 +883,7 @@ describe('Test compiler', function () {
     });
 
     it('should ignore globally', function () {
-      var parsed = require('../fixtures/suspicious.eft');
+      const parsed = require('../fixtures/suspicious.eft');
 
       Compiler.IGNORE_SUSPICIOUS_SEGMENTS = true;
 
@@ -879,7 +898,7 @@ describe('Test compiler', function () {
 
 
   describe('Handle compilation errors', function () {
-    var stateDebug;
+    let stateDebug;
 
     before(function () {
       stateDebug = Compiler.DEBUG;
@@ -890,7 +909,7 @@ describe('Test compiler', function () {
     });
 
     it('should return faulty segment', function () {
-      var parsed = require('../fixtures/suspicious.eft');
+      const parsed = require('../fixtures/suspicious.eft');
 
       try {
         Compiler.DEBUG = true;

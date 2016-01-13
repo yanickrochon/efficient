@@ -54,6 +54,7 @@ Output segments will echo whatever `expression` is specified using any specified
 {{"foo"}} {{'foo'}}
 {{2 + 3}}
 {{foo || bar}}
+{{user\ firstName + ' ' + lastName}encodeHTML}
 ```
 
 
@@ -72,6 +73,7 @@ Output segments will echo whatever `expression` is specified using any specified
 * etc.
 
 Typed segments are control flow segments. Their `expression` are evaluated using any specified `context`, and the resulting values are sent to the segment handlers when rendering the templates. Any output within the child segments, or handlers, may or may not be sent through the specified `modifiers`.
+
 #### Conditional : `?`
 Represent a simple conditional one-way or two-way branching control flow. If the segment's expression is `true`, then the first child segment will be rendered, otherwise the next child segment will be rendered if exists.
 
@@ -356,7 +358,9 @@ Functions may be called within an expression. In fact, functions my be called ev
         return this.firstName + ' ' + this.fullName;
       },
       imageUrl: function () {
-        return 'http://domain.com/avatar/' + this.id;
+        return fetchUserAvatarFromDB(this.id).then(function (path) {
+          return 'http://domain.com/avatar/' + path;
+        });
       }
     }
   ]
@@ -370,6 +374,8 @@ Functions may be called within an expression. In fact, functions my be called ev
 ```
 
 **NOTE:** In the last template, the context property was used (i.e. `value:fullName`) instead of a full context path (i.e. `value.fullName`) to have the JavaScript keyword `this`, inside the function equal to the current iterator `value` object. Otherwise, `this` would have been the current `Context` instance object (the function), losing the ability to fetch the current iterator `value`, as it would not have been stacked.
+
+**NOTE:** *ALL* functions are executed asynchronously, thus allow returning a `Promise` instance if necessary. Because of this, some unexpected behaviours may arise. For example, the exprssion `bar && buz() || meh()` will execute both `buz()` *and* `meh()`, but only one value will be used, depending on the test result of `bar`.
 
 As a limitation, functions may only be specified through a context path (optionally with property path) only. It is not possible to invoke a function any other way.
 
@@ -385,7 +391,7 @@ For example :
 
 Will call `someFilter`, a custom registered modifier, with two arguments, then send that modifier output through `JSON.strigify`. Then, the entire output will be modified to `lower`case.
 
-Note that modifiers are stacked even when calling partials, and named segments. The only exception are [custom functions](#custom--).
+Note that modifiers are stacked even when calling partials, and named segments.
 
 ### Core Modifiers
 
@@ -401,14 +407,15 @@ Note that modifiers are stacked even when calling partials, and named segments. 
 * `upper` : convert all characters to upper case
 * `lower` : convert all characters to lower case
 * `mask([char])`  : change all characters into the specified `char`, or `*`
-* `lpad([n[,char]])` : pad the given string `n` characters to the left
-* `rpad([n[,char]])` : pad the given string `n` characters to the right
+* `padLeft([n[,char]])` : pad the given string `n` characters to the left
+* `padRight([n[,char]])` : pad the given string `n` characters to the right
+* `substr([from[,to]])` : extract part of the output value as string
 
 ### Custom Modifiers
 
-Modifiers may be globally registered through the `Engine` class. A modifier is a function receiving a a value, and optionally extra arguments, returning a string.
+Modifiers may be globally registered through the `Engine` class. A modifier is a function receiving a value, and optionally extra arguments, returning a string.
 
-**Note:** Modifiers are synchronous only. Use **Custom Segments** for asynchronous handlers.
+**Note:** Modifiers are synchronous only. Use [Custom Segments](#custom--) or [call functions via context paths](#functions) for asynchronous handlers.
 
 **Example**
 
@@ -444,6 +451,8 @@ or
   </dl>
 {?{/}}
 ```
+
+**Note**: the last template will invoke the `autoURL` modifier **5** times.
 
 
 ## Public API

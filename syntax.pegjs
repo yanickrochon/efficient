@@ -211,7 +211,7 @@ typedSegmentSelfClosing
  = '{' type:segmentType '{' space* ctx:segmentContext? space* expr:expression space* '/' space* '}' space* modifiers:modifiers? space* '}' { return enterSegment(type, true), { type:type, context:ctx, expression:expr, modifiers:modifiers || [], closing:true }; }
 
 typedSegmentNext
- = '{' type:segmentType segmentType '{' space* expr:expression? space* '}' space* modifiers:modifiers? space* '}' { return nextSegment(type, !!expr), { type:type, expression:expr, modifier:modifiers || [], next:true }; }
+ = '{' type:segmentType segmentType '{' space* expr:expression? space* '}' space* modifiers:modifiers? space* '}' { return nextSegment(type, !!expr), { type:type, expression:expr, modifiers:modifiers || [], next:true }; }
 
 typedSegmentClose
  = '{' type:segmentType '{' space* '/' space* '}' space* '}'  { return exitSegment(type), { type:type, closing:true }; }

@@ -27,13 +27,13 @@
   "dependencies": {
     "entities": "^1.1.1",
     "error-factory": "0.1.6",
-    "js-beautify": "^1.5.10",
+    "js-beautify": "^1.6.3",
     "string-padder": "^1.0.3"
   },
   "devDependencies": {
-    "istanbul": "^0.4.2",
-    "mocha": "^2.3.4",
-    "should": "^8.1.1"
+    "istanbul": "^0.4.3",
+    "mocha": "^2.5.3",
+    "should": "^9.0.0"
   },
   "license": "MIT"
 }

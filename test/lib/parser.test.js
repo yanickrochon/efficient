@@ -1,17 +1,13 @@
-
-
+'use strict';
 
 describe('Test Parser', function () {
 
-  var should = require('should');
-
-  var Parser = require('../../lib/parser');
-
+  const Parser = require('../../lib/parser');
 
   this.timeout(3000);
 
   it('should parse null or empty string', function () {
-    var segments = Parser.parse('');
+    const segments = Parser.parse('');
 
     segments.should.be.instanceof(Array).and.have.lengthOf(0);
   });
@@ -32,9 +28,8 @@ describe('Test Parser', function () {
   describe('Test text segment', function () {
 
     it('should parse single line text segment', function () {
-      var str = 'Test string template';
-
-      var segments = Parser.parse(str);
+      const str = 'Test string template';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -63,7 +58,7 @@ describe('Test Parser', function () {
           '{{foo    }}',
           '{{   foo}}'
         ].map(function (str) {
-          var segments = Parser.parse(str);
+          const segments = Parser.parse(str);
 
           //console.log(JSON.stringify(segments, null, 2));
 
@@ -90,7 +85,7 @@ describe('Test Parser', function () {
         [
           '{{bar\\foo}}'
         ].map(function (str) {
-          var segments = Parser.parse(str);
+          const segments = Parser.parse(str);
 
           //console.log(JSON.stringify(segments, null, 2));
 
@@ -118,7 +113,7 @@ describe('Test Parser', function () {
         [
           '{{foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
-          var segments = Parser.parse(str);
+          const segments = Parser.parse(str);
 
           //console.log(JSON.stringify(segments, null, 2));
 
@@ -179,7 +174,7 @@ describe('Test Parser', function () {
         [
           '{{bar \\ foo}a|b()|c("Hello")|d(bar)}'
         ].map(function (str) {
-          var segments = Parser.parse(str);
+          const segments = Parser.parse(str);
 
           //console.log(JSON.stringify(segments, null, 2));
 
@@ -240,7 +235,7 @@ describe('Test Parser', function () {
         [
           'Hello {{foo}}'
         ].map(function (str) {
-          var segments = Parser.parse(str);
+          const segments = Parser.parse(str);
 
           segments.should.have.lengthOf(2);
 
@@ -274,8 +269,8 @@ describe('Test Parser', function () {
   describe('Test conditional segments', function () {
 
     it('should parse single segment', function () {
-      var str = '{?{true}}{?{/}}';
-      var segments = Parser.parse(str);
+      const str = '{?{true}}{?{/}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -297,8 +292,8 @@ describe('Test Parser', function () {
 
 
     it('should parse two segments', function () {
-      var str = '{?{true}}{??{null}}{?{/}}';
-      var segments = Parser.parse(str);
+      const str = '{?{true}}{??{null}}{?{/}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -356,8 +351,8 @@ describe('Test Parser', function () {
   describe('Test iterator segments', function () {
 
     it('should parse single segment', function () {
-      var str = '{@{true}}{@{/}}';
-      var segments = Parser.parse(str);
+      const str = '{@{true}}{@{/}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -404,8 +399,8 @@ describe('Test Parser', function () {
   describe('Test custom segments', function () {
 
     it('should parse single segment', function () {
-      var str = '{&{true /}}';
-      var segments = Parser.parse(str);
+      const str = '{&{true /}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -433,8 +428,8 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (str) {
-        var segments = Parser.parse(str);
-        var expectedCount = tests[str];
+        const segments = Parser.parse(str);
+        const expectedCount = tests[str];
 
         segments.should.have.lengthOf(expectedCount);
 
@@ -447,7 +442,7 @@ describe('Test Parser', function () {
           }
         ]);
 
-        for (var i = 1; i < expectedCount - 1; ++i) {
+        for (let i = 1; i < expectedCount - 1; ++i) {
           segments[i].type.should.equal('custom');
           segments[i].next.should.be.true;
         }
@@ -477,8 +472,8 @@ describe('Test Parser', function () {
   describe('Test named segments (declare)', function () {
 
     it('should parse single segment', function () {
-      var str = '{#{true}}{#{/}}';
-      var segments = Parser.parse(str);
+      const str = '{#{true}}{#{/}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -536,8 +531,8 @@ describe('Test Parser', function () {
   describe('Test named segments (render)', function () {
 
     it('should parse single segment', function () {
-      var str = '{+{true /}}';
-      var segments = Parser.parse(str);
+      const str = '{+{true /}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -571,8 +566,8 @@ describe('Test Parser', function () {
   describe('Test partial segments', function () {
 
     it('should parse single segment', function () {
-      var str = '{>{true /}}';
-      var segments = Parser.parse(str);
+      const str = '{>{true /}}';
+      const segments = Parser.parse(str);
 
       //console.log(JSON.stringify(segments, null, 2));
 
@@ -627,7 +622,7 @@ describe('Test Parser', function () {
       // the syntax is more flexible, now
       //+(function () { Parser.parse(str); }).should.throw();
 
-      var parsed = Parser.parse(str);
+      const parsed = Parser.parse(str);
 
       parsed.should.not.be.empty;
       parsed.forEach(function (segment) {
@@ -653,7 +648,7 @@ describe('Test Parser', function () {
       //console.log("*** TRYING MODIFIER PATTERN", str);
       //+(function () { Parser.parse(str); }).should.throw();
 
-      var parsed = Parser.parse(str);
+      const parsed = Parser.parse(str);
 
       parsed.should.not.be.empty;
       parsed.forEach(function (segment) {
@@ -684,8 +679,8 @@ describe('Test Parser', function () {
   describe('Testing expressions', function () {
 
     it('should parse numbers', function () {
-      var type = 'number';
-      var tests = {
+      const type = 'number';
+      const tests = {
         '{{2}}': 2,
         '{{2.345}}': 2.345,
         '{{+2.345}}': 2.345,
@@ -694,7 +689,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].expression[0].should.eql({
@@ -705,7 +700,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse strings', function () {
-      var tests = {
+      const tests = {
         '{{\'\'}}': '',
         '{{""}}': '',
         '{{" "}}': ' ',
@@ -713,7 +708,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (tpl) {
-        var parsed = Parser.parse(tpl);
+        const parsed = Parser.parse(tpl);
 
         parsed[0].expression[0].should.eql({
           type: 'string',
@@ -723,7 +718,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse operators', function () {
-      var tests = {
+      const tests = {
         '+':'+', '-':'-', '*':'*', '/':'/',
         '%':'%', '^':'^',
         '<':'<', '>':'>',
@@ -734,14 +729,14 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (operator) {
-        var expr = '{{1' + operator + '1}}';
-        var parsed = Parser.parse(expr);
+        const expr = '{{1' + operator + '1}}';
+        const parsed = Parser.parse(expr);
 
         parsed.should.have.lengthOf(1);
         parsed[0].should.have.ownProperty('type').and.equal('output');
         parsed[0].should.have.ownProperty('expression');
 
-        var parsedExpr = parsed[0].expression;
+        const parsedExpr = parsed[0].expression;
 
         parsedExpr[1].type.should.equal('operator');
         parsedExpr[1].value.should.equal(tests[operator]);
@@ -752,7 +747,7 @@ describe('Test Parser', function () {
       var tpl;
       var parsed;
 
-      for (var i=0; i<10; ++i) {
+      for (let i=0; i<10; ++i) {
         tpl = '{{' + '!'.repeat(i+1) + 'a}}';
 
         parsed = Parser.parse(tpl);
@@ -774,7 +769,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse simple math', function () {
-      var tests = {
+      const tests = {
         '{{2+2}}': [2, '+', 2],
         '{{2-2}}': [2, '-', 2],
         '{{2*2}}': [2, '*', 2],
@@ -788,9 +783,9 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
-        var values = parsed[0].expression.map(function (token) {
+        const values = parsed[0].expression.map(function (token) {
           switch (token.type) {
             case 'parenOpen': return '(';
             case 'parenClose': return ')';
@@ -804,13 +799,13 @@ describe('Test Parser', function () {
     });
 
     it('should parse string contatenation', function () {
-      var tests = {
+      const tests = {
         '{{"" + ""}}': '',
         '{{"foo" + "bar"}}': 'foobar'
       };
 
       Object.keys(tests).forEach(function (tpl) {
-        var parsed = Parser.parse(tpl);
+        const parsed = Parser.parse(tpl);
 
         parsed[0].expression.reduce(function (str, arg) {
           if (arg.type === 'string') {
@@ -822,8 +817,8 @@ describe('Test Parser', function () {
     })
 
     it('should parse reserved keywords', function () {
-      var type = 'reserved';
-      var tests = {
+      const type = 'reserved';
+      const tests = {
         '{{undefined}}': undefined,
         '{{null}}': null,
         '{{true}}': true,
@@ -835,7 +830,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].expression[0].should.eql({
@@ -846,8 +841,8 @@ describe('Test Parser', function () {
     });
 
     it('should parse contexts', function () {
-      var type = 'context';
-      var tests = {
+      const type = 'context';
+      const tests = {
         '{{foo}}': 'foo',
         '{{foo.bar}}': 'foo.bar',
         '{{foo.bar.buz}}': 'foo.bar.buz',
@@ -855,7 +850,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].expression[0].should.eql({
@@ -868,8 +863,8 @@ describe('Test Parser', function () {
     });
 
     it('should parse callable contexts', function () {
-      var type = 'context';
-      var tests = {
+      const type = 'context';
+      const tests = {
         '{{foo()}}': { path:'foo', args:[] },
         '{{foo.bar()}}': {path:'foo.bar', args:[] },
         '{{foo(1)}}': { path:'foo', args:[[{ type:'number', value:1 }]] },
@@ -878,7 +873,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].expression[0].should.eql({
@@ -894,7 +889,7 @@ describe('Test Parser', function () {
   describe('Testing contexts', function () {
 
     it('should parse simple path', function () {
-      var parsed = Parser.parse('{{foo.bar.buz}}');
+      const parsed = Parser.parse('{{foo.bar.buz}}');
 
       parsed.should.have.lengthOf(1);
       parsed[0].should.have.ownProperty('type').equal('output');
@@ -905,7 +900,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse path with properties', function () {
-      var parsed = Parser.parse('{{foo.bar:buz.meh}}');
+      const parsed = Parser.parse('{{foo.bar:buz.meh}}');
 
       parsed.should.have.lengthOf(1);
       parsed[0].should.have.ownProperty('type').equal('output');
@@ -917,7 +912,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse path with args', function () {
-      var parsed = Parser.parse('{{foo.bar(1, "a", a.b(true))}}');
+      const parsed = Parser.parse('{{foo.bar(1, "a", a.b(true))}}');
 
       parsed.should.have.lengthOf(1);
       parsed[0].should.have.ownProperty('type').equal('output');
@@ -949,7 +944,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse path with properties and args', function () {
-      var parsed = Parser.parse('{{foo.bar:buz.meh(1, "a", a:b(true))}}');
+      const parsed = Parser.parse('{{foo.bar:buz.meh(1, "a", a:b(true))}}');
 
       parsed.should.have.lengthOf(1);
       parsed[0].should.have.ownProperty('type').equal('output');
@@ -988,12 +983,12 @@ describe('Test Parser', function () {
   describe('Testing modifiers', function() {
 
     it('should parse modifier without args', function () {
-      var tests = {
+      const tests = {
         '{{foo}a}': { name:'a', args:[] }
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].modifiers.should.eql([
@@ -1003,13 +998,13 @@ describe('Test Parser', function () {
     });
 
     it('should parse modifier with args', function () {
-      var tests = {
+      const tests = {
         '{{foo}a()}': { name:'a', args:[] },
         '{{foo}a(1)}': { name:'a', args:[[{ type:'number', value:1 }]] }
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].modifiers.should.eql([
@@ -1019,7 +1014,7 @@ describe('Test Parser', function () {
     });
 
     it('should parse chainable modifiers', function () {
-      var tests = {
+      const tests = {
         '{{foo}a|b()}': [ { name:'a', args:[] }, { name:'b', args:[] } ],
         '{{foo}a|b(1)}': [ { name:'a', args:[] }, { name:'b', args:[[{ type:'number', value:1 }]] } ],
         '{{foo}a|b(1)|c}': [ { name:'a', args:[] }, { name:'b', args:[[{ type:'number', value:1 }]] }, { name:'c', args:[] } ],
@@ -1027,7 +1022,7 @@ describe('Test Parser', function () {
       };
 
       Object.keys(tests).forEach(function (expr) {
-        var parsed = Parser.parse(expr);
+        const parsed = Parser.parse(expr);
 
         //console.log(JSON.stringify(parsed, null, 2));
         parsed[0].modifiers.should.eql(tests[expr]);
